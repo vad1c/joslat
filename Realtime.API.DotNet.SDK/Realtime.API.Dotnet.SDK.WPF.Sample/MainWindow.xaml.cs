@@ -203,7 +203,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
                 string filePath = System.IO.Path.Combine(Environment.CurrentDirectory, "temp.txt");
 
                 // Write the date and content to a text file
-                //File.AppendAllText(filePath, $"Date: {date}\nContent: {content}\n\n");
+                File.AppendAllText(filePath, $"Date: {date}\nContent: {content}\n\n");
 
                 // Open the text file in Notepad
                 Process.Start("notepad.exe", filePath);
