@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
+using Realtime.API.Dotnet.SDK.Core;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net.WebSockets;
@@ -20,11 +22,16 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
     /// </summary>
     public partial class MainWindow : Window
     {
+        public ObservableCollection<string> chatMessages = new ObservableCollection<string>();
+
+        
         public MainWindow()
         {
             InitializeComponent();
-        }
 
+            //this.StartSpeechRecognition.Click += StartSpeechRecognition_Click;
+            //this.StopSpeechRecognition.Click += StopSpeechRecognition_Click;
+        }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -32,9 +39,31 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
 
             realtimeApiWpfControl.OpenAiApiKey = openAiApiKey;
             realtimeApiWpfControl.RealtimeApiSdk.WebSocketResponse += RealtimeApiSdk_WebSocketResponse;
+            realtimeApiWpfControl.RealtimeApiSdk.TransactionOccurred += RealtimeApiSdk_TransactionOccurred;
+            
+            realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.SoundWave;
 
             RegisterWeatherFunctionCall();
             RegisterNotepadFunctionCall();
+
+            //ChatListBox.ItemsSource = chatMessages;
+        }
+
+        private void RealtimeApiSdk_TransactionOccurred(object? sender, TransactionOccurredEventArgs e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+        private void StartSpeechRecognition_Click(object sender, RoutedEventArgs e)
+        {
+            realtimeApiWpfControl.StartSpeechRecognition();
+        }
+
+
+        private void StopSpeechRecognition_Click(object sender, RoutedEventArgs e)
+        {
+            // Stop the ripple effect.
+            realtimeApiWpfControl.StopSpeechRecognition();
         }
 
         private void RealtimeApiSdk_WebSocketResponse(object? sender, WebSocketResponseEventArgs e)
@@ -246,5 +275,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             Console.WriteLine($"Text written to {filePath}");
         }
         #endregion
+
+        
     }
 }

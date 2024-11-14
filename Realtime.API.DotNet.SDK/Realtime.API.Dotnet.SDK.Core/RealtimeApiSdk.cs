@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Newtonsoft.Json.Linq;
 using System.Transactions;
+using NAudio.CoreAudioApi;
+using Realtime.API.Dotnet.SDK.Core.Events;
 
 
 namespace Realtime.API.Dotnet.SDK.Core
@@ -25,7 +27,6 @@ namespace Realtime.API.Dotnet.SDK.Core
         private ClientWebSocket webSocketClient;
         private JArray functionRegistries;
 
-        private bool isRunning = false;
         private bool isPlayingAudio = false;//The icon indicates whether the audio is playing.
         private bool isUserSpeaking = false; //Indicate whether it is the user speaking.
         private bool isModelResponding = false; //Identify whether it is the model responding.
@@ -38,7 +39,13 @@ namespace Realtime.API.Dotnet.SDK.Core
 
         public event EventHandler<TransactionOccurredEventArgs> TransactionOccurred;
         public event EventHandler<WebSocketResponseEventArgs> WebSocketResponse;
+        public event EventHandler<EventArgs> SpeechStarted;
+        public event EventHandler<EventArgs> SpeechEnded;
+        public event EventHandler<EventArgs> PlaybackStarted;
+        public event EventHandler<EventArgs> PlaybackEnded;
 
+        public event EventHandler<AudioSentEventArgs> AudioSent;
+        public event EventHandler<AudioReceivedEventArgs> AudioReceived;
 
         public RealtimeApiSdk()
             : this("")
@@ -60,15 +67,45 @@ namespace Realtime.API.Dotnet.SDK.Core
             WebSocketResponse?.Invoke(this, e);
         }
 
+        protected virtual void OnSpeechStarted(EventArgs e)
+        {
+            SpeechStarted?.Invoke(this, e);
+        }
+
+        protected virtual void OnSpeechEnded(EventArgs e)
+        {
+            SpeechEnded?.Invoke(this, e);
+        }
+
+        protected virtual void OnPlaybackStarted(EventArgs e)
+        {
+            PlaybackStarted?.Invoke(this, e);
+        }
+
+        protected virtual void OnPlaybackEnded(EventArgs e)
+        {
+            PlaybackEnded?.Invoke(this, e);
+        }
+
+        protected virtual void OnAudioSent(AudioSentEventArgs e)
+        {
+            AudioSent?.Invoke(this, e);
+        }
+
+        protected virtual void OnAudioReceived(AudioReceivedEventArgs e)
+        {
+            AudioReceived?.Invoke(this, e);
+        }
+
         public string ApiKey { get; set; }
+
+        public bool IsRunning { get; private set; }
 
         public async void StartSpeechRecognitionAsync()
         {
-            if (!isRunning)
+            if (!IsRunning)
             {
-                isRunning = true;
-
-                //StartRippleEffect();
+                IsRunning = true;
 
                 await InitializeWebSocketAsync();
                 InitalizeWaveProvider();
@@ -82,11 +119,8 @@ namespace Realtime.API.Dotnet.SDK.Core
 
         public async void StopSpeechRecognitionAsync()
         {
-            if (isRunning)
+            if (IsRunning)
             {
-                // Stop the ripple effect.
-                //StopRippleEffect();
-
                 // The text is in Chinese and it translates to "Stop recording" in English.
                 StopAudioRecording();
 
@@ -113,7 +147,7 @@ namespace Realtime.API.Dotnet.SDK.Core
                 isModelResponding = false;
                 isRecording = false;
 
-                isRunning = false;
+                IsRunning = false;
             }
         }
 
@@ -204,10 +238,16 @@ namespace Realtime.API.Dotnet.SDK.Core
 
                 var messageBytes = Encoding.UTF8.GetBytes(audioMessage.ToString());
                 await webSocketClient.SendAsync(new ArraySegment<byte>(messageBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+
+                OnAudioSent(new AudioSentEventArgs(e.Buffer));
             };
 
             waveIn.StartRecording();
             isRecording = true;
+
+            OnTransactionOccurred(new TransactionOccurredEventArgs("Audo Playback started."));
+            OnPlaybackStarted(new EventArgs());
+
             Console.WriteLine("Audio recording started.");
         }
 
@@ -229,6 +269,9 @@ namespace Realtime.API.Dotnet.SDK.Core
             {
                 playbackCancellationTokenSource.Cancel();
                 Console.WriteLine("AI audio playback stopped due to user interruption.");
+
+                OnTransactionOccurred(new TransactionOccurredEventArgs("Audio Playback ended."));
+                OnPlaybackEnded(new EventArgs());
             }
         }
 
@@ -376,6 +419,9 @@ namespace Realtime.API.Dotnet.SDK.Core
             Console.WriteLine("User started speaking.");
             StopAudioPlayback();
             ClearAudioQueue();
+
+            OnTransactionOccurred(new TransactionOccurredEventArgs("Speech started."));
+            OnSpeechStarted(new EventArgs());
         }
 
         private void HandleUserSpeechStopped()
@@ -383,6 +429,9 @@ namespace Realtime.API.Dotnet.SDK.Core
             isUserSpeaking = false;
             Console.WriteLine("User stopped speaking. Processing audio queue...");
             ProcessAudioQueue();
+
+            OnTransactionOccurred(new TransactionOccurredEventArgs("Speech ended."));
+            OnSpeechEnded(new EventArgs());
         }
 
         private void ProcessAudioDelta(JObject json)
@@ -395,6 +444,8 @@ namespace Realtime.API.Dotnet.SDK.Core
                 var audioBytes = Convert.FromBase64String(base64Audio);
                 audioQueue.Enqueue(audioBytes);
                 isModelResponding = true;
+
+                OnAudioReceived(new AudioReceivedEventArgs(audioBytes));
                 StopAudioRecording();
             }
         }
