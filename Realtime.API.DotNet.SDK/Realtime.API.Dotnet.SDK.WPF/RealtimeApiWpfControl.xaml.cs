@@ -1,8 +1,10 @@
 using Realtime.API.Dotnet.SDK.Core;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Shapes;
 
 namespace Realtime.API.Dotnet.SDK.WPF
 {
@@ -25,7 +27,9 @@ namespace Realtime.API.Dotnet.SDK.WPF
         {
             //RealtimeApiSdk.TransactionOccurred += RealtimeApiSdk_TransactionOccurred;
 
-            voiceVisualEffect = WPF.VisualEffect.Cycle;
+            voiceVisualEffect = WPF.VisualEffect.SoundWave;
+            RippleEffect.Visibility = Visibility.Hidden;
+            WaveformContainer.Visibility = Visibility.Hidden;
         }
  
         public RealtimeApiSdk RealtimeApiSdk { get; private set; }
@@ -81,6 +85,7 @@ namespace Realtime.API.Dotnet.SDK.WPF
                     HandleCycleVisualVoiceEffect(enable);
                     break;
                 case WPF.VisualEffect.SoundWave:
+                    HandleWaveVisualVoiceEffect(enable);
                     break;
                 default:
                     break;
@@ -127,12 +132,41 @@ namespace Realtime.API.Dotnet.SDK.WPF
         {
             if (enable)
             {
-                
+                WaveformContainer.Visibility = Visibility.Visible;
+                foreach (var child in WaveformContainer.Children)
+                {
+                    if (child is Rectangle rect)
+                    {
+                        AnimateRectangleHeight(rect);
+                    }
+                }
             }
-            else
+            else 
             {
-               
+                WaveformContainer.Visibility = Visibility.Collapsed;
+                foreach (var child in WaveformContainer.Children)
+                {
+                    if (child is Rectangle rect)
+                    {
+                        rect.BeginAnimation(Rectangle.HeightProperty, null);
+                    }
+                }
             }
+        }
+
+        private void AnimateRectangleHeight(Rectangle rect)
+        {
+             Random _random = new Random();
+            DoubleAnimation heightAnimation = new DoubleAnimation
+            {
+                From = 10,
+                To = _random.Next(50, 150), 
+                Duration = TimeSpan.FromMilliseconds(300),
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+
+            rect.BeginAnimation(Rectangle.HeightProperty, heightAnimation);
         }
     }
 }

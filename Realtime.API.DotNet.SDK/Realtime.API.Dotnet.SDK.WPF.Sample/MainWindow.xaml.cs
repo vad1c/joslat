@@ -23,14 +23,37 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
     public partial class MainWindow : Window
     {
         public ObservableCollection<string> chatMessages = new ObservableCollection<string>();
+        private bool isPlaying = false;
 
-        
         public MainWindow()
         {
             InitializeComponent();
 
             //this.StartSpeechRecognition.Click += StartSpeechRecognition_Click;
             //this.StopSpeechRecognition.Click += StopSpeechRecognition_Click;
+        }
+
+        private void PlayPauseButton_Click(object sender, RoutedEventArgs e)
+        {
+            var playIcon = (System.Windows.Shapes.Path)PlayPauseButton.Template.FindName("PlayIcon", PlayPauseButton);
+            var pauseIcon = (System.Windows.Shapes.Path)PlayPauseButton.Template.FindName("PauseIcon", PlayPauseButton);
+
+            if (isPlaying)
+            {
+                playIcon.Visibility = Visibility.Visible;
+                pauseIcon.Visibility = Visibility.Collapsed;
+
+                realtimeApiWpfControl.StopSpeechRecognition();
+            }
+            else
+            {
+                playIcon.Visibility = Visibility.Collapsed;
+                pauseIcon.Visibility = Visibility.Visible;
+
+                realtimeApiWpfControl.StartSpeechRecognition();
+            }
+
+            isPlaying = !isPlaying;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -41,7 +64,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             realtimeApiWpfControl.RealtimeApiSdk.WebSocketResponse += RealtimeApiSdk_WebSocketResponse;
             realtimeApiWpfControl.RealtimeApiSdk.TransactionOccurred += RealtimeApiSdk_TransactionOccurred;
             
-            realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.SoundWave;
+            realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.Cycle;
 
             RegisterWeatherFunctionCall();
             RegisterNotepadFunctionCall();
