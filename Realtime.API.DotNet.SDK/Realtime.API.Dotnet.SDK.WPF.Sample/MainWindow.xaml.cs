@@ -58,7 +58,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            string openAiApiKey = Environment.GetEnvironmentVariable("OPEN_AI_REALTIME_API_TOKEN") ?? "";
+            string openAiApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? "";
 
             realtimeApiWpfControl.OpenAiApiKey = openAiApiKey;
             realtimeApiWpfControl.RealtimeApiSdk.WebSocketResponse += RealtimeApiSdk_WebSocketResponse;
