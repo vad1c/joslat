@@ -65,6 +65,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             realtimeApiWpfControl.RealtimeApiSdk.TransactionOccurred += RealtimeApiSdk_TransactionOccurred;
             
             realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.Cycle;
+            //realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.SoundWave;
 
             RegisterWeatherFunctionCall();
             RegisterNotepadFunctionCall();

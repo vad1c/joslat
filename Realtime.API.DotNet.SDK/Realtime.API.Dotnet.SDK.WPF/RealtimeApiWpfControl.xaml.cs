@@ -78,7 +78,7 @@ namespace Realtime.API.Dotnet.SDK.WPF
 
                 fadeOutAnimation.Completed += (s, e) =>
                 {
-                    WaveCanvas.Children.Clear(); // 动画完成后清空波纹
+                    WaveCanvas.Children.Clear();
                 };
 
                 foreach (var child in WaveCanvas.Children)
@@ -96,7 +96,7 @@ namespace Realtime.API.Dotnet.SDK.WPF
         {
             //RealtimeApiSdk.TransactionOccurred += RealtimeApiSdk_TransactionOccurred;
 
-            voiceVisualEffect = WPF.VisualEffect.SoundWave;
+            voiceVisualEffect = VoiceVisualEffect;
             RippleEffect.Visibility = Visibility.Hidden;
             WaveformContainer.Visibility = Visibility.Hidden;
         }
@@ -245,6 +245,7 @@ namespace Realtime.API.Dotnet.SDK.WPF
 
         private void StartAudioCapture()
         {
+            WaveCanvas.Visibility = Visibility.Visible;
             waveIn = new WaveInEvent
             {
                 WaveFormat = new WaveFormat(44100, 1)
