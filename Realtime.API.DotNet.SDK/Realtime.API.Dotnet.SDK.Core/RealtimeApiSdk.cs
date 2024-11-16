@@ -40,12 +40,13 @@ namespace Realtime.API.Dotnet.SDK.Core
         public event EventHandler<TransactionOccurredEventArgs> TransactionOccurred;
         public event EventHandler<WebSocketResponseEventArgs> WebSocketResponse;
         public event EventHandler<EventArgs> SpeechStarted;
-        public event EventHandler<EventArgs> SpeechEnded;
+        public event EventHandler<AudioEventArgs> SpeechEnded;
         public event EventHandler<EventArgs> PlaybackStarted;
+        public event EventHandler<AudioEventArgs> PlaybackAudioReceived;
         public event EventHandler<EventArgs> PlaybackEnded;
 
-        public event EventHandler<AudioSentEventArgs> AudioSent;
-        public event EventHandler<AudioReceivedEventArgs> AudioReceived;
+        public event EventHandler<AudioEventArgs> AudioSent;
+        public event EventHandler<AudioEventArgs> AudioReceived;
 
         public RealtimeApiSdk()
             : this("")
@@ -55,6 +56,12 @@ namespace Realtime.API.Dotnet.SDK.Core
         {
             ApiKey = apiKey;
             functionRegistries = new JArray();
+
+            waveIn = new WaveInEvent
+            {
+                WaveFormat = new WaveFormat(24000, 16, 1)
+            };
+            waveIn.DataAvailable += WaveIn_DataAvailable;
         }
 
         protected virtual void OnTransactionOccurred(TransactionOccurredEventArgs e)
@@ -72,7 +79,7 @@ namespace Realtime.API.Dotnet.SDK.Core
             SpeechStarted?.Invoke(this, e);
         }
 
-        protected virtual void OnSpeechEnded(EventArgs e)
+        protected virtual void OnSpeechEnded(AudioEventArgs e)
         {
             SpeechEnded?.Invoke(this, e);
         }
@@ -82,17 +89,22 @@ namespace Realtime.API.Dotnet.SDK.Core
             PlaybackStarted?.Invoke(this, e);
         }
 
+        protected virtual void OnPlaybackAudioReceived(AudioEventArgs e)
+        {
+            PlaybackAudioReceived?.Invoke(this, e);
+        }
+
         protected virtual void OnPlaybackEnded(EventArgs e)
         {
             PlaybackEnded?.Invoke(this, e);
         }
 
-        protected virtual void OnAudioSent(AudioSentEventArgs e)
+        protected virtual void OnAudioSent(AudioEventArgs e)
         {
             AudioSent?.Invoke(this, e);
         }
 
-        protected virtual void OnAudioReceived(AudioReceivedEventArgs e)
+        protected virtual void OnAudioReceived(AudioEventArgs e)
         {
             AudioReceived?.Invoke(this, e);
         }
@@ -215,38 +227,57 @@ namespace Realtime.API.Dotnet.SDK.Core
             }
         }
 
+        private async void WaveIn_DataAvailable(object? sender, WaveInEventArgs e)
+        {
+            //waveFileWriter.Write(e.Buffer, 0, e.BytesRecorded);
+            //waveFileWriter.Flush();
+
+            string base64Audio = Convert.ToBase64String(e.Buffer, 0, e.BytesRecorded);
+            var audioMessage = new JObject
+            {
+                ["type"] = "input_audio_buffer.append",
+                ["audio"] = base64Audio
+            };
+
+            var messageBytes = Encoding.UTF8.GetBytes(audioMessage.ToString());
+            await webSocketClient.SendAsync(new ArraySegment<byte>(messageBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+
+            OnAudioSent(new AudioEventArgs(e.Buffer));
+        }
+
         private async Task StartAudioRecordingAsync()
         {
-            waveIn = new WaveInEvent
-            {
-                WaveFormat = new WaveFormat(24000, 16, 1)
-            };
+            //waveIn = new WaveInEvent
+            //{
+            //    WaveFormat = new WaveFormat(24000, 16, 1)
+            //};
 
-            //waveFileWriter = new WaveFileWriter(outputFilePath, waveIn.WaveFormat);
+            ////waveFileWriter = new WaveFileWriter(outputFilePath, waveIn.WaveFormat);
 
-            waveIn.DataAvailable += async (s, e) =>
-            {
-                //waveFileWriter.Write(e.Buffer, 0, e.BytesRecorded);
-                //waveFileWriter.Flush();
+            //waveIn.DataAvailable += async (s, e) =>
+            //{
+            //    //waveFileWriter.Write(e.Buffer, 0, e.BytesRecorded);
+            //    //waveFileWriter.Flush();
 
-                string base64Audio = Convert.ToBase64String(e.Buffer, 0, e.BytesRecorded);
-                var audioMessage = new JObject
-                {
-                    ["type"] = "input_audio_buffer.append",
-                    ["audio"] = base64Audio
-                };
+            //    string base64Audio = Convert.ToBase64String(e.Buffer, 0, e.BytesRecorded);
+            //    var audioMessage = new JObject
+            //    {
+            //        ["type"] = "input_audio_buffer.append",
+            //        ["audio"] = base64Audio
+            //    };
 
-                var messageBytes = Encoding.UTF8.GetBytes(audioMessage.ToString());
-                await webSocketClient.SendAsync(new ArraySegment<byte>(messageBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+            //    var messageBytes = Encoding.UTF8.GetBytes(audioMessage.ToString());
+            //    await webSocketClient.SendAsync(new ArraySegment<byte>(messageBytes), WebSocketMessageType.Text, true, CancellationToken.None);
 
-                OnAudioSent(new AudioSentEventArgs(e.Buffer));
-            };
+            //    OnAudioSent(new AudioSentEventArgs(e.Buffer));
+            //};
 
             waveIn.StartRecording();
             isRecording = true;
 
             OnTransactionOccurred(new TransactionOccurredEventArgs("Audo Playback started."));
-            OnPlaybackStarted(new EventArgs());
+            //OnPlaybackStarted(new EventArgs());
+            OnSpeechStarted(new EventArgs());
 
             Console.WriteLine("Audio recording started.");
         }
@@ -256,7 +287,6 @@ namespace Realtime.API.Dotnet.SDK.Core
             if (waveIn != null && isRecording)
             {
                 waveIn.StopRecording();
-                waveIn.Dispose();
 
                 isRecording = false;
                 Console.WriteLine("Recording stopped to prevent echo.");
@@ -311,6 +341,7 @@ namespace Realtime.API.Dotnet.SDK.Core
             {
                 var result = await webSocketClient.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
                 var chunk = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                OnPlaybackAudioReceived(new AudioEventArgs(buffer));
                 messageBuffer.Append(chunk);
 
                 // For storing complete messages.
@@ -431,7 +462,6 @@ namespace Realtime.API.Dotnet.SDK.Core
             ProcessAudioQueue();
 
             OnTransactionOccurred(new TransactionOccurredEventArgs("Speech ended."));
-            OnSpeechEnded(new EventArgs());
         }
 
         private void ProcessAudioDelta(JObject json)
@@ -445,7 +475,7 @@ namespace Realtime.API.Dotnet.SDK.Core
                 audioQueue.Enqueue(audioBytes);
                 isModelResponding = true;
 
-                OnAudioReceived(new AudioReceivedEventArgs(audioBytes));
+                OnAudioReceived(new AudioEventArgs(audioBytes));
                 StopAudioRecording();
             }
         }
@@ -457,6 +487,7 @@ namespace Realtime.API.Dotnet.SDK.Core
                 waveIn.StartRecording();
                 isRecording = true;
                 Console.WriteLine("Recording resumed after audio playback.");
+                OnSpeechStarted(new EventArgs());
             }
         }
 
@@ -471,7 +502,9 @@ namespace Realtime.API.Dotnet.SDK.Core
                 {
                     try
                     {
+                        OnPlaybackStarted(new EventArgs());
                         using var waveOut = new WaveOutEvent { DesiredLatency = 200 };
+                        waveOut.PlaybackStopped += (s, e) => { OnPlaybackEnded(new EventArgs()); };
                         waveOut.Init(bufferedWaveProvider);
                         waveOut.Play();
 
@@ -501,5 +534,9 @@ namespace Realtime.API.Dotnet.SDK.Core
             }
         }
 
+        private void WaveOut_PlaybackStopped(object? sender, StoppedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
