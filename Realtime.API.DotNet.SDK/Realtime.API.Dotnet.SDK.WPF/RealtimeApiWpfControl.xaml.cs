@@ -26,6 +26,23 @@ namespace Realtime.API.Dotnet.SDK.WPF
 
             RealtimeApiSdk = new RealtimeApiSdk();
             RealtimeApiSdk.PlaybackAudioReceived += RealtimeApiSdk_PlaybackAudioReceived;
+
+            RealtimeApiSdk.SpeechStarted += (s, e) =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    HandleCycleVisualVoiceEffect(true);
+                });
+            };
+
+            RealtimeApiSdk.SpeechEnded += (s, e) =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    HandleCycleVisualVoiceEffect(false);
+                });
+            };
+
         }
 
         private void RealtimeApiSdk_PlaybackAudioReceived(object? sender, AudioEventArgs e)
@@ -168,6 +185,11 @@ namespace Realtime.API.Dotnet.SDK.WPF
 
         private void HandleCycleVisualVoiceEffect(bool enable)
         {
+            if (voiceVisualEffect == WPF.VisualEffect.SoundWave) 
+            {
+                return;
+            }
+
             if (enable)
             {
                 // Ensure the ripples are visible.

@@ -83,7 +83,17 @@ namespace Realtime.API.Dotnet.SDK.Core
         {
             SpeechEnded?.Invoke(this, e);
         }
-
+        protected virtual void OnSpeechActivity(bool isActive, AudioEventArgs? audioArgs = null)
+        {
+            if (isActive)
+            {
+                SpeechStarted?.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                SpeechEnded?.Invoke(this, audioArgs ?? new AudioEventArgs(new byte[0]));
+            }
+        }
         protected virtual void OnPlaybackStarted(EventArgs e)
         {
             PlaybackStarted?.Invoke(this, e);
@@ -453,6 +463,7 @@ namespace Realtime.API.Dotnet.SDK.Core
 
             OnTransactionOccurred(new TransactionOccurredEventArgs("Speech started."));
             OnSpeechStarted(new EventArgs());
+            OnSpeechActivity(true);
         }
 
         private void HandleUserSpeechStopped()
@@ -462,6 +473,7 @@ namespace Realtime.API.Dotnet.SDK.Core
             ProcessAudioQueue();
 
             OnTransactionOccurred(new TransactionOccurredEventArgs("Speech ended."));
+            OnSpeechActivity(false, new AudioEventArgs(new byte[0]));
         }
 
         private void ProcessAudioDelta(JObject json)
@@ -477,6 +489,7 @@ namespace Realtime.API.Dotnet.SDK.Core
 
                 OnAudioReceived(new AudioEventArgs(audioBytes));
                 StopAudioRecording();
+                OnSpeechActivity(true);
             }
         }
 
@@ -488,6 +501,7 @@ namespace Realtime.API.Dotnet.SDK.Core
                 isRecording = true;
                 Console.WriteLine("Recording resumed after audio playback.");
                 OnSpeechStarted(new EventArgs());
+                OnSpeechActivity(true);
             }
         }
 
