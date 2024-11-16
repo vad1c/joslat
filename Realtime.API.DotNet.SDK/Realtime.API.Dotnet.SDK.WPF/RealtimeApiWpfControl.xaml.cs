@@ -1,3 +1,4 @@
+using NAudio.Wave;
 using Realtime.API.Dotnet.SDK.Core;
 using System;
 using System.Windows;
@@ -15,6 +16,8 @@ namespace Realtime.API.Dotnet.SDK.WPF
     {
         private const string apiKey = "";
         private VisualEffect voiceVisualEffect;
+        private WaveInEvent waveIn; 
+        private List<float> audioBuffer = new List<float>();
 
         public RealtimeApiWpfControl()
         {
@@ -85,7 +88,11 @@ namespace Realtime.API.Dotnet.SDK.WPF
                     HandleCycleVisualVoiceEffect(enable);
                     break;
                 case WPF.VisualEffect.SoundWave:
-                    HandleWaveVisualVoiceEffect(enable);
+                    //HandleWaveVisualVoiceEffect(enable);
+                    if (enable)
+                        StartAudioCapture();
+                    else
+                        StopAudioCapture();
                     break;
                 default:
                     break;
@@ -167,6 +174,77 @@ namespace Realtime.API.Dotnet.SDK.WPF
             };
 
             rect.BeginAnimation(Rectangle.HeightProperty, heightAnimation);
+        }
+
+
+        private void StartAudioCapture()
+        {
+            waveIn = new WaveInEvent
+            {
+                WaveFormat = new WaveFormat(44100, 1) // 设置采样率为 44100Hz，单声道
+            };
+
+            // 注册数据可用事件
+            waveIn.DataAvailable += OnDataAvailable;
+            waveIn.StartRecording();
+        }
+
+        private void OnDataAvailable(object sender, WaveInEventArgs e)
+        {
+            for (int i = 0; i < e.BytesRecorded; i += 2)
+            {
+                short value = BitConverter.ToInt16(e.Buffer, i);
+                float normalized = value / 32768f; 
+                audioBuffer.Add(normalized);
+            }
+
+            Dispatcher.Invoke(() => DrawWaveform());
+        }
+
+        private void DrawWaveform()
+        {
+            WaveCanvas.Children.Clear();
+
+            if (audioBuffer.Count == 0)
+                return;
+
+            double canvasWidth = WaveCanvas.ActualWidth;
+            double canvasHeight = WaveCanvas.ActualHeight;
+
+            double centerY = canvasHeight / 2;
+            double step = canvasWidth / audioBuffer.Count;
+
+            Polyline waveform = new Polyline
+            {
+                Stroke = Brushes.LimeGreen,
+                StrokeThickness = 2
+            };
+
+            for (int i = 0; i < audioBuffer.Count; i++)
+            {
+                double x = i * step;
+                double y = centerY - (audioBuffer[i] * centerY);
+                waveform.Points.Add(new Point(x, y));
+            }
+
+            WaveCanvas.Children.Add(waveform);
+
+            // 清空旧的音频缓冲，保留最近一部分数据
+            if (audioBuffer.Count > 1000)
+                audioBuffer.RemoveRange(0, audioBuffer.Count - 1000);
+        }
+
+        private void StopAudioCapture()
+        {
+            if (waveIn != null)
+            {
+                waveIn.StopRecording();
+                waveIn.Dispose();
+                waveIn = null; 
+            }
+
+            WaveformContainer.Visibility = Visibility.Hidden; 
+            WaveCanvas.Children.Clear(); 
         }
     }
 }

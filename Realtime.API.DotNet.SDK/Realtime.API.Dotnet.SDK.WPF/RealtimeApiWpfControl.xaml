@@ -7,12 +7,14 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="1000" Loaded="UserControl_Loaded">
     <Grid>
-        <Ellipse x:Name="RippleEffect" Grid.Row="0" Grid.Column="0" Width="100" Height="100" Fill="LightBlue" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Ellipse x:Name="RippleEffect" Grid.Row="0" Grid.Column="0" Width="100" Height="100" Fill="LightBlue" 
+                 Visibility="Hidden" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Ellipse.RenderTransform>
                 <ScaleTransform x:Name="RippleScale" ScaleX="1" ScaleY="1" CenterX="50" CenterY="50"/>
             </Ellipse.RenderTransform>
         </Ellipse>
-        <UniformGrid x:Name="WaveformContainer" Rows="1" Columns="100" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Canvas x:Name="WaveCanvas" Background="Black" Height="200" Margin="10" />
+        <UniformGrid x:Name="WaveformContainer" Rows="1" Columns="100" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden">
             <Rectangle Width="3" Height="20" Fill="Turquoise" Margin="2"/>
             <Rectangle Width="3" Height="20" Fill="Turquoise" Margin="2"/>
             <Rectangle Width="3" Height="20" Fill="Turquoise" Margin="2"/>
