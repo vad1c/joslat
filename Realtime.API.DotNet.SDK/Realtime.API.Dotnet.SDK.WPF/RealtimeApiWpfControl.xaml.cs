@@ -1,5 +1,6 @@
 using NAudio.Wave;
 using Realtime.API.Dotnet.SDK.Core;
+using Realtime.API.Dotnet.SDK.Core.Events;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,7 +25,72 @@ namespace Realtime.API.Dotnet.SDK.WPF
             InitializeComponent();
 
             RealtimeApiSdk = new RealtimeApiSdk();
+            RealtimeApiSdk.PlaybackAudioReceived += RealtimeApiSdk_PlaybackAudioReceived;
         }
+
+        private void RealtimeApiSdk_PlaybackAudioReceived(object? sender, AudioEventArgs e)
+        {
+            if (e.Waveform != null)
+            {
+                Dispatcher.Invoke(() => DrawWaveform(e.Waveform));
+            }
+        }
+        private void DrawWaveform(float[] waveform)
+        {
+            WaveCanvas.Children.Clear();
+
+            double canvasWidth = WaveCanvas.ActualWidth;
+            double canvasHeight = WaveCanvas.ActualHeight;
+
+            if (canvasWidth == 0 || canvasHeight == 0 || waveform == null)
+                return;
+
+            Polyline polyline = new Polyline
+            {
+                Stroke = Brushes.LimeGreen,
+                StrokeThickness = 2
+            };
+
+            double step = canvasWidth / waveform.Length;
+            double centerY = canvasHeight / 2;
+
+            for (int i = 0; i < waveform.Length; i++)
+            {
+                double x = i * step;
+                double y = centerY - (waveform[i] * centerY);
+                polyline.Points.Add(new Point(x, y));
+            }
+
+            WaveCanvas.Children.Add(polyline);
+        }
+
+        private void FadeOutWaveform()
+        {
+            if (WaveCanvas.Children.Count > 0)
+            {
+                var fadeOutAnimation = new DoubleAnimation
+                {
+                    From = 1.0,
+                    To = 0.0,
+                    Duration = TimeSpan.FromSeconds(1),
+                    FillBehavior = FillBehavior.Stop
+                };
+
+                fadeOutAnimation.Completed += (s, e) =>
+                {
+                    WaveCanvas.Children.Clear(); // 动画完成后清空波纹
+                };
+
+                foreach (var child in WaveCanvas.Children)
+                {
+                    if (child is UIElement element)
+                    {
+                        element.BeginAnimation(UIElement.OpacityProperty, fadeOutAnimation);
+                    }
+                }
+            }
+        }
+
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
@@ -181,10 +247,9 @@ namespace Realtime.API.Dotnet.SDK.WPF
         {
             waveIn = new WaveInEvent
             {
-                WaveFormat = new WaveFormat(44100, 1) // 设置采样率为 44100Hz，单声道
+                WaveFormat = new WaveFormat(44100, 1)
             };
 
-            // 注册数据可用事件
             waveIn.DataAvailable += OnDataAvailable;
             waveIn.StartRecording();
         }

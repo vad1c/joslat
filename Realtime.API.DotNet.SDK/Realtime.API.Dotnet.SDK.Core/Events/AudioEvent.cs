@@ -9,6 +9,7 @@ namespace Realtime.API.Dotnet.SDK.Core.Events
     public class AudioEventArgs : EventArgs
     {
         public byte[] AudioBuffer { get; private set; }
+        public float[]? Waveform { get; set; }
 
         public AudioEventArgs()
             : this(new byte[0])

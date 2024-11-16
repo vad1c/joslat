@@ -513,6 +513,9 @@ namespace Realtime.API.Dotnet.SDK.Core
                             if (audioQueue.TryDequeue(out var audioData))
                             {
                                 bufferedWaveProvider.AddSamples(audioData, 0, audioData.Length);
+
+                                float[] waveform = ExtractWaveform(audioData);
+                                OnPlaybackAudioReceived(new AudioEventArgs(audioData) { Waveform = waveform });
                             }
                             else
                             {
@@ -532,6 +535,15 @@ namespace Realtime.API.Dotnet.SDK.Core
                     }
                 });
             }
+        }
+
+        private float[] ExtractWaveform(byte[] audioData)
+        {
+            short[] samples = new short[audioData.Length / 2];
+            Buffer.BlockCopy(audioData, 0, samples, 0, audioData.Length);
+
+            float[] waveform = samples.Select(s => s / 32768f).ToArray(); 
+            return waveform;
         }
 
         private void WaveOut_PlaybackStopped(object? sender, StoppedEventArgs e)
