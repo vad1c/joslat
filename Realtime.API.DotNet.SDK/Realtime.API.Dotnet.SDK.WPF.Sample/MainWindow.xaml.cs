@@ -28,9 +28,31 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
         public MainWindow()
         {
             InitializeComponent();
+        }
 
-            //this.StartSpeechRecognition.Click += StartSpeechRecognition_Click;
-            //this.StopSpeechRecognition.Click += StopSpeechRecognition_Click;
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            string openAiApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? "";
+
+            realtimeApiWpfControl.OpenAiApiKey = openAiApiKey;
+            realtimeApiWpfControl.RealtimeApiSdk.WebSocketResponse += RealtimeApiSdk_WebSocketResponse;
+            realtimeApiWpfControl.RealtimeApiSdk.TransactionOccurred += RealtimeApiSdk_TransactionOccurred;
+
+            //realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.Cycle;
+            realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.SoundWave;
+
+            RegisterWeatherFunctionCall();
+            RegisterNotepadFunctionCall();
+        }
+
+        private void RealtimeApiSdk_TransactionOccurred(object? sender, TransactionOccurredEventArgs e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+        private void StartSpeechRecognition_Click(object sender, RoutedEventArgs e)
+        {
+            realtimeApiWpfControl.StartSpeechRecognition();
         }
 
         private void PlayPauseButton_Click(object sender, RoutedEventArgs e)
@@ -56,39 +78,6 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             isPlaying = !isPlaying;
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            string openAiApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? "";
-
-            realtimeApiWpfControl.OpenAiApiKey = openAiApiKey;
-            realtimeApiWpfControl.RealtimeApiSdk.WebSocketResponse += RealtimeApiSdk_WebSocketResponse;
-            realtimeApiWpfControl.RealtimeApiSdk.TransactionOccurred += RealtimeApiSdk_TransactionOccurred;
-            
-            realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.Cycle;
-            //realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.SoundWave;
-
-            RegisterWeatherFunctionCall();
-            RegisterNotepadFunctionCall();
-
-            //ChatListBox.ItemsSource = chatMessages;
-        }
-
-        private void RealtimeApiSdk_TransactionOccurred(object? sender, TransactionOccurredEventArgs e)
-        {
-            Console.WriteLine(e.Message);
-        }
-
-        private void StartSpeechRecognition_Click(object sender, RoutedEventArgs e)
-        {
-            realtimeApiWpfControl.StartSpeechRecognition();
-        }
-
-
-        private void StopSpeechRecognition_Click(object sender, RoutedEventArgs e)
-        {
-            // Stop the ripple effect.
-            realtimeApiWpfControl.StopSpeechRecognition();
-        }
 
         private void RealtimeApiSdk_WebSocketResponse(object? sender, WebSocketResponseEventArgs e)
         {
@@ -300,6 +289,6 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
         }
         #endregion
 
-        
+
     }
 }

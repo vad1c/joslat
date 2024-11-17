@@ -13,6 +13,8 @@
                 <ScaleTransform x:Name="RippleScale" ScaleX="1" ScaleY="1" CenterX="50" CenterY="50"/>
             </Ellipse.RenderTransform>
         </Ellipse>
+        <local:CircularWaveformCanvas x:Name="cycleWaveformCanvas" Background="Black"/>
+        
         <Canvas x:Name="CircleWaveCanvas"
                 Grid.Row="1"
                 Background="Transparent"

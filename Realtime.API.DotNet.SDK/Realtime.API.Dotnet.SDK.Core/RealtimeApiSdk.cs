@@ -21,7 +21,7 @@ namespace Realtime.API.Dotnet.SDK.Core
     public class RealtimeApiSdk
     {
         private const string openApiUrl = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01";
-        private BufferedWaveProvider bufferedWaveProvider;
+        private BufferedWaveProvider waveInBufferedWaveProvider;
         private WaveInEvent waveIn;
 
         private ClientWebSocket webSocketClient;
@@ -199,7 +199,7 @@ namespace Realtime.API.Dotnet.SDK.Core
 
         private void InitalizeWaveProvider()
         {
-            bufferedWaveProvider = new BufferedWaveProvider(new WaveFormat(24000, 16, 1))
+            waveInBufferedWaveProvider = new BufferedWaveProvider(new WaveFormat(24000, 16, 1))
             {
                 BufferDuration = TimeSpan.FromSeconds(5), // Adjust the buffer duration.
                 DiscardOnBufferOverflow = true
@@ -519,17 +519,17 @@ namespace Realtime.API.Dotnet.SDK.Core
                         OnPlaybackStarted(new EventArgs());
                         using var waveOut = new WaveOutEvent { DesiredLatency = 200 };
                         waveOut.PlaybackStopped += (s, e) => { OnPlaybackEnded(new EventArgs()); };
-                        waveOut.Init(bufferedWaveProvider);
+                        waveOut.Init(waveInBufferedWaveProvider);
                         waveOut.Play();
 
                         while (!playbackCancellationTokenSource.Token.IsCancellationRequested)
                         {
                             if (audioQueue.TryDequeue(out var audioData))
                             {
-                                bufferedWaveProvider.AddSamples(audioData, 0, audioData.Length);
+                                waveInBufferedWaveProvider.AddSamples(audioData, 0, audioData.Length);
 
-                                float[] waveform = ExtractWaveform(audioData);
-                                OnPlaybackAudioReceived(new AudioEventArgs(audioData) { Waveform = waveform });
+                                //float[] waveform = ExtractWaveform(audioData);
+                                OnPlaybackAudioReceived(new AudioEventArgs(audioData));
                             }
                             else
                             {
@@ -551,14 +551,14 @@ namespace Realtime.API.Dotnet.SDK.Core
             }
         }
 
-        private float[] ExtractWaveform(byte[] audioData)
-        {
-            short[] samples = new short[audioData.Length / 2];
-            Buffer.BlockCopy(audioData, 0, samples, 0, audioData.Length);
+        //private float[] ExtractWaveform(byte[] audioData)
+        //{
+        //    short[] samples = new short[audioData.Length / 2];
+        //    Buffer.BlockCopy(audioData, 0, samples, 0, audioData.Length);
 
-            float[] waveform = samples.Select(s => s / 32768f).ToArray(); 
-            return waveform;
-        }
+        //    float[] waveform = samples.Select(s => s / 32768f).ToArray();
+        //    return waveform;
+        //}
 
         private void WaveOut_PlaybackStopped(object? sender, StoppedEventArgs e)
         {
