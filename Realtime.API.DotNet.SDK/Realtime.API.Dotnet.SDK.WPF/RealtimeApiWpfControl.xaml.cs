@@ -4,6 +4,7 @@ using Realtime.API.Dotnet.SDK.Core.Events;
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
@@ -62,6 +63,7 @@ namespace Realtime.API.Dotnet.SDK.WPF
             //WaveformContainer.Visibility = Visibility.Hidden;
             //waveformCanvas.Visibility = Visibility.Hidden;
 
+            DrawDefaultVisualEffect(voiceVisualEffect);
         }
 
        
@@ -291,6 +293,72 @@ namespace Realtime.API.Dotnet.SDK.WPF
 
             WaveCanvas.Children.Add(polyline);
         }
+
+        private void DrawDefaultVisualEffect(VisualEffect effect)
+        {
+            WaveCanvas.Children.Clear();
+
+            switch (effect)
+            {
+                case WPF.VisualEffect.Cycle:
+                    DrawCircle();
+                    break;
+
+                case WPF.VisualEffect.SoundWave:
+                    DrawLine();
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        private void DrawCircle(double sizeFactor = 0.9)
+        {
+            double canvasWidth = cycleWaveformCanvas.ActualWidth;
+            double canvasHeight = cycleWaveformCanvas.ActualHeight;
+            if (canvasWidth == 0 || canvasHeight == 0)
+                return;
+
+            double radius = Math.Min(canvasWidth, canvasHeight) * sizeFactor / 2; 
+            double centerX = canvasWidth / 2;
+            double centerY = canvasHeight / 2;
+
+            Ellipse circle = new Ellipse
+            {
+                Width = radius * 2,
+                Height = radius * 2,
+                Stroke = Brushes.LimeGreen,
+                StrokeThickness = 2
+            };
+
+            Canvas.SetLeft(circle, centerX - radius);
+            Canvas.SetTop(circle, centerY - radius);
+
+            cycleWaveformCanvas.Children.Add(circle);
+        }
+
+
+        private void DrawLine()
+        {
+            double canvasWidth = WaveCanvas.ActualWidth;
+            double canvasHeight = WaveCanvas.ActualHeight;
+
+            if (canvasWidth == 0 || canvasHeight == 0)
+                return;
+
+            Line line = new Line
+            {
+                X1 = 0,
+                Y1 = canvasHeight / 2,
+                X2 = canvasWidth,
+                Y2 = canvasHeight / 2,
+                Stroke = Brushes.LimeGreen,
+                StrokeThickness = 2
+            };
+
+            WaveCanvas.Children.Add(line);
+        }
+
 
     }
 }
