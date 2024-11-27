@@ -1,5 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Realtime.API.Dotnet.SDK.Core;
+using Realtime.API.Dotnet.SDK.WPF.Sample.Model;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -38,8 +40,8 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             realtimeApiWpfControl.RealtimeApiSdk.WebSocketResponse += RealtimeApiSdk_WebSocketResponse;
             realtimeApiWpfControl.RealtimeApiSdk.TransactionOccurred += RealtimeApiSdk_TransactionOccurred;
 
-            realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.Cycle;
-            //realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.SoundWave;
+            //realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.Cycle;
+            realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.SoundWave;
 
             RegisterWeatherFunctionCall();
             RegisterNotepadFunctionCall();
@@ -111,60 +113,128 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             }
         }
 
+        //private void RegisterWeatherFunctionCall()
+        //{
+        //    JObject weatherFunctionCallSettings = new JObject
+        //    {
+        //        ["type"] = "function",
+        //        ["name"] = "get_weather",
+        //        ["description"] = "Get current weather for a specified city",
+        //        ["parameters"] = new JObject
+        //        {
+        //            ["type"] = "object",
+        //            ["properties"] = new JObject
+        //            {
+        //                ["city"] = new JObject
+        //                {
+        //                    ["type"] = "string",
+        //                    ["description"] = "The name of the city for which to fetch the weather."
+        //                }
+        //            },
+        //            ["required"] = new JArray("city")
+        //        }
+        //    };
+
+        //    realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(weatherFunctionCallSettings);
+        //}
+
+        //private void RegisterNotepadFunctionCall()
+        //{
+        //    JObject notepadFunctionCallSettings = new JObject
+        //    {
+        //        ["type"] = "function",
+        //        ["name"] = "write_notepad",
+        //        ["description"] = "Open a text editor and write the time, for example, 2024-10-29 16:19. Then, write the content, which should include my questions along with your answers.",
+        //        ["parameters"] = new JObject
+        //        {
+        //            ["type"] = "object",
+        //            ["properties"] = new JObject
+        //            {
+        //                ["content"] = new JObject
+        //                {
+        //                    ["type"] = "string",
+        //                    ["description"] = "The content consists of my questions along with the answers you provide."
+        //                },
+        //                ["date"] = new JObject
+        //                {
+        //                    ["type"] = "string",
+        //                    ["description"] = "the time, for example, 2024-10-29 16:19."
+        //                },
+        //            },
+        //            ["required"] = new JArray("content", "date")
+        //        }
+        //    };
+
+        //    realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(notepadFunctionCallSettings);
+        //}
+
+
         private void RegisterWeatherFunctionCall()
         {
-            JObject weatherFunctionCallSettings = new JObject
+            var weatherFunctionCall = new FunctionCallSettings
             {
-                ["type"] = "function",
-                ["name"] = "get_weather",
-                ["description"] = "Get current weather for a specified city",
-                ["parameters"] = new JObject
+                Type = "function",
+                Name = "get_weather",
+                Description = "Get current weather for a specified city",
+                Parameters = new FunctionParameters
                 {
-                    ["type"] = "object",
-                    ["properties"] = new JObject
+                    Type = "object",
+                    Properties = new Dictionary<string, FunctionProperty>
                     {
-                        ["city"] = new JObject
                         {
-                            ["type"] = "string",
-                            ["description"] = "The name of the city for which to fetch the weather."
+                            "city", new FunctionProperty
+                            {
+                                Type = "string",
+                                Description = "The name of the city for which to fetch the weather."
+                            }
                         }
                     },
-                    ["required"] = new JArray("city")
+                    Required = new List<string> { "city" }
                 }
             };
-
-            realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(weatherFunctionCallSettings);
+            string jsonString = JsonConvert.SerializeObject(weatherFunctionCall);
+            // 将 JSON 字符串转换为 JObject
+            JObject jObject = JObject.Parse(jsonString);
+            realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(jObject);
         }
 
         private void RegisterNotepadFunctionCall()
         {
-            JObject notepadFunctionCallSettings = new JObject
+            var notepadFunctionCall = new FunctionCallSettings
             {
-                ["type"] = "function",
-                ["name"] = "write_notepad",
-                ["description"] = "Open a text editor and write the time, for example, 2024-10-29 16:19. Then, write the content, which should include my questions along with your answers.",
-                ["parameters"] = new JObject
+                Type = "function",
+                Name = "write_notepad",
+                Description = "Open a text editor and write the time, for example, 2024-10-29 16:19. Then, write the content, which should include my questions along with your answers.",
+                Parameters = new FunctionParameters
                 {
-                    ["type"] = "object",
-                    ["properties"] = new JObject
+                    Type = "object",
+                    Properties = new Dictionary<string, FunctionProperty>
                     {
-                        ["content"] = new JObject
                         {
-                            ["type"] = "string",
-                            ["description"] = "The content consists of my questions along with the answers you provide."
+                            "content", new FunctionProperty
+                            {
+                                Type = "string",
+                                Description = "The content consists of my questions along with the answers you provide."
+                            }
                         },
-                        ["date"] = new JObject
                         {
-                            ["type"] = "string",
-                            ["description"] = "the time, for example, 2024-10-29 16:19."
-                        },
+                            "date", new FunctionProperty
+                            {
+                                Type = "string",
+                                Description = "The time, for example, 2024-10-29 16:19."
+                            }
+                        }
                     },
-                    ["required"] = new JArray("content", "date")
+                    Required = new List<string> { "content", "date" }
                 }
             };
+            string jsonString = JsonConvert.SerializeObject(notepadFunctionCall);
+            // 将 JSON 字符串转换为 JObject
+            JObject jObject = JObject.Parse(jsonString);
 
-            realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(notepadFunctionCallSettings);
+            realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(jObject);
         }
+
 
         #region Function Call
 
