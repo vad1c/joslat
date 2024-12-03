@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using log4net;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Realtime.API.Dotnet.SDK.Core;
 using Realtime.API.Dotnet.SDK.WPF.Sample.Model;
@@ -24,6 +25,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
     /// </summary>
     public partial class MainWindow : Window
     {
+        private static readonly ILog log = LogManager.GetLogger(typeof(MainWindow));
         public ObservableCollection<string> chatMessages = new ObservableCollection<string>();
         private bool isPlaying = false;
 
@@ -45,6 +47,8 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
 
             RegisterWeatherFunctionCall();
             RegisterNotepadFunctionCall();
+
+            log.Info("App Start...");
         }
 
         private void RealtimeApiSdk_TransactionOccurred(object? sender, TransactionOccurredEventArgs e)
@@ -113,83 +117,27 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             }
         }
 
-        //private void RegisterWeatherFunctionCall()
-        //{
-        //    JObject weatherFunctionCallSettings = new JObject
-        //    {
-        //        ["type"] = "function",
-        //        ["name"] = "get_weather",
-        //        ["description"] = "Get current weather for a specified city",
-        //        ["parameters"] = new JObject
-        //        {
-        //            ["type"] = "object",
-        //            ["properties"] = new JObject
-        //            {
-        //                ["city"] = new JObject
-        //                {
-        //                    ["type"] = "string",
-        //                    ["description"] = "The name of the city for which to fetch the weather."
-        //                }
-        //            },
-        //            ["required"] = new JArray("city")
-        //        }
-        //    };
-
-        //    realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(weatherFunctionCallSettings);
-        //}
-
-        //private void RegisterNotepadFunctionCall()
-        //{
-        //    JObject notepadFunctionCallSettings = new JObject
-        //    {
-        //        ["type"] = "function",
-        //        ["name"] = "write_notepad",
-        //        ["description"] = "Open a text editor and write the time, for example, 2024-10-29 16:19. Then, write the content, which should include my questions along with your answers.",
-        //        ["parameters"] = new JObject
-        //        {
-        //            ["type"] = "object",
-        //            ["properties"] = new JObject
-        //            {
-        //                ["content"] = new JObject
-        //                {
-        //                    ["type"] = "string",
-        //                    ["description"] = "The content consists of my questions along with the answers you provide."
-        //                },
-        //                ["date"] = new JObject
-        //                {
-        //                    ["type"] = "string",
-        //                    ["description"] = "the time, for example, 2024-10-29 16:19."
-        //                },
-        //            },
-        //            ["required"] = new JArray("content", "date")
-        //        }
-        //    };
-
-        //    realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(notepadFunctionCallSettings);
-        //}
-
-
         private void RegisterWeatherFunctionCall()
         {
             var weatherFunctionCall = new FunctionCallSettings
             {
-                Type = "function",
-                Name = "get_weather",
-                Description = "Get current weather for a specified city",
-                Parameters = new FunctionParameters
+                type = "function",
+                name = "get_weather",
+                description = "Get current weather for a specified city",
+                parameters = new FunctionParameters
                 {
-                    Type = "object",
-                    Properties = new Dictionary<string, FunctionProperty>
+                    type = "object",
+                    properties = new Dictionary<string, FunctionProperty>
                     {
                         {
                             "city", new FunctionProperty
                             {
-                                Type = "string",
-                                Description = "The name of the city for which to fetch the weather."
+                                type = "string",
+                                description = "The name of the city for which to fetch the weather."
                             }
                         }
                     },
-                    Required = new List<string> { "city" }
+                    required = new List<string> { "city" }
                 }
             };
             string jsonString = JsonConvert.SerializeObject(weatherFunctionCall);
@@ -202,30 +150,30 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
         {
             var notepadFunctionCall = new FunctionCallSettings
             {
-                Type = "function",
-                Name = "write_notepad",
-                Description = "Open a text editor and write the time, for example, 2024-10-29 16:19. Then, write the content, which should include my questions along with your answers.",
-                Parameters = new FunctionParameters
+                type = "function",
+                name = "write_notepad",
+                description = "Open a text editor and write the time, for example, 2024-10-29 16:19. Then, write the content, which should include my questions along with your answers.",
+                parameters = new FunctionParameters
                 {
-                    Type = "object",
-                    Properties = new Dictionary<string, FunctionProperty>
+                    type = "object",
+                    properties = new Dictionary<string, FunctionProperty>
                     {
                         {
                             "content", new FunctionProperty
                             {
-                                Type = "string",
-                                Description = "The content consists of my questions along with the answers you provide."
+                                type = "string",
+                                description = "The content consists of my questions along with the answers you provide."
                             }
                         },
                         {
                             "date", new FunctionProperty
                             {
-                                Type = "string",
-                                Description = "The time, for example, 2024-10-29 16:19."
+                                type = "string",
+                                description = "The time, for example, 2024-10-29 16:19."
                             }
                         }
                     },
-                    Required = new List<string> { "content", "date" }
+                    required = new List<string> { "content", "date" }
                 }
             };
             string jsonString = JsonConvert.SerializeObject(notepadFunctionCall);

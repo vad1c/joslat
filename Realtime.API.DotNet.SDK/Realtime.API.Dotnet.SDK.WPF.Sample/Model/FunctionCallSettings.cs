@@ -9,23 +9,23 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample.Model
 {
     public class FunctionCallSettings
     {
-        public string Type { get; set; }  // Function Type
-        public string Name { get; set; }  // Function Name
-        public string Description { get; set; }  // Function Description
-        public FunctionParameters Parameters { get; set; }  // Function Parameters
+        public string type { get; set; }  // Function Type
+        public string name { get; set; }  // Function Name
+        public string description { get; set; }  // Function Description
+        public FunctionParameters parameters { get; set; }  // Function Parameters
 
     }
 
     public class FunctionParameters
     {
-        public string Type { get; set; }  // Parameter Type (e.g., "object")
-        public Dictionary<string, FunctionProperty> Properties { get; set; }  // Properties of the parameters
-        public List<string> Required { get; set; }  // Required parameters
+        public string type { get; set; }  // Parameter Type (e.g., "object")
+        public Dictionary<string, FunctionProperty> properties { get; set; }  // Properties of the parameters
+        public List<string> required { get; set; }  // Required parameters
     }
 
     public class FunctionProperty
     {
-        public string Type { get; set; }  // Type of the property (e.g., "string")
-        public string Description { get; set; }  // Description of the property
+        public string type { get; set; }  // Type of the property (e.g., "string")
+        public string description { get; set; }  // Description of the property
     }
 }
