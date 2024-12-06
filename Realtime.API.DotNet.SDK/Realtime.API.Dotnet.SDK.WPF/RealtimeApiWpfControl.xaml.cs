@@ -19,10 +19,19 @@ namespace Realtime.API.Dotnet.SDK.WPF
         private const string apiKey = "";
         private VisualEffect voiceVisualEffect;
 
+        //TODO Move into Api Sdk
         private WaveInEvent speechWaveIn;
         
         private WasapiLoopbackCapture speakerCapture;
         private BufferedWaveProvider speakerWaveProvider;
+
+ 
+        // TODO
+        //public event EventHandler<EventArgs> SpeechStarted;
+        //public event EventHandler<AudioEventArgs> SpeechEnded;
+        //public event EventHandler<EventArgs> PlaybackStarted;
+        //public event EventHandler<AudioEventArgs> PlaybackAudioReceived;
+        //public event EventHandler<EventArgs> PlaybackEnded;
 
         public RealtimeApiWpfControl()
         {
@@ -37,7 +46,7 @@ namespace Realtime.API.Dotnet.SDK.WPF
             //RealtimeApiSdk.TransactionOccurred += RealtimeApiSdk_TransactionOccurred;
 
 
-
+            // TODO connect to sdk event
             speechWaveIn = new WaveInEvent
             {
                 WaveFormat = new WaveFormat(44100, 1)
@@ -54,7 +63,7 @@ namespace Realtime.API.Dotnet.SDK.WPF
                 DiscardOnBufferOverflow = true // Optional: discard data when buffer is full}
             };
 
-            speakerCapture.DataAvailable += SpeakerCapture_DataAvailable; ;
+            speakerCapture.DataAvailable += SpeakerCapture_DataAvailable;
 
 
             voiceVisualEffect = VoiceVisualEffect;

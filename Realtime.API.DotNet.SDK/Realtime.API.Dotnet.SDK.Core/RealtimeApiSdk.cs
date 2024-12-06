@@ -26,7 +26,7 @@ namespace Realtime.API.Dotnet.SDK.Core
     public class RealtimeApiSdk
     {
         private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        private const string openApiUrl = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01";
+        //private const string openApiUrl = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01";
         private BufferedWaveProvider waveInBufferedWaveProvider;
         private WaveInEvent waveIn;
 
@@ -45,16 +45,22 @@ namespace Realtime.API.Dotnet.SDK.Core
 
         public event EventHandler<TransactionOccurredEventArgs> TransactionOccurred;
         public event EventHandler<WebSocketResponseEventArgs> WebSocketResponse;
+        
         public event EventHandler<EventArgs> SpeechStarted;
+        // TODO Add event SpeechDataAvailable  - return speech binary data
+        // TODO Add event SpeechTextAvailable  - return speech text data
         public event EventHandler<AudioEventArgs> SpeechEnded;
+
         public event EventHandler<EventArgs> PlaybackStarted;
-        public event EventHandler<AudioEventArgs> PlaybackAudioReceived;
+        // TODO Add event PlaybackDataAvailable  - return playback binary data
+        // TODO Add event PlaybackTextAvailable  - return playback text data
+        public event EventHandler<AudioEventArgs> PlaybackAudioReceived; // TODO delete
         public event EventHandler<EventArgs> PlaybackEnded;
 
-        public event EventHandler<AudioEventArgs> AudioSent;
-        public event EventHandler<AudioEventArgs> AudioReceived;
+        public event EventHandler<AudioEventArgs> AudioSent;  // TODO delete
+        public event EventHandler<AudioEventArgs> AudioReceived; // TODO delete
 
-        public RealtimeApiSdk(): this("")
+        public RealtimeApiSdk() : this("")
         {
             XmlConfigurator.Configure(new FileInfo("log4net.config"));
 
@@ -71,6 +77,11 @@ namespace Realtime.API.Dotnet.SDK.Core
                 WaveFormat = new WaveFormat(24000, 16, 1)
             };
             waveIn.DataAvailable += WaveIn_DataAvailable;
+
+            this.OpenApiUrl = "wss://api.openai.com/v1/realtime";
+            this.Model = "gpt-4o-realtime-preview-2024-10-01";
+            this.RequestHeaderOptions = new Dictionary<string, string>();
+            RequestHeaderOptions.Add("openai-beta", "realtime=v1");
         }
 
         protected virtual void OnTransactionOccurred(TransactionOccurredEventArgs e)
@@ -131,6 +142,12 @@ namespace Realtime.API.Dotnet.SDK.Core
         public string ApiKey { get; set; }
 
         public bool IsRunning { get; private set; }
+
+        public string OpenApiUrl { get; set; }
+
+        public string Model { get; set; }
+
+        public Dictionary<string, string> RequestHeaderOptions { get; }
 
         public async void StartSpeechRecognitionAsync()
         {
@@ -219,11 +236,14 @@ namespace Realtime.API.Dotnet.SDK.Core
         {
             webSocketClient = new ClientWebSocket();
             webSocketClient.Options.SetRequestHeader("Authorization", GetAuthorization());
-            webSocketClient.Options.SetRequestHeader("openai-beta", "realtime=v1");
+            foreach (var item in this.RequestHeaderOptions)
+            {
+                webSocketClient.Options.SetRequestHeader(item.Key, item.Value);
+            }
 
             try
             {
-                await webSocketClient.ConnectAsync(new Uri(openApiUrl), CancellationToken.None);
+                await webSocketClient.ConnectAsync(new Uri(this.GetOpenAIRequestUrl()), CancellationToken.None);
                 log.Info("WebSocket connected!");
             }
             catch (Exception ex)
@@ -576,6 +596,12 @@ namespace Realtime.API.Dotnet.SDK.Core
         private void WaveOut_PlaybackStopped(object? sender, StoppedEventArgs e)
         {
             throw new NotImplementedException();
+        }
+
+        private string GetOpenAIRequestUrl()
+        {
+            string url = $"{this.OpenApiUrl.TrimEnd('/').TrimEnd('?')}&model={this.Model}";
+            return url;
         }
     }
 }
