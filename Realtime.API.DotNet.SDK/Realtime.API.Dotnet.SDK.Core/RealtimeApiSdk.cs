@@ -600,7 +600,7 @@ namespace Realtime.API.Dotnet.SDK.Core
 
         private string GetOpenAIRequestUrl()
         {
-            string url = $"{this.OpenApiUrl.TrimEnd('/').TrimEnd('?')}&model={this.Model}";
+            string url = $"{this.OpenApiUrl.TrimEnd('/').TrimEnd('?')}?model={this.Model}";
             return url;
         }
     }
