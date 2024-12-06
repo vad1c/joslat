@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Collections.Specialized.BitVector32;
 
-namespace Realtime.API.Dotnet.SDK.Core.Model
+namespace Realtime.API.Dotnet.SDK.Core.Model.Request
 {
-    public class SessionUpdateRequest
+    public class SessionUpdate
     {
         public string type { get; set; }
         public Session session { get; set; }
