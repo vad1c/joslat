@@ -42,6 +42,9 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             realtimeApiWpfControl.RealtimeApiSdk.WebSocketResponse += RealtimeApiSdk_WebSocketResponse;
             realtimeApiWpfControl.RealtimeApiSdk.TransactionOccurred += RealtimeApiSdk_TransactionOccurred;
 
+            realtimeApiWpfControl.RealtimeApiSdk.SpeechTextAvailable += RealtimeApiSdk_SpeechTextAvailable;
+            realtimeApiWpfControl.RealtimeApiSdk.PlaybackTextAvailable += RealtimeApiSdk_PlaybackTextAvailable;
+
             //realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.Cycle;
             realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.SoundWave;
 
@@ -49,6 +52,22 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             RegisterNotepadFunctionCall();
 
             log.Info("App Start...");
+        }
+
+        private void RealtimeApiSdk_PlaybackTextAvailable(object? sender, Core.Events.TranscriptEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                ChatOutput.AppendText($"AI: {e.Transcript}\n"); // Display the received playback text
+            });
+        }
+
+        private void RealtimeApiSdk_SpeechTextAvailable(object? sender, Core.Events.TranscriptEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                ChatOutput.AppendText($"User: {e.Transcript}"); // Display the received speech text
+            });
         }
 
         private void RealtimeApiSdk_TransactionOccurred(object? sender, TransactionOccurredEventArgs e)

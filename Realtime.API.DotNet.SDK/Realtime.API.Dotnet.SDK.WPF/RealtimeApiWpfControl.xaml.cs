@@ -25,8 +25,6 @@ namespace Realtime.API.Dotnet.SDK.WPF
         private WasapiLoopbackCapture speakerCapture;
         private BufferedWaveProvider speakerWaveProvider;
 
- 
-        // TODO
         public event EventHandler<EventArgs> SpeechStarted;
         public event EventHandler<AudioEventArgs> SpeechDataAvailable;
         public event EventHandler<TranscriptEventArgs> SpeechTextAvailable;
@@ -36,8 +34,6 @@ namespace Realtime.API.Dotnet.SDK.WPF
         public event EventHandler<AudioEventArgs> PlaybackDataAvailable;
         public event EventHandler<TranscriptEventArgs> PlaybackTextAvailable;
         public event EventHandler<EventArgs> PlaybackEnded;
-
-        
 
         public RealtimeApiWpfControl()
         {

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Realtime.API.Dotnet.SDK.WPF.Sample"
         xmlns:WPF="clr-namespace:Realtime.API.Dotnet.SDK.WPF;assembly=Realtime.API.Dotnet.SDK.WPF" x:Class="Realtime.API.Dotnet.SDK.WPF.Sample.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded" >
+        Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded" MinWidth="800" MinHeight="450">
     <Grid >
         <Grid.RenderTransform>
             <TransformGroup>
@@ -20,9 +20,13 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="210"/>
+        </Grid.ColumnDefinitions>
 
         
-        <Grid Grid.Row="0" Background="Black">
+        <Grid Grid.Row="0" Grid.Column="0" Background="Black">
             <WPF:RealtimeApiWpfControl 
                 Name="realtimeApiWpfControl" 
                 HorizontalAlignment="Center" 
@@ -31,9 +35,19 @@
                 Width="auto" />
         </Grid>
 
-        <Grid 
-            Grid.Row="1" 
-            Background="#2a2a2a" 
+        <Grid Grid.Row="0"  Grid.Column="1" Grid.RowSpan="2" Background="#322723">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel >
+                    <!-- Here you can add the chat messages dynamically -->
+                    <RichTextBox  x:Name="ChatOutput" Background="#322723" 
+                                  Foreground="LightGreen" FontSize="15" Margin="10" 
+                                  BorderBrush="Transparent" BorderThickness="0" 
+                                  IsReadOnly="True" VerticalScrollBarVisibility="Auto"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <Grid Grid.Row="1" Grid.Column="0" Background="#2a2a2a" 
             Height="80" 
             VerticalAlignment="Bottom"
             >
