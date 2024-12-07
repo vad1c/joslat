@@ -49,18 +49,15 @@ namespace Realtime.API.Dotnet.SDK.Core
         public event EventHandler<WebSocketResponseEventArgs> WebSocketResponse;
         
         public event EventHandler<EventArgs> SpeechStarted;
-        // TODO Add event SpeechDataAvailable  - return speech binary data
-        // TODO Add event SpeechTextAvailable  - return speech text data
+        public event EventHandler<AudioEventArgs> SpeechDataAvailable;
+        public event EventHandler<TranscriptEventArgs> SpeechTextAvailable;
         public event EventHandler<AudioEventArgs> SpeechEnded;
 
         public event EventHandler<EventArgs> PlaybackStarted;
-        // TODO Add event PlaybackDataAvailable  - return playback binary data
-        // TODO Add event PlaybackTextAvailable  - return playback text data
-        public event EventHandler<AudioEventArgs> PlaybackAudioReceived; // TODO delete
+        public event EventHandler<AudioEventArgs> PlaybackDataAvailable;
+        public event EventHandler<TranscriptEventArgs> PlaybackTextAvailable;
         public event EventHandler<EventArgs> PlaybackEnded;
 
-        public event EventHandler<AudioEventArgs> AudioSent;  // TODO delete
-        public event EventHandler<AudioEventArgs> AudioReceived; // TODO delete
 
         public RealtimeApiSdk() : this("")
         {
@@ -105,6 +102,25 @@ namespace Realtime.API.Dotnet.SDK.Core
         {
             SpeechEnded?.Invoke(this, e);
         }
+        protected virtual void OnPlaybackDataAvailable(AudioEventArgs e)
+        {
+            PlaybackDataAvailable?.Invoke(this, e);
+        }
+        protected virtual void OnSpeechDataAvailable(AudioEventArgs e)
+        {
+            SpeechDataAvailable?.Invoke(this, e);
+        }
+
+        protected virtual void OnSpeechTextAvailable(TranscriptEventArgs e)
+        {
+            SpeechTextAvailable?.Invoke(this, e);
+        }
+
+        protected virtual void OnPlaybackTextAvailable(TranscriptEventArgs e)
+        {
+            PlaybackTextAvailable?.Invoke(this, e);
+        }
+
         protected virtual void OnSpeechActivity(bool isActive, AudioEventArgs? audioArgs = null)
         {
             if (isActive)
@@ -121,25 +137,11 @@ namespace Realtime.API.Dotnet.SDK.Core
             PlaybackStarted?.Invoke(this, e);
         }
 
-        protected virtual void OnPlaybackAudioReceived(AudioEventArgs e)
-        {
-            PlaybackAudioReceived?.Invoke(this, e);
-        }
-
         protected virtual void OnPlaybackEnded(EventArgs e)
         {
             PlaybackEnded?.Invoke(this, e);
         }
 
-        protected virtual void OnAudioSent(AudioEventArgs e)
-        {
-            AudioSent?.Invoke(this, e);
-        }
-
-        protected virtual void OnAudioReceived(AudioEventArgs e)
-        {
-            AudioReceived?.Invoke(this, e);
-        }
 
         public string ApiKey { get; set; }
 
@@ -285,7 +287,7 @@ namespace Realtime.API.Dotnet.SDK.Core
             var messageBytes = Encoding.UTF8.GetBytes(audioMessage.ToString());
             await webSocketClient.SendAsync(new ArraySegment<byte>(messageBytes), WebSocketMessageType.Text, true, CancellationToken.None);
 
-            OnAudioSent(new AudioEventArgs(e.Buffer));
+            OnSpeechDataAvailable(new AudioEventArgs(e.Buffer));
         }
 
         private async Task StartAudioRecordingAsync()
@@ -384,7 +386,6 @@ namespace Realtime.API.Dotnet.SDK.Core
             {
                 var result = await webSocketClient.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
                 var chunk = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                OnPlaybackAudioReceived(new AudioEventArgs(buffer));
                 messageBuffer.Append(chunk);
 
                 // For storing complete messages.
@@ -435,14 +436,18 @@ namespace Realtime.API.Dotnet.SDK.Core
                         HandleUserSpeechStopped();
                         break;
                     case "response.audio_transcript.delta":
-                        var text = json.ToObject<ResponseDelta>();
+                        var delta = json.ToObject<ResponseDelta>();
                         break;
                     case "conversation.item.input_audio_transcription.completed":
                         var transcriptionCompleted = json.ToObject<TranscriptionCompleted>();
+                        log.Info(type);
+                        OnSpeechTextAvailable(new TranscriptEventArgs(transcriptionCompleted.Transcript));
                         log.Info(transcriptionCompleted.Transcript);
                         break;
                     case "response.audio_transcript.done":
+                        log.Info(type);
                         var textDone = json.ToObject<ResponseAudioTranscriptDone>();
+                        OnPlaybackTextAvailable(new TranscriptEventArgs(textDone.Transcript));
                         log.Info(textDone.Transcript);
                         break;
                     case "response.audio.delta":
@@ -548,7 +553,7 @@ namespace Realtime.API.Dotnet.SDK.Core
                 audioQueue.Enqueue(audioBytes);
                 isModelResponding = true;
 
-                OnAudioReceived(new AudioEventArgs(audioBytes));
+                OnPlaybackDataAvailable(new AudioEventArgs(audioBytes));
                 StopAudioRecording();
                 OnSpeechActivity(true);
             }
@@ -590,7 +595,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                                 waveInBufferedWaveProvider.AddSamples(audioData, 0, audioData.Length);
 
                                 //float[] waveform = ExtractWaveform(audioData);
-                                OnPlaybackAudioReceived(new AudioEventArgs(audioData));
                             }
                             else
                             {

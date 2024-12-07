@@ -27,11 +27,17 @@ namespace Realtime.API.Dotnet.SDK.WPF
 
  
         // TODO
-        //public event EventHandler<EventArgs> SpeechStarted;
-        //public event EventHandler<AudioEventArgs> SpeechEnded;
-        //public event EventHandler<EventArgs> PlaybackStarted;
-        //public event EventHandler<AudioEventArgs> PlaybackAudioReceived;
-        //public event EventHandler<EventArgs> PlaybackEnded;
+        public event EventHandler<EventArgs> SpeechStarted;
+        public event EventHandler<AudioEventArgs> SpeechDataAvailable;
+        public event EventHandler<TranscriptEventArgs> SpeechTextAvailable;
+        public event EventHandler<AudioEventArgs> SpeechEnded;
+
+        public event EventHandler<EventArgs> PlaybackStarted;
+        public event EventHandler<AudioEventArgs> PlaybackDataAvailable;
+        public event EventHandler<TranscriptEventArgs> PlaybackTextAvailable;
+        public event EventHandler<EventArgs> PlaybackEnded;
+
+        
 
         public RealtimeApiWpfControl()
         {
@@ -65,6 +71,15 @@ namespace Realtime.API.Dotnet.SDK.WPF
 
             speakerCapture.DataAvailable += SpeakerCapture_DataAvailable;
 
+            RealtimeApiSdk.SpeechStarted += RealtimeApiSdk_SpeechStarted;
+            RealtimeApiSdk.SpeechDataAvailable += RealtimeApiSdk_SpeechDataAvailable;
+            RealtimeApiSdk.SpeechTextAvailable += RealtimeApiSdk_SpeechTextAvailable;
+            RealtimeApiSdk.SpeechEnded += RealtimeApiSdk_SpeechEnded;
+
+            RealtimeApiSdk.PlaybackStarted += RealtimeApiSdk_PlaybackStarted;
+            RealtimeApiSdk.PlaybackDataAvailable += RealtimeApiSdk_PlaybackDataAvailable;
+            RealtimeApiSdk.PlaybackTextAvailable += RealtimeApiSdk_PlaybackTextAvailable;
+            RealtimeApiSdk.PlaybackEnded += RealtimeApiSdk_PlaybackEnded;
 
             voiceVisualEffect = VoiceVisualEffect;
             PlayVisualVoiceEffect(false);
@@ -75,7 +90,77 @@ namespace Realtime.API.Dotnet.SDK.WPF
             DrawDefaultVisualEffect(voiceVisualEffect);
         }
 
-       
+        private void RealtimeApiSdk_PlaybackDataAvailable(object? sender, AudioEventArgs e)
+        {
+            OnPlaybackDataAvailable(e);
+        }
+        protected virtual void OnPlaybackDataAvailable(AudioEventArgs e)
+        {
+            PlaybackDataAvailable?.Invoke(this, e);
+        }
+
+        private void RealtimeApiSdk_PlaybackEnded(object? sender, EventArgs e)
+        {
+            OnPlaybackEnded(e);
+        }
+        protected virtual void OnPlaybackEnded(EventArgs e)
+        {
+            PlaybackEnded?.Invoke(this, e);
+        }
+
+        private void RealtimeApiSdk_PlaybackStarted(object? sender, EventArgs e)
+        {
+            OnPlaybackStarted(e);
+        }
+        protected virtual void OnPlaybackStarted(EventArgs e)
+        {
+            PlaybackStarted?.Invoke(this, e);
+        }
+
+        private void RealtimeApiSdk_PlaybackTextAvailable(object? sender, TranscriptEventArgs e)
+        {
+            OnPlaybackTextAvailable(e);
+        }
+        protected virtual void OnPlaybackTextAvailable(TranscriptEventArgs e)
+        {
+            PlaybackTextAvailable?.Invoke(this, e);
+        }
+
+        private void RealtimeApiSdk_SpeechEnded(object? sender, AudioEventArgs e)
+        {
+            OnSpeechEnded(e);
+        }
+        protected virtual void OnSpeechEnded(AudioEventArgs e)
+        {
+            SpeechEnded?.Invoke(this, e);
+        }
+
+        private void RealtimeApiSdk_SpeechStarted(object? sender, EventArgs e)
+        {
+            OnSpeechStarted(e);
+        }
+        protected virtual void OnSpeechStarted(EventArgs e)
+        {
+            SpeechStarted?.Invoke(this, e);
+        }
+
+        private void RealtimeApiSdk_SpeechTextAvailable(object? sender, TranscriptEventArgs e)
+        {
+            OnSpeechTextAvailable(e);
+        }
+        protected virtual void OnSpeechTextAvailable(TranscriptEventArgs e)
+        {
+            SpeechTextAvailable?.Invoke(this, e);
+        }
+
+        private void RealtimeApiSdk_SpeechDataAvailable(object? sender, AudioEventArgs e)
+        {
+            OnSpeechDataAvailable(e);
+        }
+        protected virtual void OnSpeechDataAvailable(AudioEventArgs e)
+        {
+            SpeechDataAvailable?.Invoke(this, e);
+        }
 
         public RealtimeApiSdk RealtimeApiSdk { get; private set; }
 
