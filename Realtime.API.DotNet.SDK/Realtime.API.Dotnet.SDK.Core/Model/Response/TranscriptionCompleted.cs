@@ -7,13 +7,8 @@ using System.Threading.Tasks;
 
 namespace Realtime.API.Dotnet.SDK.Core.Model.Response
 {
-    public class TranscriptionCompleted
+    public class TranscriptionCompleted : BaseResponse
     {
-        [JsonProperty("event_id")]
-        public string EventId { get; set; }
-        [JsonProperty("type")]
-        public string Type { get; set; }
-        
         [JsonProperty("item_id")]
         public string ItemId { get; set; }
         [JsonProperty("content_index")]

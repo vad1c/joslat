@@ -7,12 +7,8 @@ using System.Threading.Tasks;
 
 namespace Realtime.API.Dotnet.SDK.Core.Model.Response
 {
-    public class ResponseDelta
+    public class ResponseDelta : BaseResponse
     {
-        [JsonProperty("type")]
-        public string Type { get; set; }
-        [JsonProperty("event_id")]
-        public string EventId { get; set; }
         [JsonProperty("response_id")]
         public string ResponseId { get; set; }
         [JsonProperty("item_id")]

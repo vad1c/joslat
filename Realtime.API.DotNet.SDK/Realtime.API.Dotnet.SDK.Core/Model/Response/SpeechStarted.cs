@@ -10,14 +10,8 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Response
     /// <summary>
     /// input_audio_buffer.speech_started
     /// </summary>
-    public class SpeechStarted
+    public class SpeechStarted : BaseResponse
     {
-        [JsonProperty("type")]
-        public string Type { get; set; }
-
-        [JsonProperty("event_id")]
-        public string EventId { get; set; }
-
         [JsonProperty("audio_start_ms")]
         public string AudioStartMs { get; set; }
 

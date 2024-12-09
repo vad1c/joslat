@@ -7,14 +7,8 @@ using System.Threading.Tasks;
 
 namespace Realtime.API.Dotnet.SDK.Core.Model.Response
 {
-    public class ResponseCreated
+    public class ResponseCreated : BaseResponse
     {
-        [JsonProperty("type")]
-        public string Type { get; set; }
-
-        [JsonProperty("event_id")]
-        public string EventId { get; set; }
-
         [JsonProperty("response")]
         public Response Response { get; set; }
     }
