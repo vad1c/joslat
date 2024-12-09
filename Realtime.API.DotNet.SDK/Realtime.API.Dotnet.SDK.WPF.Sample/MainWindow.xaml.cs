@@ -295,26 +295,29 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
 
         private void SendFunctionCallResult(string result, string callId, ClientWebSocket webSocketClient)
         {
-            var resultJson = new JObject
+            var functionCallResult = new FunctionCallResult
             {
-                ["type"] = "conversation.item.create",
-                ["item"] = new JObject
+                Type = "conversation.item.create",
+                Item = new FunctionCallItem
                 {
-                    ["type"] = "function_call_output",
-                    ["output"] = result,
-                    ["call_id"] = callId
+                    Type = "function_call_output",
+                    Output = result,
+                    CallId = callId
                 }
             };
 
-            webSocketClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(resultJson.ToString())), WebSocketMessageType.Text, true, CancellationToken.None);
-            Console.WriteLine("Sent function call result: " + resultJson);
+            string resultJsonString = JsonConvert.SerializeObject(functionCallResult);
 
-            var rpJson = new JObject
+            webSocketClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(resultJsonString)), WebSocketMessageType.Text, true, CancellationToken.None);
+            Console.WriteLine("Sent function call result: " + resultJsonString);
+
+            var responseJson = new ResponseJson
             {
-                ["type"] = "response.create"
+                Type = "response.create"
             };
+            string rpJsonString = JsonConvert.SerializeObject(responseJson);
 
-            webSocketClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(rpJson.ToString())), WebSocketMessageType.Text, true, CancellationToken.None);
+            webSocketClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(rpJsonString)), WebSocketMessageType.Text, true, CancellationToken.None);
         }
 
         private void WriteToTextFile(string text)
