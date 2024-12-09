@@ -1,7 +1,10 @@
 using NAudio.Wave;
+using Newtonsoft.Json.Linq;
 using Realtime.API.Dotnet.SDK.Core;
 using Realtime.API.Dotnet.SDK.Core.Events;
+using Realtime.API.Dotnet.SDK.Core.Model.Function;
 using System;
+using System.Net.WebSockets;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -21,7 +24,7 @@ namespace Realtime.API.Dotnet.SDK.WPF
 
         //TODO Move into Api Sdk
         private WaveInEvent speechWaveIn;
-        
+
         private WasapiLoopbackCapture speakerCapture;
         private BufferedWaveProvider speakerWaveProvider;
 
@@ -195,6 +198,11 @@ namespace Realtime.API.Dotnet.SDK.WPF
                 // Stop voice recognition;
                 RealtimeApiSdk.StopSpeechRecognitionAsync();
             }
+        }
+
+        public void RegisterFunctionCall(FunctionCallSetting functionCallSetting, Func<JObject, ClientWebSocket, bool> functionCallback)
+        {
+            RealtimeApiSdk.RegisterFunctionCall(functionCallSetting, functionCallback);
         }
 
         private void PlayVisualVoiceEffect(bool enable)
@@ -409,7 +417,7 @@ namespace Realtime.API.Dotnet.SDK.WPF
             if (canvasWidth == 0 || canvasHeight == 0)
                 return;
 
-            double radius = Math.Min(canvasWidth, canvasHeight) * sizeFactor / 2; 
+            double radius = Math.Min(canvasWidth, canvasHeight) * sizeFactor / 2;
             double centerX = canvasWidth / 2;
             double centerY = canvasHeight / 2;
 

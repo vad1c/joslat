@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Realtime.API.Dotnet.SDK.Core.Model.Function;
 using Realtime.API.Dotnet.SDK.Core.Model.Request;
 using System;
 using System.Collections.Generic;

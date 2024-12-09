@@ -21,6 +21,7 @@ using System.Reflection;
 using log4net.Config;
 using Realtime.API.Dotnet.SDK.Core.Model.Response;
 using Realtime.API.Dotnet.SDK.Core.Model.Request;
+using Realtime.API.Dotnet.SDK.Core.Model.Function;
 
 
 namespace Realtime.API.Dotnet.SDK.Core
@@ -33,7 +34,10 @@ namespace Realtime.API.Dotnet.SDK.Core
         private WaveInEvent waveIn;
 
         private ClientWebSocket webSocketClient;
-        private JArray functionRegistries;
+        //private JArray functionRegistries;
+        // TODO change JObject to Functioncall modle
+        private Dictionary<FunctionCallSetting, Func<JObject, ClientWebSocket, bool>> functionRegistries2 = new Dictionary<FunctionCallSetting, Func<JObject, ClientWebSocket, bool>> ();
+
 
         private bool isPlayingAudio = false;//The icon indicates whether the audio is playing.
         private bool isUserSpeaking = false; //Indicate whether it is the user speaking.
@@ -47,7 +51,7 @@ namespace Realtime.API.Dotnet.SDK.Core
 
         public event EventHandler<TransactionOccurredEventArgs> TransactionOccurred;
         public event EventHandler<WebSocketResponseEventArgs> WebSocketResponse;
-        
+
         public event EventHandler<EventArgs> SpeechStarted;
         public event EventHandler<AudioEventArgs> SpeechDataAvailable;
         public event EventHandler<TranscriptEventArgs> SpeechTextAvailable;
@@ -69,7 +73,7 @@ namespace Realtime.API.Dotnet.SDK.Core
         public RealtimeApiSdk(string apiKey)
         {
             ApiKey = apiKey;
-            functionRegistries = new JArray();
+            //functionRegistries = new JArray();
 
             waveIn = new WaveInEvent
             {
@@ -203,9 +207,23 @@ namespace Realtime.API.Dotnet.SDK.Core
             }
         }
 
-        public void RegisterFunctionCall(JObject json)
+        //public void RegisterFunctionCall(JObject json)
+        //{
+        //    functionRegistries.Add(json);
+        //}
+
+        // TODO JObject 换成modle
+        public void RegisterFunctionCall(FunctionCallSetting functionCallSetting, Func<JObject, ClientWebSocket, bool> functionCallback)
         {
-            functionRegistries.Add(json);
+
+            functionRegistries2.Add(functionCallSetting, functionCallback);
+
+
+            //string jsonString = JsonConvert.SerializeObject(functionCallSetting);
+            //JObject jObject = JObject.Parse(jsonString);
+            //functionRegistries.Add(jObject);
+
+
         }
 
         private void ValidateApiKey()
@@ -414,6 +432,10 @@ namespace Realtime.API.Dotnet.SDK.Core
                 log.Debug($"Received json: {json}");
                 FireTransactionOccurred($"Received type: {type}");
 
+
+                // TODO change json to BaseResponse.
+                HandleFunctionCall(json);
+
                 switch (type)
                 {
                     case "session.created":
@@ -477,9 +499,37 @@ namespace Realtime.API.Dotnet.SDK.Core
             {
                 log.Error(e.Message);
             }
-            
+
         }
 
+        private void HandleFunctionCall(JObject json)
+        {
+            
+            var type = json["type"]?.ToString();
+            switch (type)
+            {
+                case "response.function_call_arguments.done":
+                    string functionName = json["name"]?.ToString();
+
+                    foreach (var item in functionRegistries2)
+                    {
+                        if (item.Key.Name == functionName)
+                        {
+                            // Call Function callback method.
+                            item.Value(json, webSocketClient);
+                        }
+                    }
+                    break;
+                //case "conversation.item.input_audio_transcription.completed":
+                //    var text = e.ResponseJson["transcript"]?.ToString();
+
+                //    WriteToTextFile(text);
+                //    break;
+                default:
+                    Console.WriteLine("Unhandled command type");
+                    break;
+            }
+        }
 
         private void FireTransactionOccurred(string message)
         {
@@ -489,6 +539,16 @@ namespace Realtime.API.Dotnet.SDK.Core
 
         private void SendSessionUpdate()
         {
+            JArray functionSettings = new JArray();
+            foreach (var item in functionRegistries2)
+            {
+                string jsonString = JsonConvert.SerializeObject(item.Key);
+                JObject jObject = JObject.Parse(jsonString);
+                functionSettings.Add(jObject);
+            }
+            
+
+
             var sessionUpdateRequest = new Model.Request.SessionUpdate
             {
                 type = "session.update",
@@ -510,7 +570,7 @@ namespace Realtime.API.Dotnet.SDK.Core
                     output_audio_format = "pcm16",
                     input_audio_transcription = new Model.Request.AudioTranscription { model = "whisper-1" },
                     tool_choice = "auto",
-                    tools = functionRegistries
+                    tools = functionSettings
                 }
             };
 

@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Realtime.API.Dotnet.SDK.Core;
-using Realtime.API.Dotnet.SDK.WPF.Sample.Model;
+using Realtime.API.Dotnet.SDK.Core.Model.Function;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -109,22 +109,22 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             var type = e.ResponseJson["type"]?.ToString();
             switch (type)
             {
-                case "response.function_call_arguments.done":
-                    string functionName = e.ResponseJson["name"]?.ToString();
-                    switch (functionName)
-                    {
-                        case "get_weather":
-                            HandleWeatherFunctionCall(e.ResponseJson, e.ClientWebSocket);
-                            break;
-                        case "write_notepad":
-                            HandleNotepadFunctionCall(e.ResponseJson, e.ClientWebSocket);
-                            break;
+                //case "response.function_call_arguments.done":
+                //    string functionName = e.ResponseJson["name"]?.ToString();
+                //    switch (functionName)
+                //    {
+                //        case "get_weather":
+                //            HandleWeatherFunctionCall(e.ResponseJson, e.ClientWebSocket);
+                //            break;
+                //        case "write_notepad":
+                //            HandleNotepadFunctionCall(e.ResponseJson, e.ClientWebSocket);
+                //            break;
 
-                        default:
-                            Console.WriteLine("Unknown function call received.");
-                            break;
-                    }
-                    break;
+                //        default:
+                //            Console.WriteLine("Unknown function call received.");
+                //            break;
+                //    }
+                //    break;
                 //case "conversation.item.input_audio_transcription.completed":
                 //    var text = e.ResponseJson["transcript"]?.ToString();
 
@@ -138,74 +138,71 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
 
         private void RegisterWeatherFunctionCall()
         {
-            var weatherFunctionCall = new FunctionCallSettings
+            var weatherFunctionCallSetting = new FunctionCallSetting
             {
-                type = "function",
-                name = "get_weather",
-                description = "Get current weather for a specified city",
-                parameters = new FunctionParameters
+                Name = "get_weather",
+                Description = "Get current weather for a specified city",
+                Parameter = new FunctionParameter
                 {
-                    type = "object",
-                    properties = new Dictionary<string, FunctionProperty>
+                    Properties = new Dictionary<string, FunctionProperty>
                     {
                         {
                             "city", new FunctionProperty
                             {
-                                type = "string",
-                                description = "The name of the city for which to fetch the weather."
+                                Description = "The name of the city for which to fetch the weather."
                             }
                         }
                     },
-                    required = new List<string> { "city" }
+                    Required = new List<string> { "city" }
                 }
             };
-            string jsonString = JsonConvert.SerializeObject(weatherFunctionCall);
-            // 将 JSON 字符串转换为 JObject
-            JObject jObject = JObject.Parse(jsonString);
-            realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(jObject);
+            //string jsonString = JsonConvert.SerializeObject(weatherFunctionCall);
+            //// 将 JSON 字符串转换为 JObject
+            //JObject jObject = JObject.Parse(jsonString);
+            //realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(jObject);
+
+            realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(weatherFunctionCallSetting, HandleWeatherFunctionCall);
         }
 
         private void RegisterNotepadFunctionCall()
         {
-            var notepadFunctionCall = new FunctionCallSettings
+            var notepadFunctionCallSetting = new FunctionCallSetting
             {
-                type = "function",
-                name = "write_notepad",
-                description = "Open a text editor and write the time, for example, 2024-10-29 16:19. Then, write the content, which should include my questions along with your answers.",
-                parameters = new FunctionParameters
+                Name = "write_notepad",
+                Description = "Open a text editor and write the time, for example, 2024-10-29 16:19. Then, write the content, which should include my questions along with your answers.",
+                Parameter = new FunctionParameter
                 {
-                    type = "object",
-                    properties = new Dictionary<string, FunctionProperty>
+                    Properties = new Dictionary<string, FunctionProperty>
                     {
                         {
                             "content", new FunctionProperty
                             {
-                                type = "string",
-                                description = "The content consists of my questions along with the answers you provide."
+                                Description = "The content consists of my questions along with the answers you provide."
                             }
                         },
                         {
                             "date", new FunctionProperty
                             {
-                                type = "string",
-                                description = "The time, for example, 2024-10-29 16:19."
+                                Description = "The time, for example, 2024-10-29 16:19."
                             }
                         }
                     },
-                    required = new List<string> { "content", "date" }
+                    Required = new List<string> { "content", "date" }
                 }
             };
-            string jsonString = JsonConvert.SerializeObject(notepadFunctionCall);
-            // 将 JSON 字符串转换为 JObject
-            JObject jObject = JObject.Parse(jsonString);
+            //string jsonString = JsonConvert.SerializeObject(notepadFunctionCall);
+            //// 将 JSON 字符串转换为 JObject
+            //JObject jObject = JObject.Parse(jsonString);
 
-            realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(jObject);
+            //realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(jObject);
+
+            realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(notepadFunctionCallSetting, HandleNotepadFunctionCall);
         }
 
 
         #region Function Call
 
-        private void HandleWeatherFunctionCall(JObject json, ClientWebSocket clientWebSocket)
+        private bool HandleWeatherFunctionCall(JObject json, ClientWebSocket clientWebSocket)
         {
             try
             {
@@ -236,9 +233,11 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             {
                 Console.WriteLine($"Error parsing function call arguments: {ex.Message}");
             }
+
+            return true;
         }
 
-        private void HandleNotepadFunctionCall(JObject json, ClientWebSocket clientWebSocket)
+        private bool HandleNotepadFunctionCall(JObject json, ClientWebSocket clientWebSocket)
         {
             try
             {
@@ -265,6 +264,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             {
                 Console.WriteLine($"Error parsing function call arguments: {ex.Message}");
             }
+            return true;
         }
 
         private string GetWeatherFake(string city)
