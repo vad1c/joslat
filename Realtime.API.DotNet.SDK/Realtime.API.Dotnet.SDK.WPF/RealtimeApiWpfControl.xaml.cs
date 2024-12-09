@@ -200,7 +200,7 @@ namespace Realtime.API.Dotnet.SDK.WPF
             }
         }
 
-        public void RegisterFunctionCall(FunctionCallSetting functionCallSetting, Func<JObject, ClientWebSocket, bool> functionCallback)
+        public void RegisterFunctionCall(FunctionCallSetting functionCallSetting, Func<FuncationCallArgument, ClientWebSocket, bool> functionCallback)
         {
             RealtimeApiSdk.RegisterFunctionCall(functionCallSetting, functionCallback);
         }

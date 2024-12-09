@@ -157,7 +157,6 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
                 }
             };
             //string jsonString = JsonConvert.SerializeObject(weatherFunctionCall);
-            //// 将 JSON 字符串转换为 JObject
             //JObject jObject = JObject.Parse(jsonString);
             //realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(jObject);
 
@@ -191,7 +190,6 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
                 }
             };
             //string jsonString = JsonConvert.SerializeObject(notepadFunctionCall);
-            //// 将 JSON 字符串转换为 JObject
             //JObject jObject = JObject.Parse(jsonString);
 
             //realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(jObject);
@@ -202,22 +200,20 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
 
         #region Function Call
 
-        private bool HandleWeatherFunctionCall(JObject json, ClientWebSocket clientWebSocket)
+        private bool HandleWeatherFunctionCall(FuncationCallArgument argument, ClientWebSocket clientWebSocket)
         {
             try
             {
-                var name = json["name"]?.ToString();
-                var callId = json["call_id"]?.ToString();
-                var arguments = json["arguments"]?.ToString();
+                var name = argument.Name;
+                var arguments = argument.Arguments;
                 if (!string.IsNullOrEmpty(arguments))
                 {
-                    var functionCallArgs = JObject.Parse(arguments);
-
-                    var city = functionCallArgs["city"]?.ToString();
+                    var weatherArgument = JsonConvert.DeserializeObject<WeatherArgument>(arguments);
+                    var city = weatherArgument?.City;
                     if (!string.IsNullOrEmpty(city))
                     {
                         var weatherResult = GetWeatherFake(city);
-                        SendFunctionCallResult(weatherResult, callId, clientWebSocket);
+                        SendFunctionCallResult(weatherResult, argument.CallId, clientWebSocket);
                     }
                     else
                     {
@@ -237,18 +233,18 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             return true;
         }
 
-        private bool HandleNotepadFunctionCall(JObject json, ClientWebSocket clientWebSocket)
+        private bool HandleNotepadFunctionCall(FuncationCallArgument argument, ClientWebSocket clientWebSocket)
         {
             try
             {
-                var name = json["name"]?.ToString();
-                var callId = json["call_id"]?.ToString();
-                var arguments = json["arguments"]?.ToString();
+                var name = argument.Name;
+                var callId = argument.CallId;
+                var arguments = argument.Arguments;
                 if (!string.IsNullOrEmpty(arguments))
                 {
-                    var functionCallArgs = JObject.Parse(arguments);
-                    var content = functionCallArgs["content"]?.ToString();
-                    var date = functionCallArgs["date"]?.ToString();
+                    var noteArgument = JsonConvert.DeserializeObject<NoteArgument>(arguments);
+                    var content = noteArgument?.Content;
+                    var date = noteArgument?.Date;
                     if (!string.IsNullOrEmpty(content) && !string.IsNullOrEmpty(date))
                     {
                         WriteToNotepad(date, content);
@@ -269,10 +265,13 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
 
         private string GetWeatherFake(string city)
         {
-            return $@"{{
-                ""city"": ""{city}"",
-                ""temperature"": ""30°C""
-            }}";
+            var weatherResponse = new WeatherResponse
+            {
+                City = city,
+                Temperature = "30°C"
+            };
+
+            return JsonConvert.SerializeObject(weatherResponse);
         }
 
         private void WriteToNotepad(string date, string content)

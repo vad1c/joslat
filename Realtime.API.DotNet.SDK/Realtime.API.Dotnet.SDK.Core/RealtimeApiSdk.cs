@@ -36,7 +36,7 @@ namespace Realtime.API.Dotnet.SDK.Core
         private ClientWebSocket webSocketClient;
         //private JArray functionRegistries;
         // TODO change JObject to Functioncall modle
-        private Dictionary<FunctionCallSetting, Func<JObject, ClientWebSocket, bool>> functionRegistries2 = new Dictionary<FunctionCallSetting, Func<JObject, ClientWebSocket, bool>> ();
+        private Dictionary<FunctionCallSetting, Func<FuncationCallArgument, ClientWebSocket, bool>> functionRegistries2 = new Dictionary<FunctionCallSetting, Func<FuncationCallArgument, ClientWebSocket, bool>>();
 
 
         private bool isPlayingAudio = false;//The icon indicates whether the audio is playing.
@@ -213,7 +213,7 @@ namespace Realtime.API.Dotnet.SDK.Core
         //}
 
         // TODO JObject 换成modle
-        public void RegisterFunctionCall(FunctionCallSetting functionCallSetting, Func<JObject, ClientWebSocket, bool> functionCallback)
+        public void RegisterFunctionCall(FunctionCallSetting functionCallSetting, Func<FuncationCallArgument, ClientWebSocket, bool> functionCallback)
         {
 
             functionRegistries2.Add(functionCallSetting, functionCallback);
@@ -434,7 +434,7 @@ namespace Realtime.API.Dotnet.SDK.Core
 
 
                 // TODO change json to BaseResponse.
-                HandleFunctionCall(json);
+                //HandleFunctionCall(json);
 
                 switch (type)
                 {
@@ -490,6 +490,10 @@ namespace Realtime.API.Dotnet.SDK.Core
                     case "response.created":
                         var responseCreated = json.ToObject<ResponseCreated>();
                         break;
+                    case "response.function_call_arguments.done":
+                        var argument = json.ToObject<FuncationCallArgument>();
+                        HandleFunctionCall(argument);
+                        break;
                     default:
                         OnWebSocketResponse(new WebSocketResponseEventArgs(json, webSocketClient));
                         break;
@@ -502,21 +506,20 @@ namespace Realtime.API.Dotnet.SDK.Core
 
         }
 
-        private void HandleFunctionCall(JObject json)
+        private void HandleFunctionCall(FuncationCallArgument argument)
         {
-            
-            var type = json["type"]?.ToString();
+            var type = argument.Type;
             switch (type)
             {
                 case "response.function_call_arguments.done":
-                    string functionName = json["name"]?.ToString();
+                    string functionName = argument.Name;
 
                     foreach (var item in functionRegistries2)
                     {
                         if (item.Key.Name == functionName)
                         {
                             // Call Function callback method.
-                            item.Value(json, webSocketClient);
+                            item.Value(argument, webSocketClient);
                         }
                     }
                     break;
@@ -546,7 +549,7 @@ namespace Realtime.API.Dotnet.SDK.Core
                 JObject jObject = JObject.Parse(jsonString);
                 functionSettings.Add(jObject);
             }
-            
+
 
 
             var sessionUpdateRequest = new Model.Request.SessionUpdate
