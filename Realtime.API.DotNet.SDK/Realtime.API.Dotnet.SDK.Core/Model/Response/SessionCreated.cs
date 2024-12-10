@@ -13,6 +13,10 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Response
     /// </summary>
     public class SessionCreated : BaseResponse
     {
+        public SessionCreated() {
+            base.Type = "session.created";
+        }
+
         [JsonProperty("session")]
         public Session Session { get; set; }
     }

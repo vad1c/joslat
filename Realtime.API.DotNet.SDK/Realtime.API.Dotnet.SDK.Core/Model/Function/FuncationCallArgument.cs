@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Realtime.API.Dotnet.SDK.Core.Model.Function
 {
+    //TODO : BaseResponse
     public class FuncationCallArgument
     {
         [JsonProperty("type")]
@@ -29,12 +30,14 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Function
     }
 
 
+    // TODO delete
     public class WeatherArgument
     {
         [JsonProperty("city")]
         public string City { get; set; }
     }
 
+    // TODO delete
     public class NoteArgument 
     {
         [JsonProperty("content")]

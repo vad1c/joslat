@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Realtime.API.Dotnet.SDK.Core;
 using Realtime.API.Dotnet.SDK.Core.Model.Function;
+using Realtime.API.Dotnet.SDK.Core.Model.Response;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -40,10 +41,10 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
 
             realtimeApiWpfControl.OpenAiApiKey = openAiApiKey;
             realtimeApiWpfControl.RealtimeApiSdk.WebSocketResponse += RealtimeApiSdk_WebSocketResponse;
-            realtimeApiWpfControl.RealtimeApiSdk.TransactionOccurred += RealtimeApiSdk_TransactionOccurred;
+            //realtimeApiWpfControl.RealtimeApiSdk.TransactionOccurred += RealtimeApiSdk_TransactionOccurred;
 
-            realtimeApiWpfControl.RealtimeApiSdk.SpeechTextAvailable += RealtimeApiSdk_SpeechTextAvailable;
-            realtimeApiWpfControl.RealtimeApiSdk.PlaybackTextAvailable += RealtimeApiSdk_PlaybackTextAvailable;
+            realtimeApiWpfControl.SpeechTextAvailable += RealtimeApiSdk_SpeechTextAvailable;
+            realtimeApiWpfControl.PlaybackTextAvailable += RealtimeApiSdk_PlaybackTextAvailable;
 
             //realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.Cycle;
             realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.SoundWave;
@@ -70,6 +71,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             });
         }
 
+        // TODO delete
         private void RealtimeApiSdk_TransactionOccurred(object? sender, TransactionOccurredEventArgs e)
         {
             Console.WriteLine(e.Message);
@@ -106,6 +108,14 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
 
         private void RealtimeApiSdk_WebSocketResponse(object? sender, WebSocketResponseEventArgs e)
         {
+            BaseResponse resBase = e.BaseResponse;
+
+            if (resBase is SessionCreated)
+            {
+                SessionCreated created = (SessionCreated)resBase;
+                string s = created.EventId;
+            }
+
             var type = e.ResponseJson["type"]?.ToString();
             switch (type)
             {
@@ -160,7 +170,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             //JObject jObject = JObject.Parse(jsonString);
             //realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(jObject);
 
-            realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(weatherFunctionCallSetting, HandleWeatherFunctionCall);
+            realtimeApiWpfControl.RegisterFunctionCall(weatherFunctionCallSetting, HandleWeatherFunctionCall);
         }
 
         private void RegisterNotepadFunctionCall()
@@ -194,7 +204,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
 
             //realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(jObject);
 
-            realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(notepadFunctionCallSetting, HandleNotepadFunctionCall);
+            realtimeApiWpfControl.RegisterFunctionCall(notepadFunctionCallSetting, HandleNotepadFunctionCall);
         }
 
 
@@ -311,6 +321,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             webSocketClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(resultJsonString)), WebSocketMessageType.Text, true, CancellationToken.None);
             Console.WriteLine("Sent function call result: " + resultJsonString);
 
+            // TODO create model
             var responseJson = new ResponseJson
             {
                 Type = "response.create"

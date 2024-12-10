@@ -10,7 +10,7 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Request
 {
     public class SessionUpdate
     {
-        public string type { get; set; }
+        public string type { get; set; } = "session.update";
         public Session session { get; set; }
     }
 

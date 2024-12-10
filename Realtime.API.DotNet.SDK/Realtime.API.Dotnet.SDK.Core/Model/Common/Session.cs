@@ -84,7 +84,7 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Common
         public string Type { get; set; }
 
         [JsonProperty("properties")]
-        public Dictionary<string, FunctionProperty> properties { get; set; }
+        public Dictionary<string, FunctionProperty> Properties { get; set; }
 
         [JsonProperty("required")]
         public List<string> Required { get; set; }

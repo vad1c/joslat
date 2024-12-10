@@ -22,11 +22,15 @@ namespace Realtime.API.Dotnet.SDK.WPF
         private const string apiKey = "";
         private VisualEffect voiceVisualEffect;
 
-        //TODO Move into Api Sdk
+        //TODO2 Move into Api Sdk
         private WaveInEvent speechWaveIn;
 
+        // TODO2
         private WasapiLoopbackCapture speakerCapture;
         private BufferedWaveProvider speakerWaveProvider;
+
+        // TODO add event
+        //WebSocketResponse
 
         public event EventHandler<EventArgs> SpeechStarted;
         public event EventHandler<AudioEventArgs> SpeechDataAvailable;
@@ -46,53 +50,15 @@ namespace Realtime.API.Dotnet.SDK.WPF
             //RealtimeApiSdk.PlaybackAudioReceived += RealtimeApiSdk_PlaybackAudioReceived;
         }
 
-        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        public RealtimeApiSdk RealtimeApiSdk { get; private set; }
+
+        public VisualEffect VoiceVisualEffect
         {
-            //RealtimeApiSdk.TransactionOccurred += RealtimeApiSdk_TransactionOccurred;
-
-
-            // TODO connect to sdk event
-            speechWaveIn = new WaveInEvent
-            {
-                WaveFormat = new WaveFormat(44100, 1)
-            };
-
-            speechWaveIn.DataAvailable += SpeechWaveIn_DataAvailable;
-            //waveIn.StopRecording();
-
-
-            speakerCapture = new WasapiLoopbackCapture();
-            speakerWaveProvider = new BufferedWaveProvider(speakerCapture.WaveFormat)
-            {
-                BufferLength = 1024 * 1024, // 1 MB buffer (adjust based on your needs)
-                DiscardOnBufferOverflow = true // Optional: discard data when buffer is full}
-            };
-
-            speakerCapture.DataAvailable += SpeakerCapture_DataAvailable;
-
-            RealtimeApiSdk.SpeechStarted += RealtimeApiSdk_SpeechStarted;
-            RealtimeApiSdk.SpeechDataAvailable += RealtimeApiSdk_SpeechDataAvailable;
-            RealtimeApiSdk.SpeechTextAvailable += RealtimeApiSdk_SpeechTextAvailable;
-            RealtimeApiSdk.SpeechEnded += RealtimeApiSdk_SpeechEnded;
-
-            RealtimeApiSdk.PlaybackStarted += RealtimeApiSdk_PlaybackStarted;
-            RealtimeApiSdk.PlaybackDataAvailable += RealtimeApiSdk_PlaybackDataAvailable;
-            RealtimeApiSdk.PlaybackTextAvailable += RealtimeApiSdk_PlaybackTextAvailable;
-            RealtimeApiSdk.PlaybackEnded += RealtimeApiSdk_PlaybackEnded;
-
-            voiceVisualEffect = VoiceVisualEffect;
-            PlayVisualVoiceEffect(false);
-            //RippleEffect.Visibility = Visibility.Hidden;
-            //WaveformContainer.Visibility = Visibility.Hidden;
-            //waveformCanvas.Visibility = Visibility.Hidden;
-
-            DrawDefaultVisualEffect(voiceVisualEffect);
+            get { return voiceVisualEffect; }
+            set { voiceVisualEffect = value; }
         }
 
-        private void RealtimeApiSdk_PlaybackDataAvailable(object? sender, AudioEventArgs e)
-        {
-            OnPlaybackDataAvailable(e);
-        }
+
         protected virtual void OnPlaybackDataAvailable(AudioEventArgs e)
         {
             PlaybackDataAvailable?.Invoke(this, e);
@@ -161,14 +127,55 @@ namespace Realtime.API.Dotnet.SDK.WPF
             SpeechDataAvailable?.Invoke(this, e);
         }
 
-        public RealtimeApiSdk RealtimeApiSdk { get; private set; }
-
-        public VisualEffect VoiceVisualEffect
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            get { return voiceVisualEffect; }
-            set { voiceVisualEffect = value; }
+            //RealtimeApiSdk.TransactionOccurred += RealtimeApiSdk_TransactionOccurred;
+
+
+            // TODO connect to sdk event
+            speechWaveIn = new WaveInEvent
+            {
+                WaveFormat = new WaveFormat(44100, 1)
+            };
+
+            speechWaveIn.DataAvailable += SpeechWaveIn_DataAvailable;
+            //waveIn.StopRecording();
+
+
+            speakerCapture = new WasapiLoopbackCapture();
+            speakerWaveProvider = new BufferedWaveProvider(speakerCapture.WaveFormat)
+            {
+                BufferLength = 1024 * 1024, // 1 MB buffer (adjust based on your needs)
+                DiscardOnBufferOverflow = true // Optional: discard data when buffer is full}
+            };
+
+            speakerCapture.DataAvailable += SpeakerCapture_DataAvailable;
+
+            RealtimeApiSdk.SpeechStarted += RealtimeApiSdk_SpeechStarted;
+            RealtimeApiSdk.SpeechDataAvailable += RealtimeApiSdk_SpeechDataAvailable;
+            RealtimeApiSdk.SpeechTextAvailable += RealtimeApiSdk_SpeechTextAvailable;
+            RealtimeApiSdk.SpeechEnded += RealtimeApiSdk_SpeechEnded;
+
+            RealtimeApiSdk.PlaybackStarted += RealtimeApiSdk_PlaybackStarted;
+            RealtimeApiSdk.PlaybackDataAvailable += RealtimeApiSdk_PlaybackDataAvailable;
+            RealtimeApiSdk.PlaybackTextAvailable += RealtimeApiSdk_PlaybackTextAvailable;
+            RealtimeApiSdk.PlaybackEnded += RealtimeApiSdk_PlaybackEnded;
+
+            voiceVisualEffect = VoiceVisualEffect;
+            PlayVisualVoiceEffect(false);
+            //RippleEffect.Visibility = Visibility.Hidden;
+            //WaveformContainer.Visibility = Visibility.Hidden;
+            //waveformCanvas.Visibility = Visibility.Hidden;
+
+            DrawDefaultVisualEffect(voiceVisualEffect);
         }
 
+        private void RealtimeApiSdk_PlaybackDataAvailable(object? sender, AudioEventArgs e)
+        {
+            OnPlaybackDataAvailable(e);
+        }
+
+      
         public string OpenAiApiKey
         {
             get { return RealtimeApiSdk.ApiKey; }
