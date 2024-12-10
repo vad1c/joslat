@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Realtime.API.Dotnet.SDK.Core;
 using Realtime.API.Dotnet.SDK.Core.Model.Function;
+using Realtime.API.Dotnet.SDK.Core.Model.Request;
 using Realtime.API.Dotnet.SDK.Core.Model.Response;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -41,7 +42,6 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
 
             realtimeApiWpfControl.OpenAiApiKey = openAiApiKey;
             realtimeApiWpfControl.RealtimeApiSdk.WebSocketResponse += RealtimeApiSdk_WebSocketResponse;
-            //realtimeApiWpfControl.RealtimeApiSdk.TransactionOccurred += RealtimeApiSdk_TransactionOccurred;
 
             realtimeApiWpfControl.SpeechTextAvailable += RealtimeApiSdk_SpeechTextAvailable;
             realtimeApiWpfControl.PlaybackTextAvailable += RealtimeApiSdk_PlaybackTextAvailable;
@@ -69,12 +69,6 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             {
                 ChatOutput.AppendText($"User: {e.Transcript}"); // Display the received speech text
             });
-        }
-
-        // TODO delete
-        private void RealtimeApiSdk_TransactionOccurred(object? sender, TransactionOccurredEventArgs e)
-        {
-            Console.WriteLine(e.Message);
         }
 
         private void StartSpeechRecognition_Click(object sender, RoutedEventArgs e)
@@ -207,7 +201,6 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             realtimeApiWpfControl.RegisterFunctionCall(notepadFunctionCallSetting, HandleNotepadFunctionCall);
         }
 
-
         #region Function Call
 
         private bool HandleWeatherFunctionCall(FuncationCallArgument argument, ClientWebSocket clientWebSocket)
@@ -218,8 +211,9 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
                 var arguments = argument.Arguments;
                 if (!string.IsNullOrEmpty(arguments))
                 {
-                    var weatherArgument = JsonConvert.DeserializeObject<WeatherArgument>(arguments);
-                    var city = weatherArgument?.City;
+
+                    var functionCallArgs = JObject.Parse(arguments);
+                    var city = functionCallArgs["city"]?.ToString();
                     if (!string.IsNullOrEmpty(city))
                     {
                         var weatherResult = GetWeatherFake(city);
@@ -252,9 +246,9 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
                 var arguments = argument.Arguments;
                 if (!string.IsNullOrEmpty(arguments))
                 {
-                    var noteArgument = JsonConvert.DeserializeObject<NoteArgument>(arguments);
-                    var content = noteArgument?.Content;
-                    var date = noteArgument?.Date;
+                    var functionCallArgs = JObject.Parse(arguments);
+                    var content = functionCallArgs["content"]?.ToString();
+                    var date = functionCallArgs["date"]?.ToString();
                     if (!string.IsNullOrEmpty(content) && !string.IsNullOrEmpty(date))
                     {
                         WriteToNotepad(date, content);
@@ -326,6 +320,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             {
                 Type = "response.create"
             };
+            //ResponseCreate responseJson = new ResponseCreate();
             string rpJsonString = JsonConvert.SerializeObject(responseJson);
 
             webSocketClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(rpJsonString)), WebSocketMessageType.Text, true, CancellationToken.None);

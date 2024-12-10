@@ -35,7 +35,6 @@ namespace Realtime.API.Dotnet.SDK.Core
 
         private ClientWebSocket webSocketClient;
         //private JArray functionRegistries;
-        // TODO change JObject to Functioncall modle
         private Dictionary<FunctionCallSetting, Func<FuncationCallArgument, ClientWebSocket, bool>> functionRegistries = new Dictionary<FunctionCallSetting, Func<FuncationCallArgument, ClientWebSocket, bool>>();
 
 
@@ -47,10 +46,10 @@ namespace Realtime.API.Dotnet.SDK.Core
         private ConcurrentQueue<byte[]> audioQueue = new ConcurrentQueue<byte[]>();//Audio queue
         private CancellationTokenSource playbackCancellationTokenSource;
 
-
-
         // TODO remove
-        public event EventHandler<TransactionOccurredEventArgs> TransactionOccurred;
+        public event EventHandler<TransactionOccurredEventArgs> TransactionOccurred;//Audo Playback
+        public event EventHandler<WaveInEventArgs> WaveInDataAvailable;
+
         public event EventHandler<WebSocketResponseEventArgs> WebSocketResponse;
 
         public event EventHandler<EventArgs> SpeechStarted;
@@ -88,21 +87,32 @@ namespace Realtime.API.Dotnet.SDK.Core
             RequestHeaderOptions.Add("openai-beta", "realtime=v1");
         }
 
+        public string ApiKey { get; set; }
+
+        public bool IsRunning { get; private set; }
+
+        public string OpenApiUrl { get; set; }
+
+        public string Model { get; set; }
+
+        public Dictionary<string, string> RequestHeaderOptions { get; }
+
+        protected virtual void OnWaveInDataAvailable(WaveInEventArgs e)
+        {
+            WaveInDataAvailable?.Invoke(this, e);
+        }
         protected virtual void OnTransactionOccurred(TransactionOccurredEventArgs e)
         {
             TransactionOccurred?.Invoke(this, e);
         }
-
         protected virtual void OnWebSocketResponse(WebSocketResponseEventArgs e)
         {
             WebSocketResponse?.Invoke(this, e);
         }
-
         protected virtual void OnSpeechStarted(EventArgs e)
         {
             SpeechStarted?.Invoke(this, e);
         }
-
         protected virtual void OnSpeechEnded(AudioEventArgs e)
         {
             SpeechEnded?.Invoke(this, e);
@@ -115,17 +125,14 @@ namespace Realtime.API.Dotnet.SDK.Core
         {
             SpeechDataAvailable?.Invoke(this, e);
         }
-
         protected virtual void OnSpeechTextAvailable(TranscriptEventArgs e)
         {
             SpeechTextAvailable?.Invoke(this, e);
         }
-
         protected virtual void OnPlaybackTextAvailable(TranscriptEventArgs e)
         {
             PlaybackTextAvailable?.Invoke(this, e);
         }
-
         protected virtual void OnSpeechActivity(bool isActive, AudioEventArgs? audioArgs = null)
         {
             if (isActive)
@@ -141,23 +148,10 @@ namespace Realtime.API.Dotnet.SDK.Core
         {
             PlaybackStarted?.Invoke(this, e);
         }
-
         protected virtual void OnPlaybackEnded(EventArgs e)
         {
             PlaybackEnded?.Invoke(this, e);
         }
-
-
-        public string ApiKey { get; set; }
-
-        public bool IsRunning { get; private set; }
-
-        public string OpenApiUrl { get; set; }
-
-        public string Model { get; set; }
-
-        public Dictionary<string, string> RequestHeaderOptions { get; }
-
         public async void StartSpeechRecognitionAsync()
         {
             if (!IsRunning)
@@ -173,7 +167,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                 await Task.WhenAll(sendAudioTask, receiveTask);
             }
         }
-
         public async void StopSpeechRecognitionAsync()
         {
             if (IsRunning)
@@ -207,13 +200,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                 IsRunning = false;
             }
         }
-
-        //public void RegisterFunctionCall(JObject json)
-        //{
-        //    functionRegistries.Add(json);
-        //}
-
-        // TODO JObject 换成modle
         public void RegisterFunctionCall(FunctionCallSetting functionCallSetting, Func<FuncationCallArgument, ClientWebSocket, bool> functionCallback)
         {
 
@@ -226,7 +212,6 @@ namespace Realtime.API.Dotnet.SDK.Core
 
 
         }
-
         private void ValidateApiKey()
         {
             if (string.IsNullOrEmpty(ApiKey))
@@ -234,7 +219,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                 throw new InvalidOperationException("Invalid API Key.");
             }
         }
-
         private string GetAuthorization()
         {
             string authorization = ApiKey;
@@ -245,7 +229,6 @@ namespace Realtime.API.Dotnet.SDK.Core
 
             return authorization;
         }
-
         private void InitalizeWaveProvider()
         {
             waveInBufferedWaveProvider = new BufferedWaveProvider(new WaveFormat(24000, 16, 1))
@@ -278,7 +261,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                 throw ex;
             }
         }
-
         private async Task CloseWebSocketAsync()
         {
             if (webSocketClient != null && webSocketClient.State == WebSocketState.Open)
@@ -290,7 +272,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                 log.Info("WebSocket closed successfully.");
             }
         }
-
         private async void WaveIn_DataAvailable(object? sender, WaveInEventArgs e)
         {
             //waveFileWriter.Write(e.Buffer, 0, e.BytesRecorded);
@@ -307,8 +288,8 @@ namespace Realtime.API.Dotnet.SDK.Core
             await webSocketClient.SendAsync(new ArraySegment<byte>(messageBytes), WebSocketMessageType.Text, true, CancellationToken.None);
 
             OnSpeechDataAvailable(new AudioEventArgs(e.Buffer));
+            OnWaveInDataAvailable(new WaveInEventArgs(e.Buffer, e.BytesRecorded));
         }
-
         private async Task StartAudioRecordingAsync()
         {
             //waveIn = new WaveInEvent
@@ -345,7 +326,6 @@ namespace Realtime.API.Dotnet.SDK.Core
 
             log.Info("Audio recording started.");
         }
-
         private void StopAudioRecording()
         {
             if (waveIn != null && isRecording)
@@ -356,7 +336,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                 log.Debug("Recording stopped to prevent echo.");
             }
         }
-
         private void StopAudioPlayback()
         {
             if (isModelResponding && playbackCancellationTokenSource != null)
@@ -368,7 +347,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                 OnPlaybackEnded(new EventArgs());
             }
         }
-
         private async Task CommitAudioBufferAsync()
         {
             if (webSocketClient != null && webSocketClient.State == WebSocketState.Open)
@@ -388,14 +366,11 @@ namespace Realtime.API.Dotnet.SDK.Core
                 );
             }
         }
-
-
         private void ClearAudioQueue()
         {
             while (audioQueue.TryDequeue(out _)) { }
             Console.WriteLine("Audio queue cleared.");
         }
-
         private async Task ReceiveMessages()
         {
             var buffer = new byte[1024 * 16]; // Increase the buffer size to 16KB.
@@ -423,7 +398,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                 }
             }
         }
-
         private async void HandleWebSocketMessage(JObject json)
         {
             try
@@ -433,14 +407,42 @@ namespace Realtime.API.Dotnet.SDK.Core
                 log.Debug($"Received json: {json}");
                 FireTransactionOccurred($"Received type: {type}");
 
-
                 // TODO change json to BaseResponse.
-
-                //BaseResponse sessionObjBase = BaseResponse.Parse(json);
+                BaseResponse sessionObjBase = BaseResponse.Parse(json);
                 //switch (sessionObjBase)
                 //{
                 //    case SessionCreated:
                 //        SendSessionUpdate();
+                //        break;
+                //    case Core.Model.Response.SessionUpdate:
+                //        if (!isRecording)
+                //            await StartAudioRecordingAsync();
+                //        break;
+                //    case Core.Model.Response.SpeechStarted:
+                //        HandleUserSpeechStarted();
+                //        break;
+                //    case SpeechStopped:
+                //        HandleUserSpeechStopped();
+                //        break;
+                //    case ResponseDelta:
+                //        break;
+                //    case TranscriptionCompleted:
+                //        var transcriptionCompleted = sessionObjBase as TranscriptionCompleted;
+                //        OnSpeechTextAvailable(new TranscriptEventArgs(transcriptionCompleted.Transcript));
+                //        break;
+                //    case ResponseAudioTranscriptDone:
+                //        var textDone = sessionObjBase as ResponseAudioTranscriptDone;
+                //        OnPlaybackTextAvailable(new TranscriptEventArgs(textDone.Transcript));
+                //        break;
+                //    case ConversationItemCreated:
+                //        break;
+                //    case BufferCommitted:
+                //        break;
+                //    case ResponseCreated:
+                //        break;
+                //    case FuncationCallArgument:
+                //        var argument = sessionObjBase as FuncationCallArgument;
+                //        HandleFunctionCall(argument);
                 //        break;
                 //}
                 //OnWebSocketResponse(new WebSocketResponseEventArgs(sessionObjBase, webSocketClient));
@@ -448,7 +450,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                 switch (type)
                 {
                     case "session.created":
-                        //case sessionObjBase is SessionCreated:
                         FireTransactionOccurred($"Session created. Sending session update.");
                         var sessionCreated = json.ToObject<SessionCreated>();
                         SendSessionUpdate();
@@ -513,9 +514,7 @@ namespace Realtime.API.Dotnet.SDK.Core
             {
                 log.Error(e.Message);
             }
-
         }
-
         private void HandleFunctionCall(FuncationCallArgument argument)
         {
             var type = argument.Type;
@@ -533,23 +532,16 @@ namespace Realtime.API.Dotnet.SDK.Core
                         }
                     }
                     break;
-                //case "conversation.item.input_audio_transcription.completed":
-                //    var text = e.ResponseJson["transcript"]?.ToString();
-
-                //    WriteToTextFile(text);
-                //    break;
                 default:
                     Console.WriteLine("Unhandled command type");
                     break;
             }
         }
-
         private void FireTransactionOccurred(string message)
         {
             string msg = message ?? "";
             OnTransactionOccurred(new TransactionOccurredEventArgs(msg));
         }
-
         private void SendSessionUpdate()
         {
             JArray functionSettings = new JArray();
@@ -590,7 +582,6 @@ namespace Realtime.API.Dotnet.SDK.Core
             webSocketClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(message)), WebSocketMessageType.Text, true, CancellationToken.None);
             log.Debug("Sent session update: " + message);
         }
-
         private void HandleUserSpeechStarted()
         {
             isUserSpeaking = true;
@@ -603,7 +594,6 @@ namespace Realtime.API.Dotnet.SDK.Core
             OnSpeechStarted(new EventArgs());
             OnSpeechActivity(true);
         }
-
         private void HandleUserSpeechStopped()
         {
             isUserSpeaking = false;
@@ -613,7 +603,6 @@ namespace Realtime.API.Dotnet.SDK.Core
             OnTransactionOccurred(new TransactionOccurredEventArgs("Speech ended."));
             OnSpeechActivity(false, new AudioEventArgs(new byte[0]));
         }
-
         private void ProcessAudioDelta(JObject json)
         {
             if (isUserSpeaking) return;
@@ -630,7 +619,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                 OnSpeechActivity(true);
             }
         }
-
         private void ResumeRecording()
         {
             if (waveIn != null && !isRecording && !isModelResponding)
@@ -642,7 +630,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                 OnSpeechActivity(true);
             }
         }
-
         private void ProcessAudioQueue()
         {
             if (!isPlayingAudio)
@@ -687,21 +674,10 @@ namespace Realtime.API.Dotnet.SDK.Core
                 });
             }
         }
-
-        //private float[] ExtractWaveform(byte[] audioData)
-        //{
-        //    short[] samples = new short[audioData.Length / 2];
-        //    Buffer.BlockCopy(audioData, 0, samples, 0, audioData.Length);
-
-        //    float[] waveform = samples.Select(s => s / 32768f).ToArray();
-        //    return waveform;
-        //}
-
         private void WaveOut_PlaybackStopped(object? sender, StoppedEventArgs e)
         {
             throw new NotImplementedException();
         }
-
         private string GetOpenAIRequestUrl()
         {
             string url = $"{this.OpenApiUrl.TrimEnd('/').TrimEnd('?')}?model={this.Model}";

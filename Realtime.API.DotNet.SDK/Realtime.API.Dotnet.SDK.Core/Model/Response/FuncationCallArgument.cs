@@ -5,16 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Realtime.API.Dotnet.SDK.Core.Model.Function
+namespace Realtime.API.Dotnet.SDK.Core.Model.Response
 {
-    //TODO : BaseResponse
-    public class FuncationCallArgument
+    public class FuncationCallArgument : BaseResponse
     {
-        [JsonProperty("type")]
-        public string Type { get; set; }
-
-        [JsonProperty("event_id")]
-        public string EventId { get; set; }
         [JsonProperty("response_id")]
         public string ResponseId { get; set; }
         [JsonProperty("item_id")]
@@ -27,23 +21,5 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Function
         public string Name { get; set; }
         [JsonProperty("arguments")]
         public string Arguments { get; set; }
-    }
-
-
-    // TODO delete
-    public class WeatherArgument
-    {
-        [JsonProperty("city")]
-        public string City { get; set; }
-    }
-
-    // TODO delete
-    public class NoteArgument 
-    {
-        [JsonProperty("content")]
-        public string Content { get; set; }
-
-        [JsonProperty("date")]
-        public string Date { get; set; }
     }
 }
