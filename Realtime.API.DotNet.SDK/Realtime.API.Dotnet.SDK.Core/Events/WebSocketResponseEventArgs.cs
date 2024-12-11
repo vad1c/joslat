@@ -16,8 +16,6 @@ namespace Realtime.API.Dotnet.SDK
 
         public BaseResponse BaseResponse { get; set; }
 
-        public JObject ResponseJson { get; set; }
-
         public ClientWebSocket ClientWebSocket { get; }
     }
 } 

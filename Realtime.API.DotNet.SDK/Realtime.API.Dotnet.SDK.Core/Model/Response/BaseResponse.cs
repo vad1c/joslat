@@ -19,8 +19,6 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Response
         //TODO2 add all events from openai
         public static BaseResponse Parse(JObject json)
         {
-
-            // TODO auto select model to 反序列化  
             BaseResponse baseResponse = null;
             var type = json["type"]?.ToString();
 

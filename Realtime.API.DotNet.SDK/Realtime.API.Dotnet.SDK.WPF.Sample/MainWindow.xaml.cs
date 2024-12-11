@@ -108,13 +108,12 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
         {
             if (e.BaseResponse != null)
             {
-                Console.WriteLine(e.BaseResponse.Type);
+                log.Info(e.BaseResponse.Type);
                 BaseResponse resBase = e.BaseResponse;
-
+                
                 if (resBase is SessionCreated)
                 {
                     SessionCreated created = (SessionCreated)resBase;
-                    //string eventId = created.EventId;
                 }
             }
         }

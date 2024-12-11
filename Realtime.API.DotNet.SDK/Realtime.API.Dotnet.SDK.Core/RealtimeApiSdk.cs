@@ -29,21 +29,18 @@ namespace Realtime.API.Dotnet.SDK.Core
     public class RealtimeApiSdk
     {
         private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        //private const string openApiUrl = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01";
         private BufferedWaveProvider waveInBufferedWaveProvider;
         private WaveInEvent waveIn;
 
         private ClientWebSocket webSocketClient;
-        //private JArray functionRegistries;
         private Dictionary<FunctionCallSetting, Func<FuncationCallArgument, ClientWebSocket, bool>> functionRegistries = new Dictionary<FunctionCallSetting, Func<FuncationCallArgument, ClientWebSocket, bool>>();
 
+        private bool isPlayingAudio = false;
+        private bool isUserSpeaking = false; 
+        private bool isModelResponding = false;
+        private bool isRecording = false;
 
-        private bool isPlayingAudio = false;//The icon indicates whether the audio is playing.
-        private bool isUserSpeaking = false; //Indicate whether it is the user speaking.
-        private bool isModelResponding = false; //Identify whether it is the model responding.
-        private bool isRecording = false; //Record the audio status
-
-        private ConcurrentQueue<byte[]> audioQueue = new ConcurrentQueue<byte[]>();//Audio queue
+        private ConcurrentQueue<byte[]> audioQueue = new ConcurrentQueue<byte[]>();
         private CancellationTokenSource playbackCancellationTokenSource;
 
         public event EventHandler<WaveInEventArgs> WaveInDataAvailable;
@@ -64,14 +61,11 @@ namespace Realtime.API.Dotnet.SDK.Core
         public RealtimeApiSdk() : this("")
         {
             XmlConfigurator.Configure(new FileInfo("log4net.config"));
-
-            log.Info("Core project started.");
         }
 
         public RealtimeApiSdk(string apiKey)
         {
             ApiKey = apiKey;
-            //functionRegistries = new JArray();
 
             waveIn = new WaveInEvent
             {
@@ -165,27 +159,18 @@ namespace Realtime.API.Dotnet.SDK.Core
         {
             if (IsRunning)
             {
-                // The text is in Chinese and it translates to "Stop recording" in English.
                 StopAudioRecording();
 
-                // The text is in Chinese, and it translates to "Stop audio playback" in English.
                 StopAudioPlayback();
 
-                // The audio is buffering.
                 await CommitAudioBufferAsync();
-                //Console.WriteLine($"Recording saved to {outputFilePath}");
 
-                // The language detected is Chinese. The translation to English is "CancellationToken for canceling the playback task."
                 playbackCancellationTokenSource?.Cancel();
 
-
-                // Close the WebSocket connection.
                 await CloseWebSocketAsync();
 
-                // Clear the audio queue.
                 ClearAudioQueue();
 
-                // Reset state variables.
                 isPlayingAudio = false;
                 isUserSpeaking = false;
                 isModelResponding = false;
@@ -196,15 +181,7 @@ namespace Realtime.API.Dotnet.SDK.Core
         }
         public void RegisterFunctionCall(FunctionCallSetting functionCallSetting, Func<FuncationCallArgument, ClientWebSocket, bool> functionCallback)
         {
-
             functionRegistries.Add(functionCallSetting, functionCallback);
-
-
-            //string jsonString = JsonConvert.SerializeObject(functionCallSetting);
-            //JObject jObject = JObject.Parse(jsonString);
-            //functionRegistries.Add(jObject);
-
-
         }
         private void ValidateApiKey()
         {
@@ -227,7 +204,7 @@ namespace Realtime.API.Dotnet.SDK.Core
         {
             waveInBufferedWaveProvider = new BufferedWaveProvider(new WaveFormat(24000, 16, 1))
             {
-                BufferDuration = TimeSpan.FromSeconds(100), // Adjust the buffer duration.
+                BufferDuration = TimeSpan.FromSeconds(100),
                 DiscardOnBufferOverflow = true
             };
 
@@ -249,10 +226,6 @@ namespace Realtime.API.Dotnet.SDK.Core
             catch (Exception ex)
             {
                 log.Error($"Failed to connect WebSocket: {ex.Message}");
-                //Dispatcher.Invoke(() => ChatMessages.Add($"Failed to connect WebSocket: {ex.Message}"));
-                //await Task.Delay(5000); // Wait before retrying
-                //await InitializeWebSocketAsync(); // Retry connection
-                throw ex;
             }
         }
         private async Task CloseWebSocketAsync()
@@ -262,15 +235,11 @@ namespace Realtime.API.Dotnet.SDK.Core
                 await webSocketClient.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing connection", CancellationToken.None);
                 webSocketClient.Dispose();
                 webSocketClient = null;
-                //Dispatcher.Invoke(() => ChatMessages.Add("WebSocket closed successfully."));
                 log.Info("WebSocket closed successfully.");
             }
         }
         private async void WaveIn_DataAvailable(object? sender, WaveInEventArgs e)
         {
-            //waveFileWriter.Write(e.Buffer, 0, e.BytesRecorded);
-            //waveFileWriter.Flush();
-
             string base64Audio = Convert.ToBase64String(e.Buffer, 0, e.BytesRecorded);
             var audioMessage = new JObject
             {
@@ -289,7 +258,6 @@ namespace Realtime.API.Dotnet.SDK.Core
             waveIn.StartRecording();
             isRecording = true;
 
-            //OnPlaybackStarted(new EventArgs());
             OnSpeechStarted(new EventArgs());
 
             log.Info("Audio recording started.");
@@ -340,8 +308,8 @@ namespace Realtime.API.Dotnet.SDK.Core
         }
         private async Task ReceiveMessages()
         {
-            var buffer = new byte[1024 * 16]; // Increase the buffer size to 16KB.
-            var messageBuffer = new StringBuilder(); // For storing complete messages.
+            var buffer = new byte[1024 * 16]; 
+            var messageBuffer = new StringBuilder(); 
 
             while (webSocketClient?.State == WebSocketState.Open)
             {
@@ -349,7 +317,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                 var chunk = Encoding.UTF8.GetString(buffer, 0, result.Count);
                 messageBuffer.Append(chunk);
 
-                // For storing complete messages.
                 if (result.EndOfMessage)
                 {
                     var jsonResponse = messageBuffer.ToString();
@@ -358,7 +325,7 @@ namespace Realtime.API.Dotnet.SDK.Core
                     if (jsonResponse.Trim().StartsWith("{"))
                     {
                         var json = JObject.Parse(jsonResponse);
-                        HandleWebSocketMessage(json); // Call `HandleWebSocketMessage` to process the complete JSON message.
+                        HandleWebSocketMessage(json);
                     }
                 }
             }
@@ -367,69 +334,80 @@ namespace Realtime.API.Dotnet.SDK.Core
         {
             try
             {
-                var type = json["type"]?.ToString();
-                log.Debug($"Received type: {type}");
-                if (type != "response.audio.delta")
-                    log.Debug($"Received json: {json}");
+                BaseResponse baseResponse = BaseResponse.Parse(json);
+                await HandleBaseResponse(baseResponse, json);
 
-                BaseResponse sessionObjBase = BaseResponse.Parse(json);
-                log.Debug($"Convert Object: {sessionObjBase}");
-                switch (sessionObjBase)
-                {
-                    case SessionCreated:
-                        SendSessionUpdate();
-                        break;
-                    case Core.Model.Response.SessionUpdate:
-                        if (!isRecording)
-                            await StartAudioRecordingAsync();
-                        break;
-                    case Core.Model.Response.SpeechStarted:
-                        HandleUserSpeechStarted();
-                        break;
-                    case SpeechStopped:
-                        HandleUserSpeechStopped();
-                        break;
-                    case ResponseDelta:
-
-                        switch ((sessionObjBase as ResponseDelta).ResponseDeltaType)
-                        {
-                            case ResponseDeltaType.AudioTranscriptDelta:
-                                break;
-                            case ResponseDeltaType.AudioDelta:
-                                ProcessAudioDelta(json);
-                                break;
-                            case ResponseDeltaType.AudioDone:
-                                isModelResponding = false;
-                                ResumeRecording();
-                                break;
-                        }
-                        break;
-                    case TranscriptionCompleted:
-                        var transcriptionCompleted = sessionObjBase as TranscriptionCompleted;
-                        OnSpeechTextAvailable(new TranscriptEventArgs(transcriptionCompleted.Transcript));
-                        break;
-                    case ResponseAudioTranscriptDone:
-                        var textDone = sessionObjBase as ResponseAudioTranscriptDone;
-                        OnPlaybackTextAvailable(new TranscriptEventArgs(textDone.Transcript));
-                        break;
-                    case ConversationItemCreated:
-                        break;
-                    case BufferCommitted:
-                        break;
-                    case ResponseCreated:
-                        break;
-                    case FuncationCallArgument:
-                        var argument = sessionObjBase as FuncationCallArgument;
-                        HandleFunctionCall(argument);
-                        break;
-                }
-                OnWebSocketResponse(new WebSocketResponseEventArgs(sessionObjBase, webSocketClient));
+                OnWebSocketResponse(new WebSocketResponseEventArgs(baseResponse, webSocketClient));
             }
             catch (Exception e)
             {
                 log.Error(e.Message);
             }
         }
+
+        private async Task HandleBaseResponse(BaseResponse baseResponse, JObject json)
+        {
+            switch (baseResponse)
+            {
+                case SessionCreated:
+                    SendSessionUpdate();
+                    break;
+
+                case Core.Model.Response.SessionUpdate sessionUpdate:
+                    if (!isRecording)
+                        await StartAudioRecordingAsync();
+                    break;
+
+                case Core.Model.Response.SpeechStarted:
+                    HandleUserSpeechStarted();
+                    break;
+
+                case SpeechStopped:
+                    HandleUserSpeechStopped();
+                    break;
+
+                case ResponseDelta responseDelta:
+                    await HandleResponseDelta(responseDelta);
+                    break;
+
+                case TranscriptionCompleted transcriptionCompleted:
+                    OnSpeechTextAvailable(new TranscriptEventArgs(transcriptionCompleted.Transcript));
+                    break;
+
+                case ResponseAudioTranscriptDone textDone:
+                    OnPlaybackTextAvailable(new TranscriptEventArgs(textDone.Transcript));
+                    break;
+
+                case FuncationCallArgument argument:
+                    HandleFunctionCall(argument);
+                    break;
+
+                case ConversationItemCreated:
+                case BufferCommitted:
+                case ResponseCreated:
+                    break;
+            }
+        }
+
+        private async Task HandleResponseDelta(ResponseDelta responseDelta)
+        {
+            switch (responseDelta.ResponseDeltaType)
+            {
+                case ResponseDeltaType.AudioTranscriptDelta:
+                    // Handle AudioTranscriptDelta if necessary
+                    break;
+
+                case ResponseDeltaType.AudioDelta:
+                    ProcessAudioDelta(responseDelta);
+                    break;
+
+                case ResponseDeltaType.AudioDone:
+                    isModelResponding = false;
+                    ResumeRecording();
+                    break;
+            }
+        }
+
         private void HandleFunctionCall(FuncationCallArgument argument)
         {
             var type = argument.Type;
@@ -442,7 +420,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                     {
                         if (item.Key.Name == functionName)
                         {
-                            // Call Function callback method.
                             item.Value(argument, webSocketClient);
                         }
                     }
@@ -510,11 +487,11 @@ namespace Realtime.API.Dotnet.SDK.Core
 
             OnSpeechActivity(false, new AudioEventArgs(new byte[0]));
         }
-        private void ProcessAudioDelta(JObject json)
+        private void ProcessAudioDelta(ResponseDelta responseDelta)
         {
             if (isUserSpeaking) return;
 
-            var base64Audio = json["delta"]?.ToString();
+            var base64Audio = responseDelta.Delta;
             if (!string.IsNullOrEmpty(base64Audio))
             {
                 var audioBytes = Convert.FromBase64String(base64Audio);
@@ -580,10 +557,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                     }
                 });
             }
-        }
-        private void WaveOut_PlaybackStopped(object? sender, StoppedEventArgs e)
-        {
-            throw new NotImplementedException();
         }
         private string GetOpenAIRequestUrl()
         {

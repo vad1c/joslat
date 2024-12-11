@@ -48,7 +48,6 @@ namespace Realtime.API.Dotnet.SDK.WPF
             InitializeComponent();
 
             RealtimeApiSdk = new RealtimeApiSdk();
-            //RealtimeApiSdk.PlaybackAudioReceived += RealtimeApiSdk_PlaybackAudioReceived;
         }
 
         public RealtimeApiSdk RealtimeApiSdk { get; private set; }
@@ -257,23 +256,16 @@ namespace Realtime.API.Dotnet.SDK.WPF
         {
             if (enable)
             {
-                //RealtimeApiSdk.SpeechAudioReceived += RealtimeApiSdk_SpeechAudioReceived;
-                //RealtimeApiSdk.PlaybackAudioReceived += RealtimeApiSdk_PlaybackAudioReceived;
                 speakerCapture.StartRecording();
-                //StartAudioCapture();
                 speechWaveIn.StartRecording();
 
             }
             else
             {
-                //RealtimeApiSdk.AudioReceived -= RealtimeApiSdk_SpeechAudioReceived;
-                //RealtimeApiSdk.PlaybackAudioReceived -= RealtimeApiSdk_PlaybackAudioReceived;
                 speakerCapture.StopRecording();
 
-                //StopAudioCapture();
                 speechWaveIn.StopRecording();
                 WaveCanvas.Children.Clear();
-                //DrawWaveform(new float[] { 0f});
             }
 
         }
@@ -282,22 +274,15 @@ namespace Realtime.API.Dotnet.SDK.WPF
         {
             if (enable)
             {
-                //RealtimeApiSdk.SpeechAudioReceived += RealtimeApiSdk_SpeechAudioReceived;
-                //RealtimeApiSdk.PlaybackAudioReceived += RealtimeApiSdk_PlaybackAudioReceived;
                 speakerCapture.StartRecording();
-                //StartAudioCapture();
                 speechWaveIn.StartRecording();
             }
             else
             {
-                //RealtimeApiSdk.AudioReceived -= RealtimeApiSdk_SpeechAudioReceived;
-                //RealtimeApiSdk.PlaybackAudioReceived -= RealtimeApiSdk_PlaybackAudioReceived;
                 speakerCapture.StopRecording();
 
-                //StopAudioCapture();
                 speechWaveIn.StopRecording();
                 cycleWaveformCanvas.Children.Clear();
-                //cycleWaveformCanvas.UpdateAudioData( new float[] { 0});
             }
         }
 
@@ -309,7 +294,6 @@ namespace Realtime.API.Dotnet.SDK.WPF
                 short value = BitConverter.ToInt16(e.Buffer, i);
                 float normalized = value / 32768f;
                 audioBuffer.Add(normalized);
-                //audioBuffer.Add(BitConverter.ToSingle(e.Buffer, i));
             }
 
             try
@@ -332,15 +316,6 @@ namespace Realtime.API.Dotnet.SDK.WPF
 
         private void SpeakerCapture_DataAvailable(object? sender, WaveInEventArgs e)
         {
-            //List<float> audioBuffer = new List<float>();
-            //for (int i = 0; i < e.BytesRecorded; i += 2)
-            //{
-            //    short value = BitConverter.ToInt16(e.Buffer, i);
-            //    float normalized = value / 32768f;
-            //    audioBuffer.Add(normalized);
-            //    //audioBuffer.Add(BitConverter.ToSingle(e.Buffer, i));
-            //}
-
             speakerWaveProvider.AddSamples(e.Buffer, 0, e.BytesRecorded);
             var audioBuffer = new float[e.BytesRecorded / 4];
             WaveBuffer waveBuffer = new WaveBuffer(e.Buffer);
