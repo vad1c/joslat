@@ -104,47 +104,19 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             isPlaying = !isPlaying;
         }
 
-
         private void RealtimeApiSdk_WebSocketResponse(object? sender, WebSocketResponseEventArgs e)
         {
-            Console.WriteLine(e.BaseResponse.Type);
+            if (e.BaseResponse != null)
+            {
+                Console.WriteLine(e.BaseResponse.Type);
+                BaseResponse resBase = e.BaseResponse;
 
-            //BaseResponse resBase = e.BaseResponse;
-
-            //if (resBase is SessionCreated)
-            //{
-            //    SessionCreated created = (SessionCreated)resBase;
-            //    string s = created.EventId;
-            //}
-
-            //var type = e.ResponseJson["type"]?.ToString();
-            //switch (type)
-            //{
-            //    //case "response.function_call_arguments.done":
-            //    //    string functionName = e.ResponseJson["name"]?.ToString();
-            //    //    switch (functionName)
-            //    //    {
-            //    //        case "get_weather":
-            //    //            HandleWeatherFunctionCall(e.ResponseJson, e.ClientWebSocket);
-            //    //            break;
-            //    //        case "write_notepad":
-            //    //            HandleNotepadFunctionCall(e.ResponseJson, e.ClientWebSocket);
-            //    //            break;
-
-            //    //        default:
-            //    //            Console.WriteLine("Unknown function call received.");
-            //    //            break;
-            //    //    }
-            //    //    break;
-            //    //case "conversation.item.input_audio_transcription.completed":
-            //    //    var text = e.ResponseJson["transcript"]?.ToString();
-
-            //    //    WriteToTextFile(text);
-            //    //    break;
-            //    default:
-            //        Console.WriteLine("Unhandled command type");
-            //        break;
-            //}
+                if (resBase is SessionCreated)
+                {
+                    SessionCreated created = (SessionCreated)resBase;
+                    //string eventId = created.EventId;
+                }
+            }
         }
 
         private void RegisterWeatherFunctionCall()
@@ -167,11 +139,9 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
                     Required = new List<string> { "city" }
                 }
             };
-            //string jsonString = JsonConvert.SerializeObject(weatherFunctionCall);
-            //JObject jObject = JObject.Parse(jsonString);
-            //realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(jObject);
 
-            realtimeApiWpfControl.RegisterFunctionCall(weatherFunctionCallSetting, HandleWeatherFunctionCall);
+            FucationCall fucationCall = new FucationCall();
+            realtimeApiWpfControl.RegisterFunctionCall(weatherFunctionCallSetting, fucationCall.HandleWeatherFunctionCall);
         }
 
         private void RegisterNotepadFunctionCall()
@@ -200,151 +170,10 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
                     Required = new List<string> { "content", "date" }
                 }
             };
-            //string jsonString = JsonConvert.SerializeObject(notepadFunctionCall);
-            //JObject jObject = JObject.Parse(jsonString);
 
-            //realtimeApiWpfControl.RealtimeApiSdk.RegisterFunctionCall(jObject);
-
-            realtimeApiWpfControl.RegisterFunctionCall(notepadFunctionCallSetting, HandleNotepadFunctionCall);
+            FucationCall fucationCall = new FucationCall();
+            realtimeApiWpfControl.RegisterFunctionCall(notepadFunctionCallSetting, fucationCall.HandleNotepadFunctionCall);
         }
 
-        #region Function Call
-
-        private bool HandleWeatherFunctionCall(FuncationCallArgument argument, ClientWebSocket clientWebSocket)
-        {
-            try
-            {
-                var name = argument.Name;
-                var arguments = argument.Arguments;
-                if (!string.IsNullOrEmpty(arguments))
-                {
-
-                    var functionCallArgs = JObject.Parse(arguments);
-                    var city = functionCallArgs["city"]?.ToString();
-                    if (!string.IsNullOrEmpty(city))
-                    {
-                        var weatherResult = GetWeatherFake(city);
-                        SendFunctionCallResult(weatherResult, argument.CallId, clientWebSocket);
-                    }
-                    else
-                    {
-                        Console.WriteLine("City not provided for get_weather function.");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Invalid arguments.");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error parsing function call arguments: {ex.Message}");
-            }
-
-            return true;
-        }
-
-        private bool HandleNotepadFunctionCall(FuncationCallArgument argument, ClientWebSocket clientWebSocket)
-        {
-            try
-            {
-                var name = argument.Name;
-                var callId = argument.CallId;
-                var arguments = argument.Arguments;
-                if (!string.IsNullOrEmpty(arguments))
-                {
-                    var functionCallArgs = JObject.Parse(arguments);
-                    var content = functionCallArgs["content"]?.ToString();
-                    var date = functionCallArgs["date"]?.ToString();
-                    if (!string.IsNullOrEmpty(content) && !string.IsNullOrEmpty(date))
-                    {
-                        WriteToNotepad(date, content);
-                        SendFunctionCallResult("Write to notepad successful.", callId, clientWebSocket);
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Invalid arguments.");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error parsing function call arguments: {ex.Message}");
-            }
-            return true;
-        }
-
-        private string GetWeatherFake(string city)
-        {
-            var weatherResponse = new WeatherResponse
-            {
-                City = city,
-                Temperature = "30°C"
-            };
-
-            return JsonConvert.SerializeObject(weatherResponse);
-        }
-
-        private void WriteToNotepad(string date, string content)
-        {
-            try
-            {
-                string filePath = System.IO.Path.Combine(Environment.CurrentDirectory, "temp.txt");
-
-                // Write the date and content to a text file
-                File.AppendAllText(filePath, $"Date: {date}\nContent: {content}\n\n");
-
-                // Open the text file in Notepad
-                Process.Start("notepad.exe", filePath);
-                Console.WriteLine("Content written to Notepad.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error writing to Notepad: {ex.Message}");
-            }
-        }
-
-        private void SendFunctionCallResult(string result, string callId, ClientWebSocket webSocketClient)
-        {
-            var functionCallResult = new FunctionCallResult
-            {
-                Type = "conversation.item.create",
-                Item = new FunctionCallItem
-                {
-                    Type = "function_call_output",
-                    Output = result,
-                    CallId = callId
-                }
-            };
-
-            string resultJsonString = JsonConvert.SerializeObject(functionCallResult);
-
-            webSocketClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(resultJsonString)), WebSocketMessageType.Text, true, CancellationToken.None);
-            Console.WriteLine("Sent function call result: " + resultJsonString);
-
-            // TODO create model
-            var responseJson = new ResponseJson
-            {
-                Type = "response.create"
-            };
-            //ResponseCreate responseJson = new ResponseCreate()
-            //{
-            //    Type = "response.create"
-            //};
-            string rpJsonString = JsonConvert.SerializeObject(responseJson);
-
-            webSocketClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(rpJsonString)), WebSocketMessageType.Text, true, CancellationToken.None);
-        }
-
-        private void WriteToTextFile(string text)
-        {
-            var filePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Transcription.txt");
-            File.AppendAllText(filePath, text + Environment.NewLine);
-            Console.WriteLine($"Text written to {filePath}");
-        }
-
-        #endregion
-
-     
     }
 }

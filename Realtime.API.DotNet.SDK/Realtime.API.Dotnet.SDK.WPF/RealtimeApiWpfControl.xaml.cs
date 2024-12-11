@@ -141,7 +141,7 @@ namespace Realtime.API.Dotnet.SDK.WPF
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            // TODO connect to sdk event
+            // TODO2 connect to sdk event
             speechWaveIn = new WaveInEvent
             {
                 WaveFormat = new WaveFormat(44100, 1)
@@ -151,9 +151,6 @@ namespace Realtime.API.Dotnet.SDK.WPF
 
             //RealtimeApiSdk.WaveInDataAvailable += RealtimeApiSdk_WaveInDataAvailable;
             //RealtimeApiSdk.WaveInDataAvailable += SpeechWaveIn_DataAvailable;
-
-            //waveIn.StopRecording();
-
 
             speakerCapture = new WasapiLoopbackCapture();
             speakerWaveProvider = new BufferedWaveProvider(speakerCapture.WaveFormat)
@@ -177,9 +174,6 @@ namespace Realtime.API.Dotnet.SDK.WPF
 
             voiceVisualEffect = VoiceVisualEffect;
             PlayVisualVoiceEffect(false);
-            //RippleEffect.Visibility = Visibility.Hidden;
-            //WaveformContainer.Visibility = Visibility.Hidden;
-            //waveformCanvas.Visibility = Visibility.Hidden;
 
             DrawDefaultVisualEffect(voiceVisualEffect);
         }

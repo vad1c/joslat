@@ -14,13 +14,6 @@ namespace Realtime.API.Dotnet.SDK
             ClientWebSocket = clientWebSocket;
         }
 
-        // TODO remove this
-        public WebSocketResponseEventArgs(JObject responseJson, ClientWebSocket clientWebSocket)
-        {
-            ResponseJson = responseJson;
-            ClientWebSocket = clientWebSocket;
-        }
-
         public BaseResponse BaseResponse { get; set; }
 
         public JObject ResponseJson { get; set; }

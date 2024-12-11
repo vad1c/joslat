@@ -46,8 +46,6 @@ namespace Realtime.API.Dotnet.SDK.Core
         private ConcurrentQueue<byte[]> audioQueue = new ConcurrentQueue<byte[]>();//Audio queue
         private CancellationTokenSource playbackCancellationTokenSource;
 
-        // TODO remove
-        public event EventHandler<TransactionOccurredEventArgs> TransactionOccurred;//Audo Playback
         public event EventHandler<WaveInEventArgs> WaveInDataAvailable;
 
         public event EventHandler<WebSocketResponseEventArgs> WebSocketResponse;
@@ -100,10 +98,6 @@ namespace Realtime.API.Dotnet.SDK.Core
         protected virtual void OnWaveInDataAvailable(WaveInEventArgs e)
         {
             WaveInDataAvailable?.Invoke(this, e);
-        }
-        protected virtual void OnTransactionOccurred(TransactionOccurredEventArgs e)
-        {
-            TransactionOccurred?.Invoke(this, e);
         }
         protected virtual void OnWebSocketResponse(WebSocketResponseEventArgs e)
         {
@@ -292,35 +286,9 @@ namespace Realtime.API.Dotnet.SDK.Core
         }
         private async Task StartAudioRecordingAsync()
         {
-            //waveIn = new WaveInEvent
-            //{
-            //    WaveFormat = new WaveFormat(24000, 16, 1)
-            //};
-
-            ////waveFileWriter = new WaveFileWriter(outputFilePath, waveIn.WaveFormat);
-
-            //waveIn.DataAvailable += async (s, e) =>
-            //{
-            //    //waveFileWriter.Write(e.Buffer, 0, e.BytesRecorded);
-            //    //waveFileWriter.Flush();
-
-            //    string base64Audio = Convert.ToBase64String(e.Buffer, 0, e.BytesRecorded);
-            //    var audioMessage = new JObject
-            //    {
-            //        ["type"] = "input_audio_buffer.append",
-            //        ["audio"] = base64Audio
-            //    };
-
-            //    var messageBytes = Encoding.UTF8.GetBytes(audioMessage.ToString());
-            //    await webSocketClient.SendAsync(new ArraySegment<byte>(messageBytes), WebSocketMessageType.Text, true, CancellationToken.None);
-
-            //    OnAudioSent(new AudioSentEventArgs(e.Buffer));
-            //};
-
             waveIn.StartRecording();
             isRecording = true;
 
-            OnTransactionOccurred(new TransactionOccurredEventArgs("Audo Playback started."));
             //OnPlaybackStarted(new EventArgs());
             OnSpeechStarted(new EventArgs());
 
@@ -343,7 +311,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                 playbackCancellationTokenSource.Cancel();
                 log.Info("AI audio playback stopped due to user interruption.");
 
-                OnTransactionOccurred(new TransactionOccurredEventArgs("Audio Playback ended."));
                 OnPlaybackEnded(new EventArgs());
             }
         }
@@ -376,7 +343,7 @@ namespace Realtime.API.Dotnet.SDK.Core
             var buffer = new byte[1024 * 16]; // Increase the buffer size to 16KB.
             var messageBuffer = new StringBuilder(); // For storing complete messages.
 
-            while (webSocketClient.State == WebSocketState.Open)
+            while (webSocketClient?.State == WebSocketState.Open)
             {
                 var result = await webSocketClient.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
                 var chunk = Encoding.UTF8.GetString(buffer, 0, result.Count);
@@ -386,8 +353,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                 if (result.EndOfMessage)
                 {
                     var jsonResponse = messageBuffer.ToString();
-                    //Dispatcher.Invoke(() => ChatMessages.Add($"Received: {jsonResponse}"));
-                    //Dispatcher.Invoke(() => ChatMessages.Add($"Received: ===="));
                     messageBuffer.Clear();
 
                     if (jsonResponse.Trim().StartsWith("{"))
@@ -404,11 +369,11 @@ namespace Realtime.API.Dotnet.SDK.Core
             {
                 var type = json["type"]?.ToString();
                 log.Debug($"Received type: {type}");
-                log.Debug($"Received json: {json}");
-                FireTransactionOccurred($"Received type: {type}");
+                if (type != "response.audio.delta")
+                    log.Debug($"Received json: {json}");
 
-                // TODO change json to BaseResponse.
                 BaseResponse sessionObjBase = BaseResponse.Parse(json);
+                log.Debug($"Convert Object: {sessionObjBase}");
                 switch (sessionObjBase)
                 {
                     case SessionCreated:
@@ -428,9 +393,14 @@ namespace Realtime.API.Dotnet.SDK.Core
 
                         switch ((sessionObjBase as ResponseDelta).ResponseDeltaType)
                         {
-                            case ResponseDeltaType.audio:
+                            case ResponseDeltaType.AudioTranscriptDelta:
                                 break;
-                            default:
+                            case ResponseDeltaType.AudioDelta:
+                                ProcessAudioDelta(json);
+                                break;
+                            case ResponseDeltaType.AudioDone:
+                                isModelResponding = false;
+                                ResumeRecording();
                                 break;
                         }
                         break;
@@ -454,69 +424,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                         break;
                 }
                 OnWebSocketResponse(new WebSocketResponseEventArgs(sessionObjBase, webSocketClient));
-
-                switch (type)
-                {
-                    case "session.created":
-                        FireTransactionOccurred($"Session created. Sending session update.");
-                        var sessionCreated = json.ToObject<SessionCreated>();
-                        SendSessionUpdate();
-                        break;
-                    case "session.updated":
-                        FireTransactionOccurred($"Session updated. Starting audio recording.");
-                        var sessionUpdate = json.ToObject<Model.Response.SessionUpdate>();
-                        if (!isRecording)
-                            await StartAudioRecordingAsync();
-                        break;
-                    case "input_audio_buffer.speech_started":
-                        var speechStarted = json.ToObject<SpeechStarted>();
-                        HandleUserSpeechStarted();
-                        break;
-                    case "input_audio_buffer.speech_stopped":
-                        var speechStopped = json.ToObject<SpeechStopped>();
-                        HandleUserSpeechStopped();
-                        break;
-                    case "response.audio_transcript.delta":
-                        var delta = json.ToObject<ResponseDelta>();
-                        break;
-                    case "conversation.item.input_audio_transcription.completed":
-                        var transcriptionCompleted = json.ToObject<TranscriptionCompleted>();
-                        log.Info(type);
-                        OnSpeechTextAvailable(new TranscriptEventArgs(transcriptionCompleted.Transcript));
-                        log.Info(transcriptionCompleted.Transcript);
-                        break;
-                    case "response.audio_transcript.done":
-                        log.Info(type);
-                        var textDone = json.ToObject<ResponseAudioTranscriptDone>();
-                        OnPlaybackTextAvailable(new TranscriptEventArgs(textDone.Transcript));
-                        log.Info(textDone.Transcript);
-                        break;
-                    case "response.audio.delta":
-                        var audio = json.ToObject<ResponseDelta>();
-                        ProcessAudioDelta(json);
-                        break;
-                    case "response.audio.done":
-                        var audioDone = json.ToObject<ResponseDelta>();
-                        isModelResponding = false;
-                        ResumeRecording();
-                        break;
-                    case "conversation.item.created":
-                        var conversationItemCreated = json.ToObject<ConversationItemCreated>();
-                        break;
-                    case "input_audio_buffer.committed":
-                        var bufferCommitted = json.ToObject<BufferCommitted>();
-                        break;
-                    case "response.created":
-                        var responseCreated = json.ToObject<ResponseCreated>();
-                        break;
-                    case "response.function_call_arguments.done":
-                        var argument = json.ToObject<FuncationCallArgument>();
-                        HandleFunctionCall(argument);
-                        break;
-                    default:
-                        OnWebSocketResponse(new WebSocketResponseEventArgs(json, webSocketClient));
-                        break;
-                }
             }
             catch (Exception e)
             {
@@ -545,11 +452,7 @@ namespace Realtime.API.Dotnet.SDK.Core
                     break;
             }
         }
-        private void FireTransactionOccurred(string message)
-        {
-            string msg = message ?? "";
-            OnTransactionOccurred(new TransactionOccurredEventArgs(msg));
-        }
+
         private void SendSessionUpdate()
         {
             JArray functionSettings = new JArray();
@@ -559,8 +462,6 @@ namespace Realtime.API.Dotnet.SDK.Core
                 JObject jObject = JObject.Parse(jsonString);
                 functionSettings.Add(jObject);
             }
-
-
 
             var sessionUpdateRequest = new Model.Request.SessionUpdate
             {
@@ -598,7 +499,6 @@ namespace Realtime.API.Dotnet.SDK.Core
             StopAudioPlayback();
             ClearAudioQueue();
 
-            OnTransactionOccurred(new TransactionOccurredEventArgs("Speech started."));
             OnSpeechStarted(new EventArgs());
             OnSpeechActivity(true);
         }
@@ -608,7 +508,6 @@ namespace Realtime.API.Dotnet.SDK.Core
             log.Debug("User stopped speaking. Processing audio queue...");
             ProcessAudioQueue();
 
-            OnTransactionOccurred(new TransactionOccurredEventArgs("Speech ended."));
             OnSpeechActivity(false, new AudioEventArgs(new byte[0]));
         }
         private void ProcessAudioDelta(JObject json)

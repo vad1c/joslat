@@ -14,7 +14,7 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Request
         [JsonProperty("event_id")]
         public string EventId { get; set; }
         [JsonProperty("type")]
-        public string Type { get; set; } = "session.create";
+        public string Type { get; set; } = "response.create";
         [JsonProperty("response")]
         public Response Response { get; set; }
     }

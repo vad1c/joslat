@@ -27,7 +27,8 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Response
 
     public enum ResponseDeltaType
     {
-        audio_transcript,
-        audio
+        AudioTranscriptDelta,
+        AudioDelta,
+        AudioDone
     }
 }

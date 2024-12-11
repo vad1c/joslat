@@ -17,54 +17,43 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Response
         public string EventId { get; set; }
 
         //TODO2 add all events from openai
-        public static BaseResponse Parse(JObject json) {
+        public static BaseResponse Parse(JObject json)
+        {
 
             // TODO auto select model to 反序列化  
             BaseResponse baseResponse = null;
             var type = json["type"]?.ToString();
-            switch (type)
+
+            var typeMapping = new Dictionary<string, Func<JObject, BaseResponse>>
             {
-                case "session.created":
-                    baseResponse =  json.ToObject<SessionCreated>();
-                    break;
-                case "session.updated":
-                    baseResponse = json.ToObject<SessionUpdate>();
-                    break;
-                case "input_audio_buffer.speech_started":
-                    baseResponse = json.ToObject<SpeechStarted>();
-                    break;
-                case "input_audio_buffer.speech_stopped":
-                    baseResponse = json.ToObject<SpeechStopped>();
-                    break;
-                case "response.audio_transcript.delta":
-                    baseResponse = json.ToObject<ResponseDelta>();
-                    break;
-                case "conversation.item.input_audio_transcription.completed":
-                    baseResponse = json.ToObject<TranscriptionCompleted>();
-                    break;
-                case "response.audio_transcript.done":
-                    baseResponse = json.ToObject<ResponseAudioTranscriptDone>();
-                    break;
-                case "response.audio.delta":
-                    baseResponse = json.ToObject<ResponseDelta>();
-                    break;
-                case "response.audio.done":
-                    baseResponse = json.ToObject<ResponseDelta>();
-                    break;
-                case "conversation.item.created":
-                    baseResponse = json.ToObject<ConversationItemCreated>();
-                    break;
-                case "input_audio_buffer.committed":
-                    baseResponse = json.ToObject<BufferCommitted>();
-                    break;
-                case "response.created":
-                    baseResponse = json.ToObject<ResponseCreated>();
-                    break;
-                case "response.function_call_arguments.done":
-                    baseResponse = json.ToObject<FuncationCallArgument>();
-                    break;
-                default:
-                    break;
+                { "session.created", j => j.ToObject<SessionCreated>() },
+                { "session.updated", j => j.ToObject<SessionUpdate>() },
+                { "input_audio_buffer.speech_started", j => j.ToObject<SpeechStarted>() },
+                { "input_audio_buffer.speech_stopped", j => j.ToObject<SpeechStopped>() },
+                { "conversation.item.input_audio_transcription.completed", j => j.ToObject<TranscriptionCompleted>() },
+                { "response.audio_transcript.done", j => j.ToObject<ResponseAudioTranscriptDone>() },
+                { "conversation.item.created", j => j.ToObject<ConversationItemCreated>() },
+                { "input_audio_buffer.committed", j => j.ToObject<BufferCommitted>() },
+                { "response.created", j => j.ToObject<ResponseCreated>() },
+                { "response.function_call_arguments.done", j => j.ToObject<FuncationCallArgument>() }
+            };
+
+            if (typeMapping.ContainsKey(type))
+            {
+                baseResponse = typeMapping[type](json);
+            }
+            else if (type == "response.audio_transcript.delta" || type == "response.audio.delta" || type == "response.audio.done")
+            {
+                var responseDelta = json.ToObject<ResponseDelta>();
+
+                if (type == "response.audio_transcript.delta")
+                    responseDelta.ResponseDeltaType = ResponseDeltaType.AudioTranscriptDelta;
+                else if (type == "response.audio.delta")
+                    responseDelta.ResponseDeltaType = ResponseDeltaType.AudioDelta;
+                else if (type == "response.audio.done")
+                    responseDelta.ResponseDeltaType = ResponseDeltaType.AudioDone;
+
+                baseResponse = responseDelta;
             }
 
             return baseResponse;
