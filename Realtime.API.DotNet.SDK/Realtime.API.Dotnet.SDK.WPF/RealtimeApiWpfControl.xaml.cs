@@ -1,7 +1,11 @@
 using NAudio.Wave;
+using Newtonsoft.Json.Linq;
 using Realtime.API.Dotnet.SDK.Core;
 using Realtime.API.Dotnet.SDK.Core.Events;
+using Realtime.API.Dotnet.SDK.Core.Model.Function;
+using Realtime.API.Dotnet.SDK.Core.Model.Response;
 using System;
+using System.Net.WebSockets;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -19,33 +23,133 @@ namespace Realtime.API.Dotnet.SDK.WPF
         private const string apiKey = "";
         private VisualEffect voiceVisualEffect;
 
+        //TODO2 Move into Api Sdk
         private WaveInEvent speechWaveIn;
-        
+
+        // TODO2
         private WasapiLoopbackCapture speakerCapture;
         private BufferedWaveProvider speakerWaveProvider;
+
+        public event EventHandler<WaveInEventArgs> WaveInDataAvailable;
+        public event EventHandler<WebSocketResponseEventArgs> WebSocketResponse;
+
+        public event EventHandler<EventArgs> SpeechStarted;
+        public event EventHandler<AudioEventArgs> SpeechDataAvailable;
+        public event EventHandler<TranscriptEventArgs> SpeechTextAvailable;
+        public event EventHandler<AudioEventArgs> SpeechEnded;
+
+        public event EventHandler<EventArgs> PlaybackStarted;
+        public event EventHandler<AudioEventArgs> PlaybackDataAvailable;
+        public event EventHandler<TranscriptEventArgs> PlaybackTextAvailable;
+        public event EventHandler<EventArgs> PlaybackEnded;
 
         public RealtimeApiWpfControl()
         {
             InitializeComponent();
 
             RealtimeApiSdk = new RealtimeApiSdk();
-            //RealtimeApiSdk.PlaybackAudioReceived += RealtimeApiSdk_PlaybackAudioReceived;
+        }
+
+        public RealtimeApiSdk RealtimeApiSdk { get; private set; }
+        public string OpenAiApiKey
+        {
+            get { return RealtimeApiSdk.ApiKey; }
+            set { RealtimeApiSdk.ApiKey = value; }
+        }
+
+        public VisualEffect VoiceVisualEffect
+        {
+            get { return voiceVisualEffect; }
+            set { voiceVisualEffect = value; }
+        }
+
+        protected virtual void OnPlaybackDataAvailable(AudioEventArgs e)
+        {
+            PlaybackDataAvailable?.Invoke(this, e);
+        }
+
+        private void RealtimeApiSdk_PlaybackEnded(object? sender, EventArgs e)
+        {
+            OnPlaybackEnded(e);
+        }
+
+        protected virtual void OnPlaybackEnded(EventArgs e)
+        {
+            PlaybackEnded?.Invoke(this, e);
+        }
+
+        private void RealtimeApiSdk_PlaybackStarted(object? sender, EventArgs e)
+        {
+            OnPlaybackStarted(e);
+        }
+
+        protected virtual void OnPlaybackStarted(EventArgs e)
+        {
+            PlaybackStarted?.Invoke(this, e);
+        }
+
+        private void RealtimeApiSdk_PlaybackTextAvailable(object? sender, TranscriptEventArgs e)
+        {
+            OnPlaybackTextAvailable(e);
+        }
+
+        protected virtual void OnPlaybackTextAvailable(TranscriptEventArgs e)
+        {
+            PlaybackTextAvailable?.Invoke(this, e);
+        }
+
+        private void RealtimeApiSdk_SpeechEnded(object? sender, AudioEventArgs e)
+        {
+            OnSpeechEnded(e);
+        }
+
+        protected virtual void OnSpeechEnded(AudioEventArgs e)
+        {
+            SpeechEnded?.Invoke(this, e);
+        }
+
+        private void RealtimeApiSdk_SpeechStarted(object? sender, EventArgs e)
+        {
+            OnSpeechStarted(e);
+        }
+
+        protected virtual void OnSpeechStarted(EventArgs e)
+        {
+            SpeechStarted?.Invoke(this, e);
+        }
+
+        private void RealtimeApiSdk_SpeechTextAvailable(object? sender, TranscriptEventArgs e)
+        {
+            OnSpeechTextAvailable(e);
+        }
+
+        protected virtual void OnSpeechTextAvailable(TranscriptEventArgs e)
+        {
+            SpeechTextAvailable?.Invoke(this, e);
+        }
+
+        private void RealtimeApiSdk_SpeechDataAvailable(object? sender, AudioEventArgs e)
+        {
+            OnSpeechDataAvailable(e);
+        }
+
+        protected virtual void OnSpeechDataAvailable(AudioEventArgs e)
+        {
+            SpeechDataAvailable?.Invoke(this, e);
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            //RealtimeApiSdk.TransactionOccurred += RealtimeApiSdk_TransactionOccurred;
-
-
-
+            // TODO2 connect to sdk event
             speechWaveIn = new WaveInEvent
             {
                 WaveFormat = new WaveFormat(44100, 1)
             };
 
             speechWaveIn.DataAvailable += SpeechWaveIn_DataAvailable;
-            //waveIn.StopRecording();
 
+            //RealtimeApiSdk.WaveInDataAvailable += RealtimeApiSdk_WaveInDataAvailable;
+            //RealtimeApiSdk.WaveInDataAvailable += SpeechWaveIn_DataAvailable;
 
             speakerCapture = new WasapiLoopbackCapture();
             speakerWaveProvider = new BufferedWaveProvider(speakerCapture.WaveFormat)
@@ -54,32 +158,48 @@ namespace Realtime.API.Dotnet.SDK.WPF
                 DiscardOnBufferOverflow = true // Optional: discard data when buffer is full}
             };
 
-            speakerCapture.DataAvailable += SpeakerCapture_DataAvailable; ;
+            speakerCapture.DataAvailable += SpeakerCapture_DataAvailable;
+            RealtimeApiSdk.WebSocketResponse += RealtimeApiSdk_WebSocketResponse;
 
+            RealtimeApiSdk.SpeechStarted += RealtimeApiSdk_SpeechStarted;
+            RealtimeApiSdk.SpeechDataAvailable += RealtimeApiSdk_SpeechDataAvailable;
+            RealtimeApiSdk.SpeechTextAvailable += RealtimeApiSdk_SpeechTextAvailable;
+            RealtimeApiSdk.SpeechEnded += RealtimeApiSdk_SpeechEnded;
+
+            RealtimeApiSdk.PlaybackStarted += RealtimeApiSdk_PlaybackStarted;
+            RealtimeApiSdk.PlaybackDataAvailable += RealtimeApiSdk_PlaybackDataAvailable;
+            RealtimeApiSdk.PlaybackTextAvailable += RealtimeApiSdk_PlaybackTextAvailable;
+            RealtimeApiSdk.PlaybackEnded += RealtimeApiSdk_PlaybackEnded;
 
             voiceVisualEffect = VoiceVisualEffect;
             PlayVisualVoiceEffect(false);
-            //RippleEffect.Visibility = Visibility.Hidden;
-            //WaveformContainer.Visibility = Visibility.Hidden;
-            //waveformCanvas.Visibility = Visibility.Hidden;
 
             DrawDefaultVisualEffect(voiceVisualEffect);
         }
 
-       
-
-        public RealtimeApiSdk RealtimeApiSdk { get; private set; }
-
-        public VisualEffect VoiceVisualEffect
+        private void RealtimeApiSdk_WaveInDataAvailable(object? sender, WaveInEventArgs e)
         {
-            get { return voiceVisualEffect; }
-            set { voiceVisualEffect = value; }
+            OnWaveInDataAvailable(e);
         }
 
-        public string OpenAiApiKey
+        protected virtual void OnWaveInDataAvailable(WaveInEventArgs e)
         {
-            get { return RealtimeApiSdk.ApiKey; }
-            set { RealtimeApiSdk.ApiKey = value; }
+            WaveInDataAvailable?.Invoke(this, e);
+        }
+
+        private void RealtimeApiSdk_WebSocketResponse(object? sender, WebSocketResponseEventArgs e)
+        {
+            OnWebSocketResponse(e);
+        }
+
+        protected virtual void OnWebSocketResponse(WebSocketResponseEventArgs e)
+        {
+            WebSocketResponse?.Invoke(this, e);
+        }
+
+        private void RealtimeApiSdk_PlaybackDataAvailable(object? sender, AudioEventArgs e)
+        {
+            OnPlaybackDataAvailable(e);
         }
 
         public void StartSpeechRecognition()
@@ -94,7 +214,6 @@ namespace Realtime.API.Dotnet.SDK.WPF
             }
         }
 
-
         public void StopSpeechRecognition()
         {
             if (RealtimeApiSdk.IsRunning)
@@ -105,6 +224,11 @@ namespace Realtime.API.Dotnet.SDK.WPF
                 // Stop voice recognition;
                 RealtimeApiSdk.StopSpeechRecognitionAsync();
             }
+        }
+
+        public void RegisterFunctionCall(FunctionCallSetting functionCallSetting, Func<FuncationCallArgument, ClientWebSocket, bool> functionCallback)
+        {
+            RealtimeApiSdk.RegisterFunctionCall(functionCallSetting, functionCallback);
         }
 
         private void PlayVisualVoiceEffect(bool enable)
@@ -128,28 +252,20 @@ namespace Realtime.API.Dotnet.SDK.WPF
             }
         }
 
-
         private void HandleCycleVisualVoiceEffect(bool enable)
         {
             if (enable)
             {
-                //RealtimeApiSdk.SpeechAudioReceived += RealtimeApiSdk_SpeechAudioReceived;
-                //RealtimeApiSdk.PlaybackAudioReceived += RealtimeApiSdk_PlaybackAudioReceived;
                 speakerCapture.StartRecording();
-                //StartAudioCapture();
                 speechWaveIn.StartRecording();
 
             }
             else
             {
-                //RealtimeApiSdk.AudioReceived -= RealtimeApiSdk_SpeechAudioReceived;
-                //RealtimeApiSdk.PlaybackAudioReceived -= RealtimeApiSdk_PlaybackAudioReceived;
                 speakerCapture.StopRecording();
 
-                //StopAudioCapture();
                 speechWaveIn.StopRecording();
                 WaveCanvas.Children.Clear();
-                //DrawWaveform(new float[] { 0f});
             }
 
         }
@@ -158,25 +274,17 @@ namespace Realtime.API.Dotnet.SDK.WPF
         {
             if (enable)
             {
-                //RealtimeApiSdk.SpeechAudioReceived += RealtimeApiSdk_SpeechAudioReceived;
-                //RealtimeApiSdk.PlaybackAudioReceived += RealtimeApiSdk_PlaybackAudioReceived;
                 speakerCapture.StartRecording();
-                //StartAudioCapture();
                 speechWaveIn.StartRecording();
             }
             else
             {
-                //RealtimeApiSdk.AudioReceived -= RealtimeApiSdk_SpeechAudioReceived;
-                //RealtimeApiSdk.PlaybackAudioReceived -= RealtimeApiSdk_PlaybackAudioReceived;
                 speakerCapture.StopRecording();
 
-                //StopAudioCapture();
                 speechWaveIn.StopRecording();
                 cycleWaveformCanvas.Children.Clear();
-                //cycleWaveformCanvas.UpdateAudioData( new float[] { 0});
             }
         }
-
 
         private void SpeechWaveIn_DataAvailable(object? sender, WaveInEventArgs e)
         {
@@ -186,7 +294,6 @@ namespace Realtime.API.Dotnet.SDK.WPF
                 short value = BitConverter.ToInt16(e.Buffer, i);
                 float normalized = value / 32768f;
                 audioBuffer.Add(normalized);
-                //audioBuffer.Add(BitConverter.ToSingle(e.Buffer, i));
             }
 
             try
@@ -209,15 +316,6 @@ namespace Realtime.API.Dotnet.SDK.WPF
 
         private void SpeakerCapture_DataAvailable(object? sender, WaveInEventArgs e)
         {
-            //List<float> audioBuffer = new List<float>();
-            //for (int i = 0; i < e.BytesRecorded; i += 2)
-            //{
-            //    short value = BitConverter.ToInt16(e.Buffer, i);
-            //    float normalized = value / 32768f;
-            //    audioBuffer.Add(normalized);
-            //    //audioBuffer.Add(BitConverter.ToSingle(e.Buffer, i));
-            //}
-
             speakerWaveProvider.AddSamples(e.Buffer, 0, e.BytesRecorded);
             var audioBuffer = new float[e.BytesRecorded / 4];
             WaveBuffer waveBuffer = new WaveBuffer(e.Buffer);
@@ -263,7 +361,6 @@ namespace Realtime.API.Dotnet.SDK.WPF
             }
             catch (Exception ex) { }
         }
-
 
         private void DrawWaveform(float[] waveform)
         {
@@ -312,6 +409,7 @@ namespace Realtime.API.Dotnet.SDK.WPF
                     break;
             }
         }
+
         private void DrawCircle(double sizeFactor = 0.9)
         {
             double canvasWidth = cycleWaveformCanvas.ActualWidth;
@@ -319,7 +417,7 @@ namespace Realtime.API.Dotnet.SDK.WPF
             if (canvasWidth == 0 || canvasHeight == 0)
                 return;
 
-            double radius = Math.Min(canvasWidth, canvasHeight) * sizeFactor / 2; 
+            double radius = Math.Min(canvasWidth, canvasHeight) * sizeFactor / 2;
             double centerX = canvasWidth / 2;
             double centerY = canvasHeight / 2;
 
@@ -336,7 +434,6 @@ namespace Realtime.API.Dotnet.SDK.WPF
 
             cycleWaveformCanvas.Children.Add(circle);
         }
-
 
         private void DrawLine()
         {
