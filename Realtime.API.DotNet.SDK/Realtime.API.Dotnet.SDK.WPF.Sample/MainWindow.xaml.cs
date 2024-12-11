@@ -41,7 +41,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             string openAiApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? "";
 
             realtimeApiWpfControl.OpenAiApiKey = openAiApiKey;
-            realtimeApiWpfControl.RealtimeApiSdk.WebSocketResponse += RealtimeApiSdk_WebSocketResponse;
+            realtimeApiWpfControl.WebSocketResponse += RealtimeApiSdk_WebSocketResponse;
 
             realtimeApiWpfControl.SpeechTextAvailable += RealtimeApiSdk_SpeechTextAvailable;
             realtimeApiWpfControl.PlaybackTextAvailable += RealtimeApiSdk_PlaybackTextAvailable;
@@ -53,6 +53,11 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             RegisterNotepadFunctionCall();
 
             log.Info("App Start...");
+        }
+
+        private void realtimeApiWpfControl_WebSocketResponse(object sender, WebSocketResponseEventArgs e)
+        {
+
         }
 
         private void RealtimeApiSdk_PlaybackTextAvailable(object? sender, Core.Events.TranscriptEventArgs e)
@@ -102,42 +107,44 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
 
         private void RealtimeApiSdk_WebSocketResponse(object? sender, WebSocketResponseEventArgs e)
         {
-            BaseResponse resBase = e.BaseResponse;
+            Console.WriteLine(e.BaseResponse.Type);
 
-            if (resBase is SessionCreated)
-            {
-                SessionCreated created = (SessionCreated)resBase;
-                string s = created.EventId;
-            }
+            //BaseResponse resBase = e.BaseResponse;
 
-            var type = e.ResponseJson["type"]?.ToString();
-            switch (type)
-            {
-                //case "response.function_call_arguments.done":
-                //    string functionName = e.ResponseJson["name"]?.ToString();
-                //    switch (functionName)
-                //    {
-                //        case "get_weather":
-                //            HandleWeatherFunctionCall(e.ResponseJson, e.ClientWebSocket);
-                //            break;
-                //        case "write_notepad":
-                //            HandleNotepadFunctionCall(e.ResponseJson, e.ClientWebSocket);
-                //            break;
+            //if (resBase is SessionCreated)
+            //{
+            //    SessionCreated created = (SessionCreated)resBase;
+            //    string s = created.EventId;
+            //}
 
-                //        default:
-                //            Console.WriteLine("Unknown function call received.");
-                //            break;
-                //    }
-                //    break;
-                //case "conversation.item.input_audio_transcription.completed":
-                //    var text = e.ResponseJson["transcript"]?.ToString();
+            //var type = e.ResponseJson["type"]?.ToString();
+            //switch (type)
+            //{
+            //    //case "response.function_call_arguments.done":
+            //    //    string functionName = e.ResponseJson["name"]?.ToString();
+            //    //    switch (functionName)
+            //    //    {
+            //    //        case "get_weather":
+            //    //            HandleWeatherFunctionCall(e.ResponseJson, e.ClientWebSocket);
+            //    //            break;
+            //    //        case "write_notepad":
+            //    //            HandleNotepadFunctionCall(e.ResponseJson, e.ClientWebSocket);
+            //    //            break;
 
-                //    WriteToTextFile(text);
-                //    break;
-                default:
-                    Console.WriteLine("Unhandled command type");
-                    break;
-            }
+            //    //        default:
+            //    //            Console.WriteLine("Unknown function call received.");
+            //    //            break;
+            //    //    }
+            //    //    break;
+            //    //case "conversation.item.input_audio_transcription.completed":
+            //    //    var text = e.ResponseJson["transcript"]?.ToString();
+
+            //    //    WriteToTextFile(text);
+            //    //    break;
+            //    default:
+            //        Console.WriteLine("Unhandled command type");
+            //        break;
+            //}
         }
 
         private void RegisterWeatherFunctionCall()
@@ -320,7 +327,10 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             {
                 Type = "response.create"
             };
-            //ResponseCreate responseJson = new ResponseCreate();
+            //ResponseCreate responseJson = new ResponseCreate()
+            //{
+            //    Type = "response.create"
+            //};
             string rpJsonString = JsonConvert.SerializeObject(responseJson);
 
             webSocketClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(rpJsonString)), WebSocketMessageType.Text, true, CancellationToken.None);
@@ -332,8 +342,9 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             File.AppendAllText(filePath, text + Environment.NewLine);
             Console.WriteLine($"Text written to {filePath}");
         }
+
         #endregion
 
-
+     
     }
 }

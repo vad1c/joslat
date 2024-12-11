@@ -32,7 +32,7 @@
                 HorizontalAlignment="Center" 
                 VerticalAlignment="Center" 
                 Height="auto" 
-                Width="auto" />
+                Width="auto" WebSocketResponse="realtimeApiWpfControl_WebSocketResponse" />
         </Grid>
 
         <Grid Grid.Row="0"  Grid.Column="1" Grid.RowSpan="2" Background="#322723">

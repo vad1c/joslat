@@ -19,5 +19,15 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Response
         public int ContentIndex { get; set; }
         [JsonProperty("delta")]
         public string Delta { get; set; }
+
+        public ResponseDeltaType ResponseDeltaType { get; set; }
+
+
+    }
+
+    public enum ResponseDeltaType
+    {
+        audio_transcript,
+        audio
     }
 }

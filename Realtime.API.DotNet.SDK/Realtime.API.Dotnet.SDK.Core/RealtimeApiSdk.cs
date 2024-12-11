@@ -409,43 +409,51 @@ namespace Realtime.API.Dotnet.SDK.Core
 
                 // TODO change json to BaseResponse.
                 BaseResponse sessionObjBase = BaseResponse.Parse(json);
-                //switch (sessionObjBase)
-                //{
-                //    case SessionCreated:
-                //        SendSessionUpdate();
-                //        break;
-                //    case Core.Model.Response.SessionUpdate:
-                //        if (!isRecording)
-                //            await StartAudioRecordingAsync();
-                //        break;
-                //    case Core.Model.Response.SpeechStarted:
-                //        HandleUserSpeechStarted();
-                //        break;
-                //    case SpeechStopped:
-                //        HandleUserSpeechStopped();
-                //        break;
-                //    case ResponseDelta:
-                //        break;
-                //    case TranscriptionCompleted:
-                //        var transcriptionCompleted = sessionObjBase as TranscriptionCompleted;
-                //        OnSpeechTextAvailable(new TranscriptEventArgs(transcriptionCompleted.Transcript));
-                //        break;
-                //    case ResponseAudioTranscriptDone:
-                //        var textDone = sessionObjBase as ResponseAudioTranscriptDone;
-                //        OnPlaybackTextAvailable(new TranscriptEventArgs(textDone.Transcript));
-                //        break;
-                //    case ConversationItemCreated:
-                //        break;
-                //    case BufferCommitted:
-                //        break;
-                //    case ResponseCreated:
-                //        break;
-                //    case FuncationCallArgument:
-                //        var argument = sessionObjBase as FuncationCallArgument;
-                //        HandleFunctionCall(argument);
-                //        break;
-                //}
-                //OnWebSocketResponse(new WebSocketResponseEventArgs(sessionObjBase, webSocketClient));
+                switch (sessionObjBase)
+                {
+                    case SessionCreated:
+                        SendSessionUpdate();
+                        break;
+                    case Core.Model.Response.SessionUpdate:
+                        if (!isRecording)
+                            await StartAudioRecordingAsync();
+                        break;
+                    case Core.Model.Response.SpeechStarted:
+                        HandleUserSpeechStarted();
+                        break;
+                    case SpeechStopped:
+                        HandleUserSpeechStopped();
+                        break;
+                    case ResponseDelta:
+
+                        switch ((sessionObjBase as ResponseDelta).ResponseDeltaType)
+                        {
+                            case ResponseDeltaType.audio:
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case TranscriptionCompleted:
+                        var transcriptionCompleted = sessionObjBase as TranscriptionCompleted;
+                        OnSpeechTextAvailable(new TranscriptEventArgs(transcriptionCompleted.Transcript));
+                        break;
+                    case ResponseAudioTranscriptDone:
+                        var textDone = sessionObjBase as ResponseAudioTranscriptDone;
+                        OnPlaybackTextAvailable(new TranscriptEventArgs(textDone.Transcript));
+                        break;
+                    case ConversationItemCreated:
+                        break;
+                    case BufferCommitted:
+                        break;
+                    case ResponseCreated:
+                        break;
+                    case FuncationCallArgument:
+                        var argument = sessionObjBase as FuncationCallArgument;
+                        HandleFunctionCall(argument);
+                        break;
+                }
+                OnWebSocketResponse(new WebSocketResponseEventArgs(sessionObjBase, webSocketClient));
 
                 switch (type)
                 {
