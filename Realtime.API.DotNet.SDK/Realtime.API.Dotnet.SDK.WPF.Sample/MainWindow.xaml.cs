@@ -41,13 +41,6 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             string openAiApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? "";
 
             realtimeApiWpfControl.OpenAiApiKey = openAiApiKey;
-            realtimeApiWpfControl.WebSocketResponse += RealtimeApiSdk_WebSocketResponse;
-
-            realtimeApiWpfControl.SpeechTextAvailable += RealtimeApiSdk_SpeechTextAvailable;
-            realtimeApiWpfControl.PlaybackTextAvailable += RealtimeApiSdk_PlaybackTextAvailable;
-
-            //realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.Cycle;
-            realtimeApiWpfControl.VoiceVisualEffect = WPF.VisualEffect.SoundWave;
 
             RegisterWeatherFunctionCall();
             RegisterNotepadFunctionCall();
@@ -55,67 +48,22 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             log.Info("App Start...");
         }
 
-        private void realtimeApiWpfControl_WebSocketResponse(object sender, WebSocketResponseEventArgs e)
-        {
-
-        }
-
-        private void RealtimeApiSdk_PlaybackTextAvailable(object? sender, Core.Events.TranscriptEventArgs e)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                ChatOutput.AppendText($"AI: {e.Transcript}\n"); // Display the received playback text
-            });
-        }
-
-        private void RealtimeApiSdk_SpeechTextAvailable(object? sender, Core.Events.TranscriptEventArgs e)
+        private void realtimeApiWpfControl_SpeechTextAvailable(object sender, Core.Events.TranscriptEventArgs e)
         {
             Dispatcher.Invoke(() =>
             {
                 ChatOutput.AppendText($"User: {e.Transcript}"); // Display the received speech text
             });
+
         }
 
-        private void StartSpeechRecognition_Click(object sender, RoutedEventArgs e)
+        private void realtimeApiWpfControl_PlaybackTextAvailable(object sender, Core.Events.TranscriptEventArgs e)
         {
-            realtimeApiWpfControl.StartSpeechRecognition();
-        }
-
-        private void PlayPauseButton_Click(object sender, RoutedEventArgs e)
-        {
-            var playIcon = (System.Windows.Shapes.Path)PlayPauseButton.Template.FindName("PlayIcon", PlayPauseButton);
-            var pauseIcon = (System.Windows.Shapes.Path)PlayPauseButton.Template.FindName("PauseIcon", PlayPauseButton);
-
-            if (isPlaying)
+            Dispatcher.Invoke(() =>
             {
-                playIcon.Visibility = Visibility.Visible;
-                pauseIcon.Visibility = Visibility.Collapsed;
+                ChatOutput.AppendText($"AI: {e.Transcript}\n"); // Display the received playback text
+            });
 
-                realtimeApiWpfControl.StopSpeechRecognition();
-            }
-            else
-            {
-                playIcon.Visibility = Visibility.Collapsed;
-                pauseIcon.Visibility = Visibility.Visible;
-
-                realtimeApiWpfControl.StartSpeechRecognition();
-            }
-
-            isPlaying = !isPlaying;
-        }
-
-        private void RealtimeApiSdk_WebSocketResponse(object? sender, WebSocketResponseEventArgs e)
-        {
-            if (e.BaseResponse != null)
-            {
-                log.Info(e.BaseResponse.Type);
-                BaseResponse resBase = e.BaseResponse;
-                
-                if (resBase is SessionCreated)
-                {
-                    SessionCreated created = (SessionCreated)resBase;
-                }
-            }
         }
 
         private void RegisterWeatherFunctionCall()
@@ -174,5 +122,36 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             realtimeApiWpfControl.RegisterFunctionCall(notepadFunctionCallSetting, fucationCall.HandleNotepadFunctionCall);
         }
 
+
+        private void StartSpeechRecognition_Click(object sender, RoutedEventArgs e)
+        {
+            realtimeApiWpfControl.StartSpeechRecognition();
+        }
+
+        private void PlayPauseButton_Click(object sender, RoutedEventArgs e)
+        {
+            var playIcon = (System.Windows.Shapes.Path)PlayPauseButton.Template.FindName("PlayIcon", PlayPauseButton);
+            var pauseIcon = (System.Windows.Shapes.Path)PlayPauseButton.Template.FindName("PauseIcon", PlayPauseButton);
+
+            if (isPlaying)
+            {
+                playIcon.Visibility = Visibility.Visible;
+                pauseIcon.Visibility = Visibility.Collapsed;
+
+                realtimeApiWpfControl.StopSpeechRecognition();
+            }
+            else
+            {
+                playIcon.Visibility = Visibility.Collapsed;
+                pauseIcon.Visibility = Visibility.Visible;
+
+                realtimeApiWpfControl.StartSpeechRecognition();
+            }
+
+            isPlaying = !isPlaying;
+        }
+
+      
+     
     }
 }
