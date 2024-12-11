@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 
 namespace Realtime.API.Dotnet.SDK.Core.Model.Response
 {
-    public class ResponseCreated : BaseResponse
+    /// <summary>
+    /// input_audio_buffer.clear
+    /// </summary>
+    public class BufferClear : BaseResponse
     {
-        [JsonProperty("response")]
-        public Common.Response Response { get; set; }
+        
     }
-    
 }

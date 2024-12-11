@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 
 namespace Realtime.API.Dotnet.SDK.Core.Model.Response
 {
-    public class ResponseCreated : BaseResponse
+    /// <summary>
+    /// response.done
+    /// </summary>
+    public class ResponseDone : BaseResponse
     {
         [JsonProperty("response")]
         public Common.Response Response { get; set; }
     }
-    
 }

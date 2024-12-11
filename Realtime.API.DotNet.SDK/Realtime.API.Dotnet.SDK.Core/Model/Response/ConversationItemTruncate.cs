@@ -8,15 +8,17 @@ using System.Threading.Tasks;
 namespace Realtime.API.Dotnet.SDK.Core.Model.Response
 {
     /// <summary>
-    /// conversation.item.input_audio_transcription.completed
+    /// conversation.item.truncate
     /// </summary>
-    public class TranscriptionCompleted : BaseResponse
+    public class ConversationItemTruncate : BaseResponse
     {
         [JsonProperty("item_id")]
         public string ItemId { get; set; }
+
         [JsonProperty("content_index")]
-        public int ContentIndex { get; set; }
-        [JsonProperty("transcript")]
-        public string Transcript { get; set; }
+        public string ContentIndex { get; set; }
+
+        [JsonProperty("audio_end_ms")]
+        public string AudioEndMs { get; set; }
     }
 }

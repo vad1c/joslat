@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Realtime.API.Dotnet.SDK.Core.Model.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,5 +17,31 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Response
 
         [JsonProperty("item")]
         public Item Item { get; set; }
+    }
+    public class Item
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("object")]
+        public string Object { get; set; }
+
+        [JsonProperty("type")]
+        public string Type { get; set; }
+        [JsonProperty("status")]
+        public string Status { get; set; }
+        [JsonProperty("role")]
+        public string Role { get; set; }
+        [JsonProperty("content")]
+        public List<Content> Content { get; set; }
+    }
+    public class Content
+    {
+        [JsonProperty("type")]
+        public string Type { get; set; }
+        [JsonProperty("transcript")]
+        public string Transcript { get; set; }
+        [JsonProperty("audio")]
+        public string Audio { get; set; }
     }
 }

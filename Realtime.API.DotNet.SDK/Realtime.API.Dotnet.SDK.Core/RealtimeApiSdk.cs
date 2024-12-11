@@ -334,6 +334,7 @@ namespace Realtime.API.Dotnet.SDK.Core
         {
             try
             {
+                log.Info($"Received json: {json}");
                 BaseResponse baseResponse = BaseResponse.Parse(json);
                 await HandleBaseResponse(baseResponse, json);
 
