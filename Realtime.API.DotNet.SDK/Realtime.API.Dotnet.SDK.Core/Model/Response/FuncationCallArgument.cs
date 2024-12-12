@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Realtime.API.Dotnet.SDK.Core.Model.Response
 {
+    /// <summary>
+    /// response.function_call_arguments.done
+    /// </summary>
     public class FuncationCallArgument : BaseResponse
     {
         [JsonProperty("response_id")]

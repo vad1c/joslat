@@ -21,7 +21,7 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Response
         [JsonProperty("content_index")]
         public int ContentIndex { get; set; }
         [JsonProperty("part")]
-        public List<Common.Content> Part { get; set; }
+        public Common.Content Part { get; set; }
 
     }
 }

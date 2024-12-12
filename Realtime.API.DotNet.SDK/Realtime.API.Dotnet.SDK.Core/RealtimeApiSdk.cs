@@ -179,7 +179,7 @@ namespace Realtime.API.Dotnet.SDK.Core
                 IsRunning = false;
             }
         }
-        
+
         public void RegisterFunctionCall(FunctionCallSetting functionCallSetting, Func<FuncationCallArgument, JObject> functionCallback)
         {
             functionRegistries.Add(functionCallSetting, functionCallback);
@@ -336,7 +336,9 @@ namespace Realtime.API.Dotnet.SDK.Core
         {
             try
             {
-                log.Info($"Received json: {json}");
+                var type = json["type"]?.ToString();
+                log.Info($"Received type: {type}");
+                
                 BaseResponse baseResponse = BaseResponse.Parse(json);
                 await HandleBaseResponse(baseResponse, json);
 
@@ -353,19 +355,23 @@ namespace Realtime.API.Dotnet.SDK.Core
             switch (baseResponse)
             {
                 case SessionCreated:
+                    log.Info($"Received json: {json}");
                     SendSessionUpdate();
                     break;
 
                 case Core.Model.Response.SessionUpdate sessionUpdate:
+                    log.Info($"Received json: {json}");
                     if (!isRecording)
                         await StartAudioRecordingAsync();
                     break;
 
                 case Core.Model.Response.SpeechStarted:
+                    log.Info($"Received json: {json}");
                     HandleUserSpeechStarted();
                     break;
 
                 case SpeechStopped:
+                    log.Info($"Received json: {json}");
                     HandleUserSpeechStopped();
                     break;
 
@@ -374,35 +380,83 @@ namespace Realtime.API.Dotnet.SDK.Core
                     break;
 
                 case TranscriptionCompleted transcriptionCompleted:
+                    log.Info($"Received json: {json}");
                     OnSpeechTextAvailable(new TranscriptEventArgs(transcriptionCompleted.Transcript));
                     break;
 
                 case ResponseAudioTranscriptDone textDone:
+                    log.Info($"Received json: {json}");
                     OnPlaybackTextAvailable(new TranscriptEventArgs(textDone.Transcript));
                     break;
 
                 case FuncationCallArgument argument:
+                    log.Info($"Received json: {json}");
                     HandleFunctionCall(argument);
                     break;
 
                 case ConversationItemCreated:
-                case BufferCommitted:
-                case ResponseCreated:
-                case ConversationCreated:
-                case TranscriptionFailed:
-                case ConversationItemTruncate:
-                case ConversationItemDeleted:
-                case BufferClear:
-                case ResponseDone:
-                case ResponseOutputItemAdded:
-                case ResponseOutputItemDone:
-                case ResponseContentPartAdded:
-                case ResponseContentPartDone:
-                case ResponseTextDone:
-                case ResponseFunctionCallArgumentsDelta:
-                case ResponseFunctionCallArgumentsDone:
-                case RateLimitsUpdated:
+                    log.Info($"Received json: {json}");
                     break;
+
+                case BufferCommitted:
+                    log.Info($"Received json: {json}");
+                    break;
+
+                case ResponseCreated:
+                    log.Info($"Received json: {json}");
+                    break;
+
+                case ConversationCreated:
+                    log.Info($"Received json: {json}");
+                    break;
+
+                case TranscriptionFailed:
+                    log.Info($"Received json: {json}");
+                    break;
+
+                case ConversationItemTruncate:
+                    log.Info($"Received json: {json}");
+                    break;
+
+                case ConversationItemDeleted:
+                    log.Info($"Received json: {json}");
+                    break;
+
+                case BufferClear:
+                    log.Info($"Received json: {json}");
+                    break;
+
+                case ResponseDone:
+                    log.Info($"Received json: {json}");
+                    break;
+                case ResponseOutputItemAdded:
+                    log.Info($"Received json: {json}");
+                    break;
+
+                case ResponseOutputItemDone:
+                    log.Info($"Received json: {json}");
+                    break;
+
+                case ResponseContentPartAdded:
+                    log.Info($"Received json: {json}");
+                    break;
+
+                case ResponseContentPartDone:
+                    log.Info($"Received json: {json}");
+                    break;
+
+                case ResponseTextDone:
+                    log.Info($"Received json: {json}");
+                    break;
+
+                case ResponseFunctionCallArgumentsDelta:
+                    log.Info($"Received json: {json}");
+                    break;
+
+                case RateLimitsUpdated:
+                    log.Info($"Received json: {json}");
+                    break;
+
                 case ResponseError error:
                     log.Error(error);
                     break;
@@ -415,46 +469,40 @@ namespace Realtime.API.Dotnet.SDK.Core
             {
                 case ResponseDeltaType.AudioTranscriptDelta:
                     // Handle AudioTranscriptDelta if necessary
+                    log.Info($"Received json: {responseDelta}");
                     break;
 
                 case ResponseDeltaType.AudioDelta:
+                    log.Debug($"Received json: {responseDelta}");
                     ProcessAudioDelta(responseDelta);
                     break;
 
                 case ResponseDeltaType.AudioDone:
+                    log.Info($"Received json: {responseDelta}");
                     isModelResponding = false;
                     ResumeRecording();
                     break;
                 case ResponseDeltaType.TextDelta:
+                    log.Info($"Received json: {responseDelta}");
                     break;
             }
         }
 
         private void HandleFunctionCall(FuncationCallArgument argument)
         {
-            var type = argument.Type;
-            switch (type)
+            string functionName = argument.Name;
+            foreach (var item in functionRegistries)
             {
-                case "response.function_call_arguments.done":
-                    string functionName = argument.Name;
-
-                    foreach (var item in functionRegistries)
-                    {
-                        if (item.Key.Name == functionName)
-                        {
-                            JObject functionCallResultJson = item.Value(argument);
-                            var callId = argument.CallId;
-                            SendFunctionCallResult(functionCallResultJson, callId);
-                        }
-                    }
-                    break;
-                default:
-                    Console.WriteLine("Unhandled command type");
-                    break;
+                if (item.Key.Name == functionName)
+                {
+                    JObject functionCallResultJson = item.Value(argument);
+                    var callId = argument.CallId;
+                    SendFunctionCallResult(functionCallResultJson, callId);
+                }
             }
         }
 
-        private void SendFunctionCallResult(JObject functionCallResultJson, string callId )
+        private void SendFunctionCallResult(JObject functionCallResultJson, string callId)
         {
             string outputStr = functionCallResultJson == null ? "" : functionCallResultJson.ToString();
             var functionCallResult = new FunctionCallResult

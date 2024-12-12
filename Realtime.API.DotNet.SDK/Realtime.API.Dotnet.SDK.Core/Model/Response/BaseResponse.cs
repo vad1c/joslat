@@ -32,7 +32,6 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Response
                 { "response.audio_transcript.done", j => j.ToObject<ResponseAudioTranscriptDone>() },
                 { "conversation.item.created", j => j.ToObject<ConversationItemCreated>() },
                 { "input_audio_buffer.committed", j => j.ToObject<BufferCommitted>() },
-                { "response.function_call_arguments.done", j => j.ToObject<FuncationCallArgument>() },
                 { "conversation.created", j => j.ToObject<ConversationCreated>() },
                 { "conversation.item.input_audio_transcription.failed", j => j.ToObject<TranscriptionFailed>() },
                 { "conversation.item.truncated", j => j.ToObject<ConversationItemTruncate>() },
@@ -46,7 +45,7 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Response
                 { "response.content_part.done", j=> j.ToObject<ResponseContentPartDone>() },
                 { "response.text.done", j=> j.ToObject<ResponseTextDone>() },
                 { "response.function_call_arguments.delta", j=> j.ToObject<ResponseFunctionCallArgumentsDelta>() },
-                { "response.function_call_arguments.done", j=> j.ToObject<ResponseFunctionCallArgumentsDone>() },
+                { "response.function_call_arguments.done", j=> j.ToObject<FuncationCallArgument>() },
                 { "rate_limits.updated", j=> j.ToObject<RateLimitsUpdated>() }
             };
 

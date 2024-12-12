@@ -17,6 +17,8 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Response
         public int OutputIndex { get; set; }
         [JsonProperty("call_id")]
         public string CallId { get; set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
         [JsonProperty("arguments")]
         public string Arguments { get; set; }
     }

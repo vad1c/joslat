@@ -55,17 +55,17 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Common
         [JsonProperty("role")]
         public string Role { get; set; }
         [JsonProperty("content")]
-        public Content Content { get; set; }
+        public List<Content>  Content { get; set; }
     }
     
     public class Usage
     {
         [JsonProperty("total_tokens")]
-        public string TotalTokens { get; set; }
+        public int TotalTokens { get; set; }
         [JsonProperty("input_tokens")]
-        public string InputTokens { get; set; }
+        public int InputTokens { get; set; }
         [JsonProperty("output_tokens")]
-        public string OutputTokens { get; set; }
+        public int OutputTokens { get; set; }
         [JsonProperty("input_token_details")]
         public InputTokenDetails InputTokenDetails { get; set; }
         [JsonProperty("output_token_details")]
@@ -75,18 +75,18 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Common
     public class InputTokenDetails
     {
         [JsonProperty("cached_tokens")]
-        public string CachedTokens { get; set; }
+        public int CachedTokens { get; set; }
         [JsonProperty("text_tokens")]
-        public string TextTokens { get; set; }
+        public int TextTokens { get; set; }
         [JsonProperty("audio_tokens")]
-        public string AudioTokens { get; set; }
+        public int AudioTokens { get; set; }
     }
 
     public class OutputTokenDetails
     {
         [JsonProperty("text_tokens")]
-        public string TextTokens { get; set; }
+        public int TextTokens { get; set; }
         [JsonProperty("audio_tokens")]
-        public string AudioTokens { get; set; }
+        public int AudioTokens { get; set; }
     }
 }
