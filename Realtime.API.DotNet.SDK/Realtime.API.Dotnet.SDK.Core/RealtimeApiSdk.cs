@@ -388,6 +388,23 @@ namespace Realtime.API.Dotnet.SDK.Core
                 case ConversationItemCreated:
                 case BufferCommitted:
                 case ResponseCreated:
+                case ConversationCreated:
+                case TranscriptionFailed:
+                case ConversationItemTruncate:
+                case ConversationItemDeleted:
+                case BufferClear:
+                case ResponseDone:
+                case ResponseOutputItemAdded:
+                case ResponseOutputItemDone:
+                case ResponseContentPartAdded:
+                case ResponseContentPartDone:
+                case ResponseTextDone:
+                case ResponseFunctionCallArgumentsDelta:
+                case ResponseFunctionCallArgumentsDone:
+                case RateLimitsUpdated:
+                    break;
+                case ResponseError error:
+                    log.Error(error);
                     break;
             }
         }
@@ -407,6 +424,8 @@ namespace Realtime.API.Dotnet.SDK.Core
                 case ResponseDeltaType.AudioDone:
                     isModelResponding = false;
                     ResumeRecording();
+                    break;
+                case ResponseDeltaType.TextDelta:
                     break;
             }
         }

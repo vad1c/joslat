@@ -54,7 +54,6 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             {
                 ChatOutput.AppendText($"User: {e.Transcript}"); // Display the received speech text
             });
-
         }
 
         private void realtimeApiWpfControl_PlaybackTextAvailable(object sender, Core.Events.TranscriptEventArgs e)
@@ -63,7 +62,6 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             {
                 ChatOutput.AppendText($"AI: {e.Transcript}\n"); // Display the received playback text
             });
-
         }
 
         private void RegisterWeatherFunctionCall()

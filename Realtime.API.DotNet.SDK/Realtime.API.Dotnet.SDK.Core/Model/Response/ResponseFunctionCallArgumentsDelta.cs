@@ -7,7 +7,10 @@ using System.Threading.Tasks;
 
 namespace Realtime.API.Dotnet.SDK.Core.Model.Response
 {
-    public class ResponseDelta : BaseResponse
+    /// <summary>
+    /// response.function_call_arguments.delta
+    /// </summary>
+    public class ResponseFunctionCallArgumentsDelta : BaseResponse
     {
         [JsonProperty("response_id")]
         public string ResponseId { get; set; }
@@ -15,21 +18,9 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Response
         public string ItemId { get; set; }
         [JsonProperty("output_index")]
         public int OutputIndex { get; set; }
-        [JsonProperty("content_index")]
-        public int ContentIndex { get; set; }
+        [JsonProperty("call_id")]
+        public string CallId { get; set; }
         [JsonProperty("delta")]
         public string Delta { get; set; }
-
-        public ResponseDeltaType ResponseDeltaType { get; set; }
-
-
-    }
-
-    public enum ResponseDeltaType
-    {
-        AudioTranscriptDelta,
-        AudioDelta,
-        AudioDone,
-        TextDelta
     }
 }

@@ -16,7 +16,6 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Response
         [JsonProperty("event_id")]
         public string EventId { get; set; }
 
-        //TODO2 add all events from openai
         public static BaseResponse Parse(JObject json)
         {
             BaseResponse baseResponse = null;
@@ -42,24 +41,20 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Response
                 { "response.created", j => j.ToObject<ResponseCreated>() },
                 { "response.done", j => j.ToObject<ResponseDone>() },
                 { "response.output_item.added", j => j.ToObject<ResponseOutputItemAdded>() },
-                {"response.output_item.done", j=> j.ToObject<ResponseOutputItemDone>() },
-
-                //{"response.content_part.added", j=> j.ToObject<ResponseOutputItemAdded>() },
-                //{"response.content_part.done", j=> j.ToObject<ResponseOutputItemAdded>() },
-                //{"response.text.delta", j=> j.ToObject<ResponseOutputItemAdded>() },
-                //{"response.text.done", j=> j.ToObject<ResponseOutputItemAdded>() },
-                //{"response.audio_transcript.delta", j=> j.ToObject<ResponseOutputItemAdded>() },
-                //{"response.function_call_arguments.delta", j=> j.ToObject<ResponseOutputItemAdded>() },
-                //{"response.function_call_arguments.done", j=> j.ToObject<ResponseOutputItemAdded>() },
-                //{"rate_limits.updated", j=> j.ToObject<ResponseOutputItemAdded>() },
-
+                { "response.output_item.done", j=> j.ToObject<ResponseOutputItemDone>() },
+                { "response.content_part.added", j=> j.ToObject<ResponseContentPartAdded>() },
+                { "response.content_part.done", j=> j.ToObject<ResponseContentPartDone>() },
+                { "response.text.done", j=> j.ToObject<ResponseTextDone>() },
+                { "response.function_call_arguments.delta", j=> j.ToObject<ResponseFunctionCallArgumentsDelta>() },
+                { "response.function_call_arguments.done", j=> j.ToObject<ResponseFunctionCallArgumentsDone>() },
+                { "rate_limits.updated", j=> j.ToObject<RateLimitsUpdated>() }
             };
 
             if (typeMapping.ContainsKey(type))
             {
                 baseResponse = typeMapping[type](json);
             }
-            else if (type == "response.audio_transcript.delta" || type == "response.audio.delta" || type == "response.audio.done")
+            else if (type == "response.audio_transcript.delta" || type == "response.audio.delta" || type == "response.audio.done"||type== "response.text.delta")
             {
                 var responseDelta = json.ToObject<ResponseDelta>();
 
@@ -69,6 +64,8 @@ namespace Realtime.API.Dotnet.SDK.Core.Model.Response
                     responseDelta.ResponseDeltaType = ResponseDeltaType.AudioDelta;
                 else if (type == "response.audio.done")
                     responseDelta.ResponseDeltaType = ResponseDeltaType.AudioDone;
+                else if (type == "response.text.delta")
+                    responseDelta.ResponseDeltaType = ResponseDeltaType.TextDelta;
 
                 baseResponse = responseDelta;
             }
