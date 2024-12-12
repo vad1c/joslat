@@ -14,10 +14,11 @@ using System.IO;
 
 namespace Realtime.API.Dotnet.SDK.WPF.Sample
 {
-   public static class FucationCall
+    public static class FucationCallHelper
     {
-        public static bool HandleWeatherFunctionCall(FuncationCallArgument argument, ClientWebSocket clientWebSocket)
+        public static JObject HandleWeatherFunctionCall(FuncationCallArgument argument)
         {
+            JObject weatherResult = new JObject();
             try
             {
                 var name = argument.Name;
@@ -29,8 +30,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
                     var city = functionCallArgs["city"]?.ToString();
                     if (!string.IsNullOrEmpty(city))
                     {
-                        var weatherResult = GetWeatherFake(city);
-                        SendFunctionCallResult(weatherResult, argument.CallId, clientWebSocket);
+                        weatherResult = GetWeatherFake(city);
                     }
                     else
                     {
@@ -47,11 +47,12 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
                 Console.WriteLine($"Error parsing function call arguments: {ex.Message}");
             }
 
-            return true;
+            return weatherResult;
         }
 
-        public static bool HandleNotepadFunctionCall(FuncationCallArgument argument, ClientWebSocket clientWebSocket)
+        public static JObject HandleNotepadFunctionCall(FuncationCallArgument argument)
         {
+            JObject rtn = new JObject();
             try
             {
                 var name = argument.Name;
@@ -65,7 +66,6 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
                     if (!string.IsNullOrEmpty(content) && !string.IsNullOrEmpty(date))
                     {
                         WriteToNotepad(date, content);
-                        SendFunctionCallResult("Write to notepad successful.", callId, clientWebSocket);
                     }
                 }
                 else
@@ -77,18 +77,18 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             {
                 Console.WriteLine($"Error parsing function call arguments: {ex.Message}");
             }
-            return true;
+            return rtn;
         }
 
-        private static string GetWeatherFake(string city)
+        private static JObject GetWeatherFake(string city)
         {
-            var weatherResponse = new WeatherResponse
+            var weatherResponse = new JObject
             {
-                City = city,
-                Temperature = "30°C"
-            };
+                 { "City", city },
+                 { "Temperature", "30°C" }
+             };
 
-            return JsonConvert.SerializeObject(weatherResponse);
+            return weatherResponse;
         }
 
         private static void WriteToNotepad(string date, string content)
@@ -108,31 +108,6 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             {
                 Console.WriteLine($"Error writing to Notepad: {ex.Message}");
             }
-        }
-
-        private static void SendFunctionCallResult(string result, string callId, ClientWebSocket webSocketClient)
-        {
-            var functionCallResult = new FunctionCallResult
-            {
-                Type = "conversation.item.create",
-                Item = new FunctionCallItem
-                {
-                    Type = "function_call_output",
-                    Output = result,
-                    CallId = callId
-                }
-            };
-
-            string resultJsonString = JsonConvert.SerializeObject(functionCallResult);
-
-            webSocketClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(resultJsonString)), WebSocketMessageType.Text, true, CancellationToken.None);
-            Console.WriteLine("Sent function call result: " + resultJsonString);
-
-            ResponseCreate responseJson = new ResponseCreate();
-            string rpJsonString = JsonConvert.SerializeObject(responseJson);
-
-            webSocketClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(rpJsonString)), WebSocketMessageType.Text, true, CancellationToken.None);
-        }
-
+        } 
     }
 }

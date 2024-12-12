@@ -33,10 +33,10 @@ namespace Realtime.API.Dotnet.SDK.Core
         private WaveInEvent waveIn;
 
         private ClientWebSocket webSocketClient;
-        private Dictionary<FunctionCallSetting, Func<FuncationCallArgument, ClientWebSocket, bool>> functionRegistries = new Dictionary<FunctionCallSetting, Func<FuncationCallArgument, ClientWebSocket, bool>>();
+        private Dictionary<FunctionCallSetting, Func<FuncationCallArgument, JObject>> functionRegistries = new Dictionary<FunctionCallSetting, Func<FuncationCallArgument, JObject>>();
 
         private bool isPlayingAudio = false;
-        private bool isUserSpeaking = false; 
+        private bool isUserSpeaking = false;
         private bool isModelResponding = false;
         private bool isRecording = false;
 
@@ -179,10 +179,12 @@ namespace Realtime.API.Dotnet.SDK.Core
                 IsRunning = false;
             }
         }
-        public void RegisterFunctionCall(FunctionCallSetting functionCallSetting, Func<FuncationCallArgument, ClientWebSocket, bool> functionCallback)
+        
+        public void RegisterFunctionCall(FunctionCallSetting functionCallSetting, Func<FuncationCallArgument, JObject> functionCallback)
         {
             functionRegistries.Add(functionCallSetting, functionCallback);
         }
+
         private void ValidateApiKey()
         {
             if (string.IsNullOrEmpty(ApiKey))
@@ -308,8 +310,8 @@ namespace Realtime.API.Dotnet.SDK.Core
         }
         private async Task ReceiveMessages()
         {
-            var buffer = new byte[1024 * 16]; 
-            var messageBuffer = new StringBuilder(); 
+            var buffer = new byte[1024 * 16];
+            var messageBuffer = new StringBuilder();
 
             while (webSocketClient?.State == WebSocketState.Open)
             {
@@ -421,7 +423,9 @@ namespace Realtime.API.Dotnet.SDK.Core
                     {
                         if (item.Key.Name == functionName)
                         {
-                            item.Value(argument, webSocketClient);
+                            JObject functionCallResultJson = item.Value(argument);
+                            var callId = argument.CallId;
+                            SendFunctionCallResult(functionCallResultJson, callId);
                         }
                     }
                     break;
@@ -429,6 +433,31 @@ namespace Realtime.API.Dotnet.SDK.Core
                     Console.WriteLine("Unhandled command type");
                     break;
             }
+        }
+
+        private void SendFunctionCallResult(JObject functionCallResultJson, string callId )
+        {
+            string outputStr = functionCallResultJson == null ? "" : functionCallResultJson.ToString();
+            var functionCallResult = new FunctionCallResult
+            {
+                Type = "conversation.item.create",
+                Item = new FunctionCallItem
+                {
+                    Type = "function_call_output",
+                    Output = outputStr,
+                    CallId = callId
+                }
+            };
+
+            string resultJsonString = JsonConvert.SerializeObject(functionCallResult);
+
+            webSocketClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(resultJsonString)), WebSocketMessageType.Text, true, CancellationToken.None);
+            Console.WriteLine("Sent function call result: " + resultJsonString);
+
+            ResponseCreate responseJson = new ResponseCreate();
+            string rpJsonString = JsonConvert.SerializeObject(responseJson);
+
+            webSocketClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(rpJsonString)), WebSocketMessageType.Text, true, CancellationToken.None);
         }
 
         private void SendSessionUpdate()

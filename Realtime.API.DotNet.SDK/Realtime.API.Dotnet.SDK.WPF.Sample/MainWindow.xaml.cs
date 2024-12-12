@@ -87,7 +87,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
                 }
             };
 
-            realtimeApiWpfControl.RegisterFunctionCall(weatherFunctionCallSetting, FucationCall.HandleWeatherFunctionCall);
+            realtimeApiWpfControl.RegisterFunctionCall(weatherFunctionCallSetting, FucationCallHelper.HandleWeatherFunctionCall);
         }
 
         private void RegisterNotepadFunctionCall()
@@ -117,7 +117,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
                 }
             };
 
-            realtimeApiWpfControl.RegisterFunctionCall(notepadFunctionCallSetting, FucationCall.HandleNotepadFunctionCall);
+            realtimeApiWpfControl.RegisterFunctionCall(notepadFunctionCallSetting, FucationCallHelper.HandleNotepadFunctionCall);
         }
 
 
