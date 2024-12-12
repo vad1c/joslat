@@ -14,9 +14,9 @@ using System.IO;
 
 namespace Realtime.API.Dotnet.SDK.WPF.Sample
 {
-   public class FucationCall
+   public static class FucationCall
     {
-        public bool HandleWeatherFunctionCall(FuncationCallArgument argument, ClientWebSocket clientWebSocket)
+        public static bool HandleWeatherFunctionCall(FuncationCallArgument argument, ClientWebSocket clientWebSocket)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             return true;
         }
 
-        public bool HandleNotepadFunctionCall(FuncationCallArgument argument, ClientWebSocket clientWebSocket)
+        public static bool HandleNotepadFunctionCall(FuncationCallArgument argument, ClientWebSocket clientWebSocket)
         {
             try
             {
@@ -80,7 +80,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             return true;
         }
 
-        private string GetWeatherFake(string city)
+        private static string GetWeatherFake(string city)
         {
             var weatherResponse = new WeatherResponse
             {
@@ -91,7 +91,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             return JsonConvert.SerializeObject(weatherResponse);
         }
 
-        private void WriteToNotepad(string date, string content)
+        private static void WriteToNotepad(string date, string content)
         {
             try
             {
@@ -110,7 +110,7 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
             }
         }
 
-        private void SendFunctionCallResult(string result, string callId, ClientWebSocket webSocketClient)
+        private static void SendFunctionCallResult(string result, string callId, ClientWebSocket webSocketClient)
         {
             var functionCallResult = new FunctionCallResult
             {
