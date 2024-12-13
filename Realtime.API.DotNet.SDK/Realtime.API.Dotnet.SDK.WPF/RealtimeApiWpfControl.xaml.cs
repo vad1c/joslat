@@ -48,6 +48,8 @@ namespace Realtime.API.Dotnet.SDK.WPF
             InitializeComponent();
 
             RealtimeApiSdk = new RealtimeApiSdk();
+            Loaded += RealtimeApiWpfControl_Loaded;
+            WaveCanvas.SizeChanged += WaveCanvas_SizeChanged;
         }
 
         public RealtimeApiSdk RealtimeApiSdk { get; private set; }
@@ -61,6 +63,30 @@ namespace Realtime.API.Dotnet.SDK.WPF
         {
             get { return voiceVisualEffect; }
             set { voiceVisualEffect = value; }
+        }
+
+        private void RealtimeApiWpfControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (this.Parent is FrameworkElement parent)
+            {
+                parent.SizeChanged += Parent_SizeChanged;
+                UpdateControlSize(parent);
+            }
+        }
+
+        private void Parent_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (sender is FrameworkElement parent)
+            {
+                UpdateControlSize(parent);
+            }
+        }
+
+        private void UpdateControlSize(FrameworkElement parent)
+        {
+            this.Width = parent.ActualWidth;
+            this.Height = parent.ActualHeight;
+            this.UpdateLayout();
         }
 
         protected virtual void OnPlaybackDataAvailable(AudioEventArgs e)
@@ -410,7 +436,7 @@ namespace Realtime.API.Dotnet.SDK.WPF
             }
         }
 
-        private void DrawCircle(double sizeFactor = 0.9)
+        private void DrawCircle(double sizeFactor = 0.95)
         {
             double canvasWidth = cycleWaveformCanvas.ActualWidth;
             double canvasHeight = cycleWaveformCanvas.ActualHeight;
@@ -432,6 +458,8 @@ namespace Realtime.API.Dotnet.SDK.WPF
             Canvas.SetLeft(circle, centerX - radius);
             Canvas.SetTop(circle, centerY - radius);
 
+            cycleWaveformCanvas.Children.Clear();
+
             cycleWaveformCanvas.Children.Add(circle);
         }
 
@@ -445,17 +473,26 @@ namespace Realtime.API.Dotnet.SDK.WPF
 
             Line line = new Line
             {
-                X1 = 0,
+                X1 = 10,
                 Y1 = canvasHeight / 2,
-                X2 = canvasWidth,
+                X2 = canvasWidth - 10,
                 Y2 = canvasHeight / 2,
                 Stroke = Brushes.LimeGreen,
                 StrokeThickness = 2
             };
 
+
             WaveCanvas.Children.Add(line);
         }
 
+        private void WaveCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            DrawDefaultVisualEffect(voiceVisualEffect);
+        }
 
+        private void cycleWaveformCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            DrawDefaultVisualEffect(voiceVisualEffect);
+        }
     }
 }

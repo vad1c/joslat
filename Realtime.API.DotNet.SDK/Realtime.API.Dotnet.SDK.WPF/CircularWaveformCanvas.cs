@@ -12,7 +12,7 @@ namespace Realtime.API.Dotnet.SDK.WPF
         public void UpdateAudioData(float[] data)
         {
             audioData = data;
-            InvalidateVisual(); // 请求重绘
+            InvalidateVisual(); 
         }
 
         protected override void OnRender(DrawingContext dc)
@@ -26,26 +26,22 @@ namespace Realtime.API.Dotnet.SDK.WPF
             double height = ActualHeight;
             double centerX = width / 2;
             double centerY = height / 2;
-            double radius = Math.Min(centerX, centerY) - 10; // 圆的最大半径，留一点边距
+            double radius = Math.Min(centerX, centerY) - 10; 
 
             Pen pen = new Pen(Brushes.Blue, 1);
             Brush brush = Brushes.Black;
 
-            // 绘制背景圆
             dc.DrawEllipse(brush, pen, new Point(centerX, centerY), radius, radius);
 
-            // 绘制波形
             StreamGeometry geometry = new StreamGeometry();
             using (StreamGeometryContext context = geometry.Open())
             {
-                double angleStep = 360.0 / audioData.Length; // 每个点的角度
+                double angleStep = 360.0 / audioData.Length; 
                 for (int i = 0; i < audioData.Length; i++)
                 {
-                    // 音频幅度影响半径
                     double amplitude = audioData[i] * radius;
                     double finalRadius = radius + amplitude;
 
-                    // 计算点的坐标（极坐标转直角坐标）
                     double angle = Math.PI * 2 * (i / (double)audioData.Length);
                     double x = centerX + finalRadius * Math.Cos(angle);
                     double y = centerY + finalRadius * Math.Sin(angle);
