@@ -31,6 +31,8 @@ namespace Realtime.API.Dotnet.SDK.Core
         private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private BufferedWaveProvider waveInBufferedWaveProvider;
         private WaveInEvent waveIn;
+        private readonly object playbackLock = new object();
+        private WaveOutEvent waveOut = new WaveOutEvent { DesiredLatency = 200 };
 
         private ClientWebSocket webSocketClient;
         private Dictionary<FunctionCallSetting, Func<FuncationCallArgument, JObject>> functionRegistries = new Dictionary<FunctionCallSetting, Func<FuncationCallArgument, JObject>>();
@@ -163,13 +165,10 @@ namespace Realtime.API.Dotnet.SDK.Core
 
                 StopAudioPlayback();
 
-                await CommitAudioBufferAsync();
-
-                playbackCancellationTokenSource?.Cancel();
-
-                await CloseWebSocketAsync();
-
                 ClearAudioQueue();
+
+                await CommitAudioBufferAsync();
+                await CloseWebSocketAsync();
 
                 isPlayingAudio = false;
                 isUserSpeaking = false;
@@ -276,14 +275,33 @@ namespace Realtime.API.Dotnet.SDK.Core
         }
         private void StopAudioPlayback()
         {
-            if (isModelResponding && playbackCancellationTokenSource != null)
-            {
-                playbackCancellationTokenSource.Cancel();
-                log.Info("AI audio playback stopped due to user interruption.");
+            playbackCancellationTokenSource?.Cancel();
+            waveOut.Stop();
+            waveOut.Dispose();
+            ClearAudioQueue();
+            
+            log.Info("AI audio playback stopped due to user interruption.");
 
-                OnPlaybackEnded(new EventArgs());
+            OnPlaybackEnded(new EventArgs());
+        }
+
+        private void StartAudioPlayback()
+        {
+            waveOut.Play();
+        }
+
+        private void ClearBufferedWaveProvider()
+        {
+            lock (playbackLock)
+            {
+                if (waveInBufferedWaveProvider != null)
+                {
+                    waveInBufferedWaveProvider.ClearBuffer();
+                    log.Info("BufferedWaveProvider buffer cleared.");
+                }
             }
         }
+
         private async Task CommitAudioBufferAsync()
         {
             if (webSocketClient != null && webSocketClient.State == WebSocketState.Open)
@@ -305,8 +323,11 @@ namespace Realtime.API.Dotnet.SDK.Core
         }
         private void ClearAudioQueue()
         {
-            while (audioQueue.TryDequeue(out _)) { }
-            Console.WriteLine("Audio queue cleared.");
+            lock (playbackLock)
+            {
+                while (audioQueue.TryDequeue(out _)) { }
+                log.Info("Audio queue cleared.");
+            }
         }
         private async Task ReceiveMessages()
         {
@@ -338,7 +359,7 @@ namespace Realtime.API.Dotnet.SDK.Core
             {
                 var type = json["type"]?.ToString();
                 log.Info($"Received type: {type}");
-                
+
                 BaseResponse baseResponse = BaseResponse.Parse(json);
                 await HandleBaseResponse(baseResponse, json);
 
@@ -571,7 +592,7 @@ namespace Realtime.API.Dotnet.SDK.Core
             isModelResponding = false;
             log.Debug("User started speaking.");
             StopAudioPlayback();
-            ClearAudioQueue();
+            ClearBufferedWaveProvider();
 
             OnSpeechStarted(new EventArgs());
             OnSpeechActivity(true);
@@ -616,6 +637,7 @@ namespace Realtime.API.Dotnet.SDK.Core
             if (!isPlayingAudio)
             {
                 isPlayingAudio = true;
+                audioQueue = new ConcurrentQueue<byte[]>();
                 playbackCancellationTokenSource = new CancellationTokenSource();
 
                 Task.Run(() =>
@@ -623,7 +645,7 @@ namespace Realtime.API.Dotnet.SDK.Core
                     try
                     {
                         OnPlaybackStarted(new EventArgs());
-                        using var waveOut = new WaveOutEvent { DesiredLatency = 200 };
+
                         waveOut.PlaybackStopped += (s, e) => { OnPlaybackEnded(new EventArgs()); };
                         waveOut.Init(waveInBufferedWaveProvider);
                         waveOut.Play();
