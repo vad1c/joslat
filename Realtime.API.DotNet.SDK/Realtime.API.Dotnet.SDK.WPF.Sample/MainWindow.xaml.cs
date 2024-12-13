@@ -1,24 +1,6 @@
 ﻿using log4net;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Realtime.API.Dotnet.SDK.Core;
 using Realtime.API.Dotnet.SDK.Core.Model.Function;
-using Realtime.API.Dotnet.SDK.Core.Model.Request;
-using Realtime.API.Dotnet.SDK.Core.Model.Response;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
-using System.Net.WebSockets;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Realtime.API.Dotnet.SDK.WPF.Sample
 {
@@ -28,7 +10,6 @@ namespace Realtime.API.Dotnet.SDK.WPF.Sample
     public partial class MainWindow : Window
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(MainWindow));
-        public ObservableCollection<string> chatMessages = new ObservableCollection<string>();
         private bool isPlaying = false;
 
         public MainWindow()
