@@ -25,11 +25,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="Realtime.API.Dotnet.SDK.Core" Version="1.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Realtime.API.Dotnet.SDK.Core\Realtime.API.Dotnet.SDK.Core.csproj" />
-  </ItemGroup>
-
 </Project>
