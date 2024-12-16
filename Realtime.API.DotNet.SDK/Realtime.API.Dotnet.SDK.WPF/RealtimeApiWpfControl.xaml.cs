@@ -1,11 +1,16 @@
 using NAudio.Wave;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Realtime.API.Dotnet.SDK.Core;
 using Realtime.API.Dotnet.SDK.Core.Events;
 using Realtime.API.Dotnet.SDK.Core.Model.Function;
 using Realtime.API.Dotnet.SDK.Core.Model.Response;
 using System;
+using System.ComponentModel;
+using System.IO;
 using System.Net.WebSockets;
+using System.Security.Cryptography;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -46,7 +51,7 @@ namespace Realtime.API.Dotnet.SDK.WPF
         public RealtimeApiWpfControl()
         {
             InitializeComponent();
-
+            
             RealtimeApiSdk = new RealtimeApiSdk();
             Loaded += RealtimeApiWpfControl_Loaded;
             WaveCanvas.SizeChanged += WaveCanvas_SizeChanged;
@@ -230,6 +235,9 @@ namespace Realtime.API.Dotnet.SDK.WPF
 
         public void StartSpeechRecognition()
         {
+            if (!ValidateLicense())
+                return;
+
             if (!RealtimeApiSdk.IsRunning)
             {
                 // Start ripple effect.
@@ -494,5 +502,64 @@ namespace Realtime.API.Dotnet.SDK.WPF
         {
             DrawDefaultVisualEffect(voiceVisualEffect);
         }
+
+        private bool ValidateLicense()
+        {
+            try
+            {
+                // Retrieve the current directory, assuming public_key.xml and license.json are in the same directory
+                string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                string publicKeyPath = System.IO.Path.Combine(currentDirectory, "public_key.xml");
+                string licensePath = System.IO.Path.Combine(currentDirectory, "license.json");
+
+                if (!File.Exists(publicKeyPath))
+                {
+                    MessageBox.Show("The public key file public_key.xml does not exist!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
+                }
+
+                if (!File.Exists(licensePath))
+                {
+                    MessageBox.Show("The License file license.json does not exist!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
+                }
+
+                // Read public key
+                string publicKey = File.ReadAllText(publicKeyPath);
+
+                // Read License file
+                string licenseContent = File.ReadAllText(licensePath);
+                dynamic licenseFile = JsonConvert.DeserializeObject(licenseContent);
+
+                // Extract License data and signature
+                string licenseJson = JsonConvert.SerializeObject(licenseFile.Data);
+                byte[] dataBytes = Encoding.UTF8.GetBytes(licenseJson);
+                byte[] signatureBytes = Convert.FromBase64String((string)licenseFile.Signature);
+
+                // verify signature
+                using (var rsa = new RSACryptoServiceProvider())
+                {
+                    rsa.FromXmlString(publicKey);
+                    bool isValid = rsa.VerifyData(dataBytes, CryptoConfig.MapNameToOID("SHA256"), signatureBytes);
+
+                    if (isValid)
+                    {
+                        MessageBox.Show("License verification successful!", "Verification successful", MessageBoxButton.OK, MessageBoxImage.Information);
+                        return true;
+                    }
+                    else
+                    {
+                        MessageBox.Show("License verification failed! The data may be tampered with.", "Validation failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred during the verification process:{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+        }
+
     }
 }

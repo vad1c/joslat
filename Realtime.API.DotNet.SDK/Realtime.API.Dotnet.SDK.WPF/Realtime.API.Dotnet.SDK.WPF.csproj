@@ -8,7 +8,7 @@
 	
 	<!-- 必要信息 -->
   <PackageId>Realtime.API.Dotnet.SDK.WPF</PackageId>
-  <Version>1.0.0</Version> <!-- 版本号 -->
+  <Version>1.0.1</Version> <!-- 版本号 -->
   <Authors>NavBot</Authors> <!-- 作者信息 -->
   <Company>NavBot</Company> <!-- 公司信息 -->
   <Description>Your voice conversation assistant</Description> <!-- 描述 -->
