@@ -4,7 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Realtime.API.Dotnet.SDK.WPF.Sample"
-        xmlns:WPF="clr-namespace:Realtime.API.Dotnet.SDK.WPF;assembly=Realtime.API.Dotnet.SDK.WPF" x:Class="Realtime.API.Dotnet.SDK.WPF.Sample.MainWindow"
+        xmlns:WPF="clr-namespace:Realtime.API.Dotnet.SDK.WPF;assembly=Realtime.API.Dotnet.SDK.WPF" 
+        x:Class="Realtime.API.Dotnet.SDK.WPF.Sample.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded" MinWidth="800" MinHeight="450">
     <Grid >

@@ -5,13 +5,13 @@ VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Realtime.API.Dotnet.SDK.Core", "Realtime.API.DotNet.SDK\Realtime.API.Dotnet.SDK.Core\Realtime.API.Dotnet.SDK.Core.csproj", "{482BB14C-8604-4FF7-A4FF-B722EF63EA7F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Realtime.API.Dotnet.SDK.Desktop", "Realtime.API.Dotnet.SDK.Desktop\Realtime.API.Dotnet.SDK.Desktop.csproj", "{006E857D-82C8-4C8C-BBC3-55F36B700F7E}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Realtime.API.Dotnet.SDK.Desktop.Sample", "Realtime.API.Dotnet.SDK.Destop.Sample\Realtime.API.Dotnet.SDK.Desktop.Sample.csproj", "{6A04D939-D610-4AB8-8E5C-AC32A107DA8D}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Realtime.API.Dotnet.SDK.WPF.Debug", "Realtime.API.DotNet.SDK\Realtime.API.Dotnet.SDK.WPF\Realtime.API.Dotnet.SDK.WPF.Debug.csproj", "{0C6BD88C-F236-40FD-9926-073D93B4D6C9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Realtime.API.Dotnet.SDK.WPF.Sample.Debug", "Realtime.API.DotNet.SDK\Realtime.API.Dotnet.SDK.WPF.Sample\Realtime.API.Dotnet.SDK.WPF.Sample.Debug.csproj", "{DB5141CA-77F4-4DAD-B885-D2A4C6D16DF1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Realtime.API.Dotnet.SDK.Desktop.Debug", "Realtime.API.DotNet.SDK\Realtime.API.Dotnet.SDK.Desktop\Realtime.API.Dotnet.SDK.Desktop.Debug.csproj", "{3EE6C04A-5E0E-4A53-BD29-962B097930E9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Realtime.API.Dotnet.SDK.Desktop.Sample.Debug", "Realtime.API.DotNet.SDK\Realtime.API.Dotnet.SDK.Destop.Sample\Realtime.API.Dotnet.SDK.Desktop.Sample.Debug.csproj", "{2BA868C0-BD0D-41F7-9AAE-3BAA61AFFBA9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,14 +23,6 @@ Global
 		{482BB14C-8604-4FF7-A4FF-B722EF63EA7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{482BB14C-8604-4FF7-A4FF-B722EF63EA7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{482BB14C-8604-4FF7-A4FF-B722EF63EA7F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{006E857D-82C8-4C8C-BBC3-55F36B700F7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{006E857D-82C8-4C8C-BBC3-55F36B700F7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{006E857D-82C8-4C8C-BBC3-55F36B700F7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{006E857D-82C8-4C8C-BBC3-55F36B700F7E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6A04D939-D610-4AB8-8E5C-AC32A107DA8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6A04D939-D610-4AB8-8E5C-AC32A107DA8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6A04D939-D610-4AB8-8E5C-AC32A107DA8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6A04D939-D610-4AB8-8E5C-AC32A107DA8D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0C6BD88C-F236-40FD-9926-073D93B4D6C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0C6BD88C-F236-40FD-9926-073D93B4D6C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C6BD88C-F236-40FD-9926-073D93B4D6C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,6 +31,14 @@ Global
 		{DB5141CA-77F4-4DAD-B885-D2A4C6D16DF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB5141CA-77F4-4DAD-B885-D2A4C6D16DF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB5141CA-77F4-4DAD-B885-D2A4C6D16DF1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EE6C04A-5E0E-4A53-BD29-962B097930E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EE6C04A-5E0E-4A53-BD29-962B097930E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EE6C04A-5E0E-4A53-BD29-962B097930E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EE6C04A-5E0E-4A53-BD29-962B097930E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BA868C0-BD0D-41F7-9AAE-3BAA61AFFBA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BA868C0-BD0D-41F7-9AAE-3BAA61AFFBA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BA868C0-BD0D-41F7-9AAE-3BAA61AFFBA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BA868C0-BD0D-41F7-9AAE-3BAA61AFFBA9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

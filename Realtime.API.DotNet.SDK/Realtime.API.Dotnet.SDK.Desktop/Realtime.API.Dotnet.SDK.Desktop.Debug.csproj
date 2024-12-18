@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Realtime.API.DotNet.SDK\Realtime.API.Dotnet.SDK.Core\Realtime.API.Dotnet.SDK.Core.csproj" />
+    <ProjectReference Include="..\Realtime.API.Dotnet.SDK.Core\Realtime.API.Dotnet.SDK.Core.csproj" />
   </ItemGroup>
 
 </Project>
