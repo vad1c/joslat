@@ -1,14 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0-windows7.0</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Realtime.API.DotNet.SDK\Realtime.API.Dotnet.SDK.Core\Realtime.API.Dotnet.SDK.Core.csproj" />
+    <ProjectReference Include="..\Realtime.API.Dotnet.SDK.Desktop\Realtime.API.Dotnet.SDK.Desktop.csproj" />
   </ItemGroup>
 
 </Project>

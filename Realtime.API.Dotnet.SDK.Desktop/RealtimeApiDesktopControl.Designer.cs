@@ -1,6 +1,6 @@
 ﻿namespace Realtime.API.Dotnet.SDK.Desktop
 {
-    partial class DesktopUserControl
+    partial class RealtimeApiDesktopControl
     {
         /// <summary>
         /// Required designer variable.
@@ -30,7 +30,7 @@
         {
             components = new System.ComponentModel.Container();
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(200, 200);
         }
 
         #endregion
