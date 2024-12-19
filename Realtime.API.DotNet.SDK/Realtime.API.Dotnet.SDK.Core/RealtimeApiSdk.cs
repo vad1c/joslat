@@ -476,6 +476,7 @@ namespace Realtime.API.Dotnet.SDK.Core
 
                 case ResponseError error:
                     log.Error(error);
+                    log.Error($"Received json: {json}");
                     break;
             }
         }

@@ -28,9 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(200, 200);
+            SuspendLayout();
+            // 
+            // RealtimeApiDesktopControl
+            // 
+            AutoScaleDimensions = new SizeF(7F, 17F);
+            AutoScaleMode = AutoScaleMode.Font;
+            Name = "RealtimeApiDesktopControl";
+            Size = new Size(200, 200);
+            Load += RealtimeApiDesktopControl_Load;
+            ResumeLayout(false);
         }
 
         #endregion

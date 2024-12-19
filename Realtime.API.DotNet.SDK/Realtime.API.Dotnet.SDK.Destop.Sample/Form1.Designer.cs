@@ -1,6 +1,6 @@
 ﻿namespace Realtime.API.Dotnet.SDK.Desktop.Sample
 {
-    partial class Form1
+    partial class MainFrom
     {
         /// <summary>
         /// Required designer variable.
@@ -30,11 +30,11 @@
         {
             tableLayoutPanel = new TableLayoutPanel();
             circlePanel = new Panel();
-            realtimeApiDesktopControl1 = new RealtimeApiDesktopControl();
             rightPanel = new Panel();
             bottomPanel = new Panel();
             btnEnd = new Button();
             btnStart = new Button();
+            realtimeApiDesktopControl = new RealtimeApiDesktopControl();
             tableLayoutPanel.SuspendLayout();
             circlePanel.SuspendLayout();
             bottomPanel.SuspendLayout();
@@ -59,20 +59,11 @@
             // 
             // circlePanel
             // 
-            circlePanel.Controls.Add(realtimeApiDesktopControl1);
+            circlePanel.Controls.Add(realtimeApiDesktopControl);
             circlePanel.Location = new Point(3, 3);
             circlePanel.Name = "circlePanel";
-            circlePanel.Size = new Size(387, 211);
+            circlePanel.Size = new Size(534, 211);
             circlePanel.TabIndex = 0;
-            // 
-            // realtimeApiDesktopControl1
-            // 
-            realtimeApiDesktopControl1.Dock = DockStyle.Fill;
-            realtimeApiDesktopControl1.Location = new Point(0, 0);
-            realtimeApiDesktopControl1.Name = "realtimeApiDesktopControl1";
-            realtimeApiDesktopControl1.OpenAiApiKey = "";
-            realtimeApiDesktopControl1.Size = new Size(387, 211);
-            realtimeApiDesktopControl1.TabIndex = 0;
             // 
             // rightPanel
             // 
@@ -98,6 +89,7 @@
             btnEnd.TabIndex = 1;
             btnEnd.Text = "End";
             btnEnd.UseVisualStyleBackColor = true;
+            btnEnd.Click += btnEnd_Click;
             // 
             // btnStart
             // 
@@ -107,15 +99,27 @@
             btnStart.TabIndex = 0;
             btnStart.Text = "Start";
             btnStart.UseVisualStyleBackColor = true;
+            btnStart.Click += btnStart_Click;
             // 
-            // Form1
+            // realtimeApiDesktopControl
+            // 
+            realtimeApiDesktopControl.Dock = DockStyle.Fill;
+            realtimeApiDesktopControl.Location = new Point(0, 0);
+            realtimeApiDesktopControl.Name = "realtimeApiDesktopControl";
+            realtimeApiDesktopControl.OpenAiApiKey = "";
+            realtimeApiDesktopControl.Size = new Size(534, 211);
+            realtimeApiDesktopControl.TabIndex = 0;
+            realtimeApiDesktopControl.VoiceVisualEffect = VisualEffect.Cycle;
+            // 
+            // MainFrom
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(tableLayoutPanel);
-            Name = "Form1";
+            Name = "MainFrom";
             Text = "Form1";
+            Load += MainFrom_Load;
             tableLayoutPanel.ResumeLayout(false);
             circlePanel.ResumeLayout(false);
             bottomPanel.ResumeLayout(false);
@@ -126,10 +130,10 @@
 
         private TableLayoutPanel tableLayoutPanel;
         private Panel circlePanel;
-        private RealtimeApiDesktopControl realtimeApiDesktopControl1;
         private Panel rightPanel;
         private Panel bottomPanel;
         private Button btnEnd;
         private Button btnStart;
+        private RealtimeApiDesktopControl realtimeApiDesktopControl;
     }
 }
