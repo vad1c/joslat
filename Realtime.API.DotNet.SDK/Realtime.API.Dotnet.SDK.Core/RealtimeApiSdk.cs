@@ -134,6 +134,12 @@ namespace Realtime.API.Dotnet.SDK.Core
         }
         public async void StartSpeechRecognitionAsync()
         {
+            string errorMsg = ValidateLicense();
+            if (!string.IsNullOrWhiteSpace(errorMsg))
+            {
+                throw new InvalidOperationException(errorMsg);
+            }
+
             if (!IsRunning)
             {
                 IsRunning = true;

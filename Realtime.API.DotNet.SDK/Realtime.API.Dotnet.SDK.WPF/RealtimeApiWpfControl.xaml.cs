@@ -235,12 +235,12 @@ namespace Realtime.API.Dotnet.SDK.WPF
 
         public void StartSpeechRecognition()
         {
-            string errorMsg = RealtimeApiSdk.ValidateLicense();
-            if (!string.IsNullOrWhiteSpace(errorMsg)) 
-            {
-                MessageBox.Show(errorMsg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+            //string errorMsg = RealtimeApiSdk.ValidateLicense();
+            //if (!string.IsNullOrWhiteSpace(errorMsg)) 
+            //{
+            //    MessageBox.Show(errorMsg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            //    return;
+            //}
 
             if (!RealtimeApiSdk.IsRunning)
             {
