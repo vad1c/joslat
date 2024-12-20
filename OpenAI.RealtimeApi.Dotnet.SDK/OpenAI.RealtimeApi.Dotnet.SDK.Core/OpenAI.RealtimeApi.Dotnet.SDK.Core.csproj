@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	
+	<!-- 必要信息 -->
+  <PackageId>OpenAI.RealtimeApi.Dotnet.SDK.Core</PackageId>
+  <Version>1.0.0</Version> <!-- 版本号 -->
+  <Authors>NavBot</Authors> <!-- 作者信息 -->
+  <Company>NavBot</Company> <!-- 公司信息 -->
+  <Description>Your voice conversation assistant</Description> <!-- 描述 -->
+  <Copyright>Copyright © YourCompany 2024</Copyright>
+
+  <!-- 可选：目标框架 -->
+  <TargetFramework>net6.0-windows</TargetFramework>
+
+  <!-- 是否生成 NuGet 包 -->
+  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+  <!-- 包输出路径 -->
+  <PackageOutputPath>..\..\NuGetPackages</PackageOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="log4net.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="log4net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="log4net" Version="3.0.3" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+</Project>
