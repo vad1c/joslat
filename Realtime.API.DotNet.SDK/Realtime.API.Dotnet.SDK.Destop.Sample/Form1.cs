@@ -18,6 +18,8 @@ namespace Realtime.API.Dotnet.SDK.Desktop.Sample
     {
 
         private static readonly ILog log = LogManager.GetLogger(typeof(MainFrom));
+        RealtimeApiDesktopControl realtimeApiDesktopControl = new RealtimeApiDesktopControl();
+        private RichTextBox chatOutput;
         public MainFrom()
         {
             InitializeComponent();
@@ -26,16 +28,16 @@ namespace Realtime.API.Dotnet.SDK.Desktop.Sample
 
         public void Init()
         {
-            this.Size = new Size(800, 500);
+            realtimeApiDesktopControl.SpeechTextAvailable += RealtimeApiDesktopControl_SpeechTextAvailable;
+            realtimeApiDesktopControl.PlaybackTextAvailable += RealtimeApiDesktopControl_PlaybackTextAvailable;
 
             // TableLayoutPanel 初始化
-            tableLayoutPanel = new TableLayoutPanel
+            var tableLayoutPanel = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 RowCount = 2,
                 ColumnCount = 2,
-                BackColor = Color.Green,
-                CellBorderStyle = TableLayoutPanelCellBorderStyle.Single
+                BackColor = Color.White,
             };
             tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 70F));
             tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 30F));
@@ -43,47 +45,72 @@ namespace Realtime.API.Dotnet.SDK.Desktop.Sample
             tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30F));
 
             // 圆形 Panel 初始化
-            circlePanel = new Panel
+            var circlePanel = new Panel
             {
                 Dock = DockStyle.Fill,
                 BackColor = Color.White
             };
 
             // 右侧 Panel 初始化
-            rightPanel = new Panel
+            var rightPanel = new Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = Color.AliceBlue
+                BackColor = ColorTranslator.FromHtml("#322723")
+            };
+
+            // 创建一个 RichTextBox 用于输出对话
+            chatOutput = new RichTextBox
+            {
+                Dock = DockStyle.Fill,
+                BackColor = ColorTranslator.FromHtml("#322723"),
+                ForeColor = Color.LightGreen,
+                ReadOnly = true,
+                Font = new Font("Arial", 12)
             };
 
             // 底部 Panel 初始化
-            bottomPanel = new Panel
+            var bottomPanel = new Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = Color.DarkGoldenrod
+                BackColor = ColorTranslator.FromHtml("#2a2a2a")
             };
 
             // 按钮初始化
-            //var btnStart = new Button
-            //{
-            //    Text = "Start",
-            //    Size = new Size(100, 40),
-            //    Anchor = AnchorStyles.None
-            //};
-            //var btnEnd = new Button
-            //{
-            //    Text = "End",
-            //    Size = new Size(100, 40),
-            //    Anchor = AnchorStyles.None
-            //};
+            var btnStart = new Button
+            {
+                Text = "Start",
+                Size = new Size(150, 50),
+                Anchor = AnchorStyles.None,
+                BackColor = Color.Green,
+                ForeColor = Color.White,
+            };
+            btnStart.Click += btnStart_Click;
 
-            //// 将按钮添加到底部 Panel
-            //bottomPanel.Controls.Add(btnStart);
-            //bottomPanel.Controls.Add(btnEnd);
+            var btnEnd = new Button
+            {
+                Text = "End",
+                Size = new Size(150, 50),
+                Anchor = AnchorStyles.None,
+                BackColor = Color.Red,
+                ForeColor = Color.White
+            };
+            btnEnd.Click += btnEnd_Click;
 
-            // 调整按钮位置
-            //btnStart.Location = new Point(200, 50);
-            //btnEnd.Location = new Point(400, 50);
+            // 将按钮添加到底部 Panel
+            bottomPanel.Controls.Add(btnStart);
+            bottomPanel.Controls.Add(btnEnd);
+
+            //调整按钮位置
+            btnStart.Location = new Point(-100, 30);
+            btnEnd.Location = new Point(150, 30);
+
+
+
+            circlePanel.Controls.Add(realtimeApiDesktopControl);
+            rightPanel.Controls.Add(chatOutput);
+            bottomPanel.Controls.Add(btnStart);
+            bottomPanel.Controls.Add(btnEnd);
+            
 
             // 将控件添加到 TableLayoutPanel
             tableLayoutPanel.Controls.Add(circlePanel, 0, 0);
@@ -94,6 +121,26 @@ namespace Realtime.API.Dotnet.SDK.Desktop.Sample
 
             // 将 TableLayoutPanel 添加到窗体
             this.Controls.Add(tableLayoutPanel);
+        }
+
+        private void RealtimeApiDesktopControl_PlaybackTextAvailable(object? sender, Core.Events.TranscriptEventArgs e)
+        {
+            // 使用 Invoke 来确保在 UI 线程上更新控件
+            this.Invoke((MethodInvoker)delegate
+            {
+                chatOutput.AppendText($"AI: {e.Transcript}\n"); // Display the received playback text
+                chatOutput.ScrollToCaret(); // 自动滚动到最新位置
+            });
+        }
+
+        private void RealtimeApiDesktopControl_SpeechTextAvailable(object? sender, Core.Events.TranscriptEventArgs e)
+        {
+            // 使用 Invoke 来确保在 UI 线程上更新控件
+            this.Invoke((MethodInvoker)delegate
+            {
+                chatOutput.AppendText($"User: {e.Transcript}\n"); // Display the received speech text
+                chatOutput.ScrollToCaret(); // 自动滚动到最新位置
+            });
         }
 
         private void btnStart_Click(object sender, EventArgs e)

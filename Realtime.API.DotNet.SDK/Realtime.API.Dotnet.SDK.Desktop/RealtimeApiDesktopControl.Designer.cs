@@ -34,6 +34,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.ControlText;
             Name = "RealtimeApiDesktopControl";
             Size = new Size(200, 200);
             Load += RealtimeApiDesktopControl_Load;
