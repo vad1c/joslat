@@ -97,7 +97,7 @@ public partial class MainForm : Form
 
 1. **语音识别**：点击 "Start" 按钮，控件开始监听用户的语音并实时转换为文本。
 2. **语音文本**：通过调用 `RealtimeApiDesktopControl.PlaybackTextAvailable`，将输出AI语音的文本信息。
-3. ![](images\sample.png)
+3. ![](images/sample.png)
 
 
 
