@@ -1,5 +1,5 @@
 # Project Name
-OpenAI.RealtimeApi.Dotnet.SDK
+Navbot.RealtimeApi.Dotnet.SDK
 
 ## Project Introduction
 
@@ -34,6 +34,25 @@ List the basic environment requirements needed to run the project:
 - Operating System: Windows 10 or higher
 - .NET Version: .NET 6.0 or higher
 - Other Dependencies: OpenAI API key, NAudio, etc.
+
+### NuGet Package Installation
+To use the Realtime control, you need to install the following NuGet packages:
+
+```bash
+Navbot.RealtimeApi.Dotnet.SDK.Core
+Navbot.RealtimeApi.Dotnet.SDK.Desktop
+Navbot.RealtimeApi.Dotnet.SDK.WPF
+```
+
+You can install these packages by running the following commands in the **NuGet Package Manager Console**:
+
+```bash
+Install-Package Navbot.RealtimeApi.Dotnet.SDK.Core
+Install-Package Navbot.RealtimeApi.Dotnet.SDK.Desktop
+Install-Package Navbot.RealtimeApi.Dotnet.SDK.WPF
+```
+
+Alternatively, you can add them via the **Package Manager UI** by searching for each package.
 
 ### Usage
 
