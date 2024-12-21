@@ -11,7 +11,7 @@
   <Authors>Navbot</Authors> <!-- 作者信息 -->
   <Company>Navbot</Company> <!-- 公司信息 -->
   <Description>Your voice conversation assistant</Description> <!-- 描述 -->
-  <Copyright>Copyright © YourCompany 2024</Copyright>
+  <Copyright>Copyright © Navbot 2024</Copyright>
 
   <!-- 是否生成 NuGet 包 -->
   <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
