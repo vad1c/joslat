@@ -1,45 +1,45 @@
-# 项目名称
+# Project Name
 OpenAI.RealtimeApi.Dotnet.SDK
 
-## 项目简介
+## Project Introduction
 
-Realtime 控件 是一个用于实时语音识别和语音合成的控件，能够通过语音输入进行文本识别，并通过文本生成语音响应。该控件可以用于桌面应用程序，集成 OpenAI 和其他相关服务，提供流畅的语音交互体验。
+The Realtime control is a component for real-time speech recognition and speech synthesis. It can convert speech input into text and generate speech responses from text. This control can be used in desktop applications, integrating OpenAI and other related services, providing a seamless speech interaction experience.
 
-此控件适用于需要语音交互的应用场景，如虚拟助手、语音识别系统、智能客服等。
+This control is suitable for applications requiring voice interaction, such as virtual assistants, speech recognition systems, and intelligent customer service.
 
-## 目录
+## Table of Contents
 
-- [功能概述](#功能概述)
-- [安装和配置](#安装和配置)
-- [使用方法](#使用方法)
-- [功能演示](#功能演示)
-- [许可证](#许可证)
+- [Feature Overview](#feature-overview)
+- [Installation and Configuration](#installation-and-configuration)
+- [Usage](#usage)
+- [Feature Demonstration](#feature-demonstration)
+- [License](#license)
 
-## 功能概述
+## Feature Overview
 
-Realtime 控件 提供以下主要功能：
+The Realtime control provides the following key features:
 
-- 实时语音识别：将用户的语音实时转换为文本，支持连续语音输入和反馈。
-- 文本转语音：将 AI 或其他文本信息转换为语音并播放。
-- 多语言支持：支持多种语言的语音识别。
-- OpenAI 集成：集成 OpenAI API，支持智能对话和自然语言处理。
-- 自定义功能：支持开发者自定义 API 调用和语音相关的功能。
+- Real-time Speech Recognition: Converts user speech into text in real time, supporting continuous speech input and feedback.
+- Text-to-Speech: Converts AI or other text information into speech and plays it.
+- Multi-language Support: Supports speech recognition in multiple languages.
+- OpenAI Integration: Integrates the OpenAI API, supporting intelligent conversation and natural language processing.
+- Custom Features: Allows developers to customize API calls and speech-related functionalities.
 
-## 安装和配置
+## Installation and Configuration
 
-### 系统要求
+### System Requirements
 
-列出项目运行所需的基本环境要求：
+List the basic environment requirements needed to run the project:
 
-- 操作系统：Windows 10 或更高版本
-- .NET 版本：.NET 6.0 或更高版本
-- 其他依赖：OpenAI API 密钥、NAudio等
+- Operating System: Windows 10 or higher
+- .NET Version: .NET 6.0 or higher
+- Other Dependencies: OpenAI API key, NAudio, etc.
 
-### 使用方法
+### Usage
 
-### 初始化控件
+### Initialize the Control
 
-在 `Windows Forms` 应用中，你可以通过如下方式初始化控件并开始使用：
+In a `Windows Forms` application, you can initialize the control and start using it as follows:
 
 ```c#
 using Realtime.API.Dotnet.SDK.Core.Model;
@@ -68,39 +68,37 @@ public partial class MainForm : Form
 
     private void RealtimeApiDesktopControl_SpeechTextAvailable(object sender, TranscriptEventArgs e)
     {
-        // 处理语音识别结果
+        // Handle speech recognition result
         Console.WriteLine($"User: {e.Transcript}");
     }
 
     private void RealtimeApiDesktopControl_PlaybackTextAvailable(object sender, TranscriptEventArgs e)
     {
-        // 处理语音播放结果
+        // Handle speech playback result
         Console.WriteLine($"AI: {e.Transcript}");
     }
 
     private void btnStart_Click(object sender, EventArgs e)
     {
-        // 启动语音识别
+        // Start speech recognition
         realtimeApiDesktopControl.StartSpeechRecognition();
     }
 
     private void btnStop_Click(object sender, EventArgs e)
     {
-        // 停止语音识别
+        // Stop speech recognition
         realtimeApiDesktopControl.StopSpeechRecognition();
     }
 }
 
 ```
 
-### 功能演示
+### Feature Demonstration
 
-1. **语音识别**：点击 "Start" 按钮，控件开始监听用户的语音并实时转换为文本。
-2. **语音文本**：通过调用 `RealtimeApiDesktopControl.PlaybackTextAvailable`，将输出AI语音的文本信息。
-3. ![](images/sample.png)
+1. **Speech Recognition**: Click the "Start" button to begin listening to the user's speech and convert it into text in real time.
+2. **Speech Text**: By calling `RealtimeApiDesktopControl.PlaybackTextAvailable`, the output text information of the AI speech is displayed.
+3. ![img](images/sample.png)
 
+## License
 
-
-## 许可证
-
-本项目使用 [MIT 许可证](LICENSE) 进行授权。
+This project is licensed under the [MIT License](LICENSE).
