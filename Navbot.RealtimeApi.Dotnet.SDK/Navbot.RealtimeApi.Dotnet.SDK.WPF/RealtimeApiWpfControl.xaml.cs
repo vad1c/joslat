@@ -52,7 +52,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
         }
 
         public RealtimeApiSdk RealtimeApiSdk { get; private set; }
-        public string NavbotApiKey
+        public string OpenAiApiKey
         {
             get { return RealtimeApiSdk.ApiKey; }
             set { RealtimeApiSdk.ApiKey = value; }
@@ -238,11 +238,11 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
 
             if (!RealtimeApiSdk.IsRunning)
             {
-                // Start ripple effect.
-                PlayVisualVoiceEffect(true);
-
                 // Start voice recognition;
                 RealtimeApiSdk.StartSpeechRecognitionAsync();
+
+                // Start ripple effect.
+                PlayVisualVoiceEffect(true);
             }
         }
 

@@ -24,4 +24,8 @@
   <ItemGroup>
     <PackageReference Include="Navbot.RealtimeApi.Dotnet.SDK.Core" Version="1.0.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Navbot.RealtimeApi.Dotnet.SDK.Core\Navbot.RealtimeApi.Dotnet.SDK.Core.csproj" />
+  </ItemGroup>
 </Project>

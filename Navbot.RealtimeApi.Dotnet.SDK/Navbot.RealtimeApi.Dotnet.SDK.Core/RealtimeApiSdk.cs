@@ -65,10 +65,10 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
             };
             waveIn.DataAvailable += WaveIn_DataAvailable;
 
-            this.OpenApiUrl = "wss://api.Navbot.com/v1/realtime";
+            this.OpenApiUrl = "wss://api.openai.com/v1/realtime";
             this.Model = "gpt-4o-realtime-preview-2024-10-01";
             this.RequestHeaderOptions = new Dictionary<string, string>();
-            RequestHeaderOptions.Add("Navbot-beta", "realtime=v1");
+            RequestHeaderOptions.Add("openai-beta", "realtime=v1");
         }
 
         public string ApiKey { get; set; }
@@ -223,6 +223,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
             catch (Exception ex)
             {
                 log.Error($"Failed to connect WebSocket: {ex.Message}");
+                throw new Exception($"Failed to connect WebSocket: {ex.Message}");
             }
         }
         private async Task CloseWebSocketAsync()

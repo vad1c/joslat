@@ -19,9 +19,9 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            string NavbotApiKey = Environment.GetEnvironmentVariable("Navbot_API_KEY") ?? "";
+            string openAiApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? "";
 
-            realtimeApiWpfControl.NavbotApiKey = NavbotApiKey;
+            realtimeApiWpfControl.OpenAiApiKey = openAiApiKey;
 
             RegisterWeatherFunctionCall();
             RegisterNotepadFunctionCall();

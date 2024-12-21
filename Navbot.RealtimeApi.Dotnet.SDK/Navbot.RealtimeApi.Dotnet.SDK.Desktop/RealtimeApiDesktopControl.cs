@@ -66,7 +66,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop
 
         public RealtimeApiSdk RealtimeApiSdk { get; private set; }
 
-        public string NavbotApiKey
+        public string OpenAiApiKey
         {
             get { return RealtimeApiSdk.ApiKey; }
             set { RealtimeApiSdk.ApiKey = value; }

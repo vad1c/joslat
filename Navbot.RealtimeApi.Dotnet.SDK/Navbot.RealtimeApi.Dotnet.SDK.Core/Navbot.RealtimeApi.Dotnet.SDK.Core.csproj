@@ -7,7 +7,7 @@
 	
 	<!-- 必要信息 -->
   <PackageId>Navbot.RealtimeApi.Dotnet.SDK.Core</PackageId>
-  <Version>1.0.0</Version> <!-- 版本号 -->
+  <Version>1.0.1</Version> <!-- 版本号 -->
   <Authors>Navbot</Authors> <!-- 作者信息 -->
   <Company>Navbot</Company> <!-- 公司信息 -->
   <Description>Your voice conversation assistant</Description> <!-- 描述 -->
