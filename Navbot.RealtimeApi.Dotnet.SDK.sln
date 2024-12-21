@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35027.167
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Navbot.RealtimeApi.Dotnet.SDK.Core", "Navbot.RealtimeApi.Dotnet.SDK\Navbot.RealtimeApi.Dotnet.SDK.Core\Navbot.RealtimeApi.Dotnet.SDK.Core.csproj", "{37424DF4-5691-40BB-80F4-1A98C641B6C4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Navbot.RealtimeApi.Dotnet.SDK.Desktop", "Navbot.RealtimeApi.Dotnet.SDK\Navbot.RealtimeApi.Dotnet.SDK.Desktop\Navbot.RealtimeApi.Dotnet.SDK.Desktop.csproj", "{CDFF06A7-B782-4182-B1ED-C7317E436DA9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Navbot.RealtimeApi.Dotnet.SDK.Desktop.Sample", "Navbot.RealtimeApi.Dotnet.SDK\Navbot.RealtimeApi.Dotnet.SDK.Destop.Sample\Navbot.RealtimeApi.Dotnet.SDK.Desktop.Sample.csproj", "{9FDFBC81-3E06-4B9B-A3BF-96E28DEAED3B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Navbot.RealtimeApi.Dotnet.SDK.WPF", "Navbot.RealtimeApi.Dotnet.SDK\Navbot.RealtimeApi.Dotnet.SDK.WPF\Navbot.RealtimeApi.Dotnet.SDK.WPF.csproj", "{97C23041-13EF-4C9B-85CE-AE17C2CAA598}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample", "Navbot.RealtimeApi.Dotnet.SDK\Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample\Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample.csproj", "{826D57AF-815D-4D46-ACAA-93412499F0C4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{37424DF4-5691-40BB-80F4-1A98C641B6C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37424DF4-5691-40BB-80F4-1A98C641B6C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37424DF4-5691-40BB-80F4-1A98C641B6C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37424DF4-5691-40BB-80F4-1A98C641B6C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDFF06A7-B782-4182-B1ED-C7317E436DA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDFF06A7-B782-4182-B1ED-C7317E436DA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDFF06A7-B782-4182-B1ED-C7317E436DA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDFF06A7-B782-4182-B1ED-C7317E436DA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FDFBC81-3E06-4B9B-A3BF-96E28DEAED3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FDFBC81-3E06-4B9B-A3BF-96E28DEAED3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FDFBC81-3E06-4B9B-A3BF-96E28DEAED3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FDFBC81-3E06-4B9B-A3BF-96E28DEAED3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97C23041-13EF-4C9B-85CE-AE17C2CAA598}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97C23041-13EF-4C9B-85CE-AE17C2CAA598}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97C23041-13EF-4C9B-85CE-AE17C2CAA598}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97C23041-13EF-4C9B-85CE-AE17C2CAA598}.Release|Any CPU.Build.0 = Release|Any CPU
+		{826D57AF-815D-4D46-ACAA-93412499F0C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{826D57AF-815D-4D46-ACAA-93412499F0C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{826D57AF-815D-4D46-ACAA-93412499F0C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{826D57AF-815D-4D46-ACAA-93412499F0C4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {88F608B8-7946-421D-AE8E-625CED4A5BEA}
+	EndGlobalSection
+EndGlobal
