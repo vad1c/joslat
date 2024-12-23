@@ -11,6 +11,7 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
+using System.Windows.Media.Effects;
 
 namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
 {
@@ -229,12 +230,12 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
 
         public void StartSpeechRecognition()
         {
-            string errorMsg = RealtimeApiSdk.ValidateLicense();
-            if (!string.IsNullOrWhiteSpace(errorMsg))
-            {
-                MessageBox.Show(errorMsg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+            //string errorMsg = RealtimeApiSdk.ValidateLicense();
+            //if (!string.IsNullOrWhiteSpace(errorMsg))
+            //{
+            //    MessageBox.Show(errorMsg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            //    return;
+            //}
 
             if (!RealtimeApiSdk.IsRunning)
             {
@@ -274,17 +275,19 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             switch (voiceVisualEffect)
             {
                 case WPF.VisualEffect.Cycle:
-                    HandleCycleVisualVoiceEffect(enable);
+                    HandleVoiceEffect(enable);
+                    WaveCanvas.Children.Clear();
                     break;
                 case WPF.VisualEffect.SoundWave:
-                    HandleWaveVisualVoiceEffect(enable);
+                    HandleVoiceEffect(enable);
+                    cycleWaveformCanvas.Children.Clear();
                     break;
                 default:
                     break;
             }
         }
 
-        private void HandleCycleVisualVoiceEffect(bool enable)
+        private void HandleVoiceEffect(bool enable)
         {
             if (enable)
             {
@@ -295,28 +298,10 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             else
             {
                 speakerCapture.StopRecording();
-
                 speechWaveIn.StopRecording();
-                WaveCanvas.Children.Clear();
-            }
-
-        }
-
-        private void HandleWaveVisualVoiceEffect(bool enable)
-        {
-            if (enable)
-            {
-                speakerCapture.StartRecording();
-                speechWaveIn.StartRecording();
-            }
-            else
-            {
-                speakerCapture.StopRecording();
-
-                speechWaveIn.StopRecording();
-                cycleWaveformCanvas.Children.Clear();
             }
         }
+        
 
         private void SpeechWaveIn_DataAvailable(object? sender, WaveInEventArgs e)
         {
@@ -341,7 +326,6 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
                     default:
                         break;
                 }
-
             }
             catch (Exception ex) { }
         }
@@ -394,6 +378,157 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             catch (Exception ex) { }
         }
 
+        //private void DrawWaveform(float[] waveform)
+        //{
+        //    WaveCanvas.Children.Clear();
+
+        //    double canvasWidth = WaveCanvas.ActualWidth;
+        //    double canvasHeight = WaveCanvas.ActualHeight;
+
+        //    if (canvasWidth == 0 || canvasHeight == 0 || waveform == null)
+        //        return;
+
+        //    Polyline polyline = new Polyline
+        //    {
+        //        Stroke = Brushes.LimeGreen,
+        //        StrokeThickness = 2
+        //    };
+
+        //    double step = canvasWidth / waveform.Length;
+        //    double centerY = canvasHeight / 2;
+
+        //    for (int i = 0; i < waveform.Length; i++)
+        //    {
+        //        double x = i * step;
+        //        double y = centerY - (waveform[i] * centerY);
+        //        polyline.Points.Add(new Point(x, y));
+        //    }
+
+        //    WaveCanvas.Children.Add(polyline);
+        //}
+
+
+        #region DrawCoolWaveform
+        private void DrawCoolWaveform(float[] waveform)
+        {
+            WaveCanvas.Children.Clear();
+
+            double canvasWidth = WaveCanvas.ActualWidth;
+            double canvasHeight = WaveCanvas.ActualHeight;
+
+            if (canvasWidth == 0 || canvasHeight == 0 || waveform == null)
+                return;
+
+            // 设置背景动态渐变
+            WaveCanvas.Background = CreateDynamicGradient();
+
+            // 正负波形
+            Polyline positiveWave = CreateWaveformPolyline(Colors.Cyan, canvasWidth, canvasHeight, waveform, 1);
+            Polyline negativeWave = CreateWaveformPolyline(Colors.Magenta, canvasWidth, canvasHeight, waveform, -1);
+
+            // 添加波形到画布
+            WaveCanvas.Children.Add(positiveWave);
+            WaveCanvas.Children.Add(negativeWave);
+
+            // 添加粒子效果
+            AddParticleEffects(waveform, canvasWidth, canvasHeight);
+        }
+
+        private LinearGradientBrush CreateDynamicGradient()
+        {
+            LinearGradientBrush gradientBrush = new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(1, 1)
+            };
+            gradientBrush.GradientStops.Add(new GradientStop(Colors.DarkBlue, 0.0));
+            gradientBrush.GradientStops.Add(new GradientStop(Colors.Purple, 0.5));
+            gradientBrush.GradientStops.Add(new GradientStop(Colors.OrangeRed, 1.0));
+
+            // 动态调整颜色
+            DoubleAnimation gradientAnimation = new DoubleAnimation
+            {
+                From = 0.0,
+                To = 1.0,
+                Duration = TimeSpan.FromSeconds(3),
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+            gradientBrush.GradientStops[0].BeginAnimation(GradientStop.OffsetProperty, gradientAnimation);
+
+            return gradientBrush;
+        }
+
+        private Polyline CreateWaveformPolyline(Color color, double canvasWidth, double canvasHeight, float[] waveform, int direction)
+        {
+            Polyline polyline = new Polyline
+            {
+                Stroke = new SolidColorBrush(color),
+                StrokeThickness = 3,
+                Opacity = 0.8
+            };
+
+            DropShadowEffect glowEffect = new DropShadowEffect
+            {
+                Color = color,
+                BlurRadius = 10,
+                ShadowDepth = 0,
+                Opacity = 0.8
+            };
+            polyline.Effect = glowEffect;
+
+            double step = canvasWidth / waveform.Length;
+            double centerY = canvasHeight / 2;
+
+            for (int i = 0; i < waveform.Length; i++)
+            {
+                double x = i * step;
+                double y = centerY - (waveform[i] * centerY * direction); // 根据 direction 决定正负波形
+                polyline.Points.Add(new Point(x, y));
+            }
+
+            return polyline;
+        }
+
+        private void AddParticleEffects(float[] waveform, double canvasWidth, double canvasHeight)
+        {
+            Random random = new Random();
+
+            for (int i = 0; i < waveform.Length / 10; i++) // 粒子数量
+            {
+                double x = random.NextDouble() * canvasWidth;
+                double y = random.NextDouble() * canvasHeight;
+
+                Ellipse particle = new Ellipse
+                {
+                    Width = 5,
+                    Height = 5,
+                    Fill = new SolidColorBrush(Color.FromRgb(
+                        (byte)random.Next(50, 255),
+                        (byte)random.Next(50, 255),
+                        (byte)random.Next(50, 255))),
+                    Opacity = 0.7
+                };
+
+                Canvas.SetLeft(particle, x);
+                Canvas.SetTop(particle, y);
+                WaveCanvas.Children.Add(particle);
+
+                // 动画让粒子移动
+                DoubleAnimation moveAnimation = new DoubleAnimation
+                {
+                    From = y,
+                    To = y - 100, // 粒子向上漂浮
+                    Duration = TimeSpan.FromSeconds(2),
+                    AutoReverse = true,
+                    RepeatBehavior = RepeatBehavior.Forever
+                };
+                particle.BeginAnimation(Canvas.TopProperty, moveAnimation);
+            }
+        }
+        #endregion
+
+        #region DrawGradientLine
         private void DrawWaveform(float[] waveform)
         {
             WaveCanvas.Children.Clear();
@@ -404,11 +539,30 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             if (canvasWidth == 0 || canvasHeight == 0 || waveform == null)
                 return;
 
+            LinearGradientBrush gradientBrush = new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(1, 0)
+            };
+            gradientBrush.GradientStops.Add(new GradientStop(Colors.Purple, 0.0));
+            gradientBrush.GradientStops.Add(new GradientStop(Colors.Orange, 0.5));
+            gradientBrush.GradientStops.Add(new GradientStop(Colors.Yellow, 1.0));
+
             Polyline polyline = new Polyline
             {
-                Stroke = Brushes.LimeGreen,
-                StrokeThickness = 2
+                Stroke = gradientBrush,
+                StrokeThickness = 2,
+                Opacity = 0.8
             };
+
+            DropShadowEffect shadowEffect = new DropShadowEffect
+            {
+                Color = Colors.Black,
+                BlurRadius = 5,
+                ShadowDepth = 2,
+                Opacity = 0.6
+            };
+            polyline.Effect = shadowEffect;
 
             double step = canvasWidth / waveform.Length;
             double centerY = canvasHeight / 2;
@@ -422,6 +576,9 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
 
             WaveCanvas.Children.Add(polyline);
         }
+       
+        #endregion
+
 
         private void DrawDefaultVisualEffect(VisualEffect effect)
         {
@@ -436,7 +593,6 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
                 case WPF.VisualEffect.SoundWave:
                     DrawLine();
                     break;
-
                 default:
                     break;
             }
@@ -477,13 +633,23 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             if (canvasWidth == 0 || canvasHeight == 0)
                 return;
 
+
+            LinearGradientBrush gradientBrush = new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(1, 0)
+            };
+            gradientBrush.GradientStops.Add(new GradientStop(Colors.Purple, 0.0));
+            gradientBrush.GradientStops.Add(new GradientStop(Colors.Orange, 0.5));
+            gradientBrush.GradientStops.Add(new GradientStop(Colors.Yellow, 1.0));
+
             Line line = new Line
             {
                 X1 = 10,
                 Y1 = canvasHeight / 2,
                 X2 = canvasWidth - 10,
                 Y2 = canvasHeight / 2,
-                Stroke = Brushes.LimeGreen,
+                Stroke = gradientBrush,
                 StrokeThickness = 2
             };
 
