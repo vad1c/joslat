@@ -16,6 +16,10 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
         private VisualEffect voiceVisualEffect = VisualEffect.Cycle; // 默认绘制圆形
         private Timer waveformUpdateTimer;
 
+        private float[] _waveformData; // 波形数据
+        private Timer _refreshTimer;  // 定时器用于刷新界面
+        private Random _random;       // 模拟随机波形数据（可替换为实际音频数据）
+
         //TODO2 Move into Api Sdk
         private WaveInEvent speechWaveIn;
 
@@ -39,24 +43,25 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
         public RealtimeApiWinFormControl()
         {
             InitializeComponent();
-
             RealtimeApiSdk = new RealtimeApiSdk();
 
-            this.DoubleBuffered = true; // 防止重绘时闪烁
-            this.Resize += (s, e) => this.Invalidate(); // 监听大小改变事件，触发重绘
-
-            this.Dock = DockStyle.Fill;
-
-            // 设置定时器更新波形图
-            waveformUpdateTimer = new Timer();
-            waveformUpdateTimer.Interval = 100; // 100ms更新一次
-            waveformUpdateTimer.Tick += (s, e) =>
-            {
-                // 触发绘制波形
-                this.Invalidate();
-            };
-            waveformUpdateTimer.Start();
+            Init();
+            this.Resize += (s, e) => this.Invalidate();
         }
+
+        public void Init() 
+        {
+            this.DoubleBuffered = true; // 启用双缓冲，减少闪烁
+            _waveformData = new float[100]; // 初始化波形数据
+        }
+
+        // 设置波形数据（实际使用时调用此方法更新数据）
+        public void UpdateWaveform(float[] waveformData)
+        {
+            _waveformData = waveformData;
+            this.Invalidate(); // 触发重绘
+        }
+
 
         public void SetVisualEffect(VisualEffect effect)
         {
@@ -148,24 +153,46 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
         }
 
 
-
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
 
-            // 获取控件的宽度和高度
-            int width = this.ClientSize.Width;
-            int height = this.ClientSize.Height;
+            // 清空之前的绘制内容
+            e.Graphics.Clear(this.BackColor);
 
-            switch (voiceVisualEffect)
+            if (_waveformData == null || _waveformData.Length == 0)
+                return;
+
+            Graphics g = e.Graphics;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit; // 抗锯齿文本渲染
+            g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality; // 高质量像素偏移
+            g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality; // 高质量合成
+
+            // 获取控件当前宽高并添加内边距
+            int margin = 10; // 设定内边距
+            int width = this.ClientSize.Width - margin * 2; // 宽度减去左右边距
+            int height = this.ClientSize.Height - margin * 2; // 高度减去上下边距
+            float step = (float)width / _waveformData.Length; // 每个数据点的间隔
+            float centerY = height / 2 + margin; // 波形中心位置向下偏移 margin
+
+            // 创建渐变画刷
+            using (var gradientBrush = new System.Drawing.Drawing2D.LinearGradientBrush(
+                       new PointF(margin, 0),
+                       new PointF(width + margin, 0),
+                       Color.Purple,
+                       Color.Yellow))
+            using (var pen = new Pen(gradientBrush, 2)) // 波形线条
             {
-                case VisualEffect.Cycle:
-                    DrawCircle(e.Graphics, width, height);
-                    break;
-
-                case VisualEffect.SoundWave:
-                    DrawLine(e.Graphics, width, height);
-                    break;
+                // 绘制波形
+                for (int i = 1; i < _waveformData.Length; i++)
+                {
+                    float x1 = margin + (i - 1) * step; // 左边增加 margin
+                    float y1 = centerY - (_waveformData[i - 1] * (height / 2));
+                    float x2 = margin + i * step; // 右边增加 margin
+                    float y2 = centerY - (_waveformData[i] * (height / 2));
+                    g.DrawLine(pen, x1, y1, x2, y2);
+                }
             }
         }
 
@@ -339,23 +366,22 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
                 float normalized = value / 32768f;
                 audioBuffer.Add(normalized);
             }
-            DrawWaveform(audioBuffer.ToArray());
-            //try
-            //{
-            //    switch (this.voiceVisualEffect)
-            //    {
-            //        case VisualEffect.Cycle:
-            //            //Dispatcher.Invoke(() => cycleWaveformCanvas.UpdateAudioData(audioBuffer.ToArray()));
-            //            break;
-            //        case VisualEffect.SoundWave:
-            //            //Dispatcher.Invoke(() => DrawWaveform(audioBuffer.ToArray()));
-            //            break;
-            //        default:
-            //            break;
-            //    }
+            try
+            {
+                switch (this.voiceVisualEffect)
+                {
+                    case VisualEffect.Cycle:
+                        UpdateWaveform(audioBuffer.ToArray());
+                        break;
+                    case VisualEffect.SoundWave:
+                        UpdateWaveform(audioBuffer.ToArray());
+                        break;
+                    default:
+                        break;
+                }
 
-            //}
-            //catch (Exception ex) { }
+            }
+            catch (Exception ex) { }
         }
 
         private void SpeakerCapture_DataAvailable(object? sender, WaveInEventArgs e)
@@ -367,66 +393,23 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
             {
                 audioBuffer[i] = waveBuffer.FloatBuffer[i];
             }
-            DrawWaveform(audioBuffer);
-            //try
-            //{
-            //    switch (this.voiceVisualEffect)
-            //    {
-            //        case VisualEffect.Cycle:
-            //            //Dispatcher.Invoke((Delegate)(() => cycleWaveformCanvas.UpdateAudioData(audioBuffer)));
-            //            break;
-            //        case VisualEffect.SoundWave:
-            //            //Dispatcher.Invoke((Delegate)(() => DrawWaveform(audioBuffer)));
-            //            break;
-            //        default:
-            //            break;
-            //    }
-
-            //}
-            //catch (Exception ex) { }
-        }
-
-
-        private void DrawWaveform(float[] audioBuffer)
-        {
-            if (audioBuffer == null || audioBuffer.Length == 0)
+            try
             {
-                // 如果音频缓冲区为空，跳过绘制或执行其他逻辑
-                return;
-            }
-
-            // 获取当前控件的 Graphics 对象
-            Graphics g = this.CreateGraphics();
-
-            // 清除之前的绘制
-            g.Clear(Color.Black);
-
-            // 设置画笔和线条宽度
-            using (Pen pen = new Pen(Color.Green, 1))
-            {
-                // 设置抗锯齿模式
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-
-                // 绘制波形图
-                int width = this.ClientSize.Width;
-                int height = this.ClientSize.Height;
-
-                // 将音频数据映射到控件的宽度和高度
-                int middle = height / 2; // 中间水平线
-                int step = width / audioBuffer.Length;
-
-                // 绘制波形
-                for (int i = 0; i < audioBuffer.Length; i++)
+                switch (this.voiceVisualEffect)
                 {
-                    int x = i * step;
-                    int y = middle + (int)(audioBuffer[i] * middle);
-                    g.DrawLine(pen, x, middle, x, y);
+                    case VisualEffect.Cycle:
+                        UpdateWaveform(audioBuffer.ToArray());
+                        break;
+                    case VisualEffect.SoundWave:
+                        UpdateWaveform(audioBuffer.ToArray());
+                        break;
+                    default:
+                        break;
                 }
+
             }
+            catch (Exception ex) { }
         }
-
-
-
 
 
     }

@@ -21,6 +21,8 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop.Sample
             realtimeApiDesktopControl.SpeechTextAvailable += RealtimeApiDesktopControl_SpeechTextAvailable;
             realtimeApiDesktopControl.PlaybackTextAvailable += RealtimeApiDesktopControl_PlaybackTextAvailable;
 
+            realtimeApiDesktopControl.Dock = DockStyle.Fill;
+
             var tableLayoutPanel = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -36,13 +38,14 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop.Sample
             var circlePanel = new Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = Color.White
+                BackColor = Color.White,
             };
 
             var rightPanel = new Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = ColorTranslator.FromHtml("#322723")
+                BackColor = ColorTranslator.FromHtml("#322723"),
+                Padding = new Padding(10)
             };
 
             chatOutput = new RichTextBox
@@ -51,48 +54,58 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop.Sample
                 BackColor = ColorTranslator.FromHtml("#322723"),
                 ForeColor = Color.LightGreen,
                 ReadOnly = true,
-                Font = new Font("Arial", 12)
+                Font = new Font(new FontFamily(SystemFonts.DefaultFont.FontFamily.Name), 12),
+                BorderStyle = BorderStyle.None,
+                ScrollBars = RichTextBoxScrollBars.Vertical
             };
 
-            var bottomPanel = new Panel
+            var bottomPanel = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                BackColor = ColorTranslator.FromHtml("#2a2a2a")
+                BackColor = ColorTranslator.FromHtml("#2a2a2a"),
+                ColumnCount = 2,
+                RowCount = 1,
+                Padding = new Padding(10),
             };
 
-            var btnStart = new Button
+            // 设置列样式，确保按钮居中
+            bottomPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            bottomPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            bottomPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+
+            var btnStart = new RoundButton
             {
                 Text = "Start",
                 Size = new Size(150, 50),
-                Anchor = AnchorStyles.None,
-                BackColor = Color.Green,
+                BorderRadius = 25, // 圆角半径
+                DefaultBackColor = Color.Green,
+                HoverBackColor = Color.LimeGreen,
+                ClickBackColor = Color.DarkGreen,
                 ForeColor = Color.White,
+                Font = new Font("Arial", 12, FontStyle.Bold),
+                Anchor = AnchorStyles.None
             };
             btnStart.Click += btnStart_Click;
 
-            var btnEnd = new Button
+            var btnEnd = new RoundButton
             {
                 Text = "End",
                 Size = new Size(150, 50),
-                Anchor = AnchorStyles.None,
-                BackColor = Color.Red,
-                ForeColor = Color.White
+                BorderRadius = 25, // 圆角半径
+                DefaultBackColor = Color.Red,
+                HoverBackColor = Color.IndianRed,
+                ClickBackColor = Color.DarkRed,
+                ForeColor = Color.White,
+                Font = new Font("Arial", 12, FontStyle.Bold),
+                Anchor = AnchorStyles.None
             };
             btnEnd.Click += btnEnd_Click;
 
-            bottomPanel.Controls.Add(btnStart);
-            bottomPanel.Controls.Add(btnEnd);
-
-            btnStart.Location = new Point(-100, 30);
-            btnEnd.Location = new Point(150, 30);
-
-
+            bottomPanel.Controls.Add(btnStart,0,0);
+            bottomPanel.Controls.Add(btnEnd,1,0);
 
             circlePanel.Controls.Add(realtimeApiDesktopControl);
             rightPanel.Controls.Add(chatOutput);
-            bottomPanel.Controls.Add(btnStart);
-            bottomPanel.Controls.Add(btnEnd);
-            
 
             tableLayoutPanel.Controls.Add(circlePanel, 0, 0);
             tableLayoutPanel.SetRowSpan(rightPanel, 2);
