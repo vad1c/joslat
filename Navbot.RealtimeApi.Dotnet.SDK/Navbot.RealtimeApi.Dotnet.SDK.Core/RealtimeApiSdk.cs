@@ -134,11 +134,11 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
         }
         public async void StartSpeechRecognitionAsync()
         {
-            string errorMsg = ValidateLicense();
-            if (!string.IsNullOrWhiteSpace(errorMsg))
-            {
-                throw new InvalidOperationException(errorMsg);
-            }
+            //string errorMsg = ValidateLicense();
+            //if (!string.IsNullOrWhiteSpace(errorMsg))
+            //{
+            //    throw new InvalidOperationException(errorMsg);
+            //}
 
             if (!IsRunning)
             {

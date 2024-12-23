@@ -80,12 +80,12 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop
 
         public void StartSpeechRecognition()
         {
-            string errorMsg = RealtimeApiSdk.ValidateLicense();
-            if (!string.IsNullOrWhiteSpace(errorMsg))
-            {
-                MessageBox.Show(errorMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            //string errorMsg = RealtimeApiSdk.ValidateLicense();
+            //if (!string.IsNullOrWhiteSpace(errorMsg))
+            //{
+            //    MessageBox.Show(errorMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //    return;
+            //}
 
             if (!RealtimeApiSdk.IsRunning)
             {
@@ -178,34 +178,34 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop
 
         private void DrawCircle(Graphics g, int width, int height)
         {
-            // 计算圆的直径（取宽高最小值并减去边距）
-            int diameter = Math.Min(width, height) - 10; // 10 是边距
+            // Calculate the diameter of a circle (taking the minimum width and height and subtracting the margin)
+            int diameter = Math.Min(width, height) - 10; // 10 is the margin
 
             if (diameter > 0)
             {
-                // 计算圆的位置，使其居中
+                // Calculate the position of the circle to center it
                 int x = (width - diameter) / 2;
                 int y = (height - diameter) / 2;
 
-                // 创建画笔
-                using (Pen pen = new Pen(Color.Red, 3)) // 红色边框，宽度为 3
+                // Create a paintbrush
+                using (Pen pen = new Pen(Color.Red, 3)) // Red border, width 3
                 {
-                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; // 平滑边缘
-                    g.DrawEllipse(pen, x, y, diameter, diameter); // 绘制圆
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; // Smooth edges
+                    g.DrawEllipse(pen, x, y, diameter, diameter); // Draw a circle
                 }
             }
         }
 
         private void DrawLine(Graphics g, int width, int height)
         {
-            // 计算线段的起始和结束点
-            Point startPoint = new Point(10, height / 2); // 左侧中间
-            Point endPoint = new Point(width - 10, height / 2); // 右侧中间
+            // Calculate the starting and ending points of a line segment
+            Point startPoint = new Point(10, height / 2); // Left middle
+            Point endPoint = new Point(width - 10, height / 2); // Right middle
 
-            using (Pen pen = new Pen(Color.Blue, 3)) // 蓝色边框，宽度为 3
+            using (Pen pen = new Pen(Color.Blue, 3)) // Blue border, width 3
             {
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; // 平滑边缘
-                g.DrawLine(pen, startPoint, endPoint); // 绘制直线
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; // Smooth edges
+                g.DrawLine(pen, startPoint, endPoint); // draw a straight line
             }
         }
 
@@ -346,7 +346,6 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop
                 float normalized = value / 32768f;
                 audioBuffer.Add(normalized);
             }
-            // 调用绘制方法
             DrawWaveform(audioBuffer.ToArray());
             //try
             //{
@@ -375,7 +374,6 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop
             {
                 audioBuffer[i] = waveBuffer.FloatBuffer[i];
             }
-            // 调用绘制方法
             DrawWaveform(audioBuffer);
             //try
             //{
