@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6.0-windows;net7.0-windows;net8.0-windows</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+	
+	<!-- 必要信息 -->
+  <PackageId>Navbot.RealtimeApi.Dotnet.SDK.WPF</PackageId>
+  <Version>1.0.0</Version> <!-- 版本号 -->
+  <Authors>Navbot</Authors> <!-- 作者信息 -->
+  <Company>Navbot</Company> <!-- 公司信息 -->
+  <Description>Your voice conversation assistant</Description> <!-- 描述 -->
+  <Copyright>Copyright © Navbot 2024</Copyright>
+
+  <!-- 是否生成 NuGet 包 -->
+  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+  <!-- 包输出路径 -->
+  <PackageOutputPath>..\..\NuGetPackages</PackageOutputPath>
+  <AssemblyName>Navbot.RealtimeApi.Dotnet.SDK.WPF</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Navbot.RealtimeApi.Dotnet.SDK.Core\Navbot.RealtimeApi.Dotnet.SDK.Core.csproj" />
+  </ItemGroup>
+</Project>
