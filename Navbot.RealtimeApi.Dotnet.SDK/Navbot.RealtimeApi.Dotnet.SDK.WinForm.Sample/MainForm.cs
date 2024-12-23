@@ -1,16 +1,6 @@
 ﻿using log4net;
-using Microsoft.VisualBasic.Logging;
 using Navbot.RealtimeApi.Dotnet.SDK.Core.Model.Function;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+using Navbot.RealtimeApi.Dotnet.SDK.WinForm;
 
 namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop.Sample
 {
@@ -18,7 +8,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop.Sample
     {
 
         private static readonly ILog log = LogManager.GetLogger(typeof(MainForm));
-        RealtimeApiDesktopControl realtimeApiDesktopControl = new RealtimeApiDesktopControl();
+        RealtimeApiWinFormControl realtimeApiDesktopControl = new RealtimeApiWinFormControl();
         private RichTextBox chatOutput;
         public MainForm()
         {
@@ -31,7 +21,6 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop.Sample
             realtimeApiDesktopControl.SpeechTextAvailable += RealtimeApiDesktopControl_SpeechTextAvailable;
             realtimeApiDesktopControl.PlaybackTextAvailable += RealtimeApiDesktopControl_PlaybackTextAvailable;
 
-            // TableLayoutPanel 初始化
             var tableLayoutPanel = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -44,21 +33,18 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop.Sample
             tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 70F));
             tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30F));
 
-            // 圆形 Panel 初始化
             var circlePanel = new Panel
             {
                 Dock = DockStyle.Fill,
                 BackColor = Color.White
             };
 
-            // 右侧 Panel 初始化
             var rightPanel = new Panel
             {
                 Dock = DockStyle.Fill,
                 BackColor = ColorTranslator.FromHtml("#322723")
             };
 
-            // 创建一个 RichTextBox 用于输出对话
             chatOutput = new RichTextBox
             {
                 Dock = DockStyle.Fill,
@@ -68,14 +54,12 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop.Sample
                 Font = new Font("Arial", 12)
             };
 
-            // 底部 Panel 初始化
             var bottomPanel = new Panel
             {
                 Dock = DockStyle.Fill,
                 BackColor = ColorTranslator.FromHtml("#2a2a2a")
             };
 
-            // 按钮初始化
             var btnStart = new Button
             {
                 Text = "Start",
@@ -96,11 +80,9 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop.Sample
             };
             btnEnd.Click += btnEnd_Click;
 
-            // 将按钮添加到底部 Panel
             bottomPanel.Controls.Add(btnStart);
             bottomPanel.Controls.Add(btnEnd);
 
-            //调整按钮位置
             btnStart.Location = new Point(-100, 30);
             btnEnd.Location = new Point(150, 30);
 
@@ -112,34 +94,30 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop.Sample
             bottomPanel.Controls.Add(btnEnd);
             
 
-            // 将控件添加到 TableLayoutPanel
             tableLayoutPanel.Controls.Add(circlePanel, 0, 0);
             tableLayoutPanel.SetRowSpan(rightPanel, 2);
             tableLayoutPanel.Controls.Add(rightPanel, 1, 0);
 
             tableLayoutPanel.Controls.Add(bottomPanel, 0, 1);
 
-            // 将 TableLayoutPanel 添加到窗体
             this.Controls.Add(tableLayoutPanel);
         }
 
         private void RealtimeApiDesktopControl_PlaybackTextAvailable(object? sender, Core.Events.TranscriptEventArgs e)
         {
-            // 使用 Invoke 来确保在 UI 线程上更新控件
             this.Invoke((MethodInvoker)delegate
             {
-                chatOutput.AppendText($"AI: {e.Transcript}\n"); // Display the received playback text
-                chatOutput.ScrollToCaret(); // 自动滚动到最新位置
+                chatOutput.AppendText($"AI: {e.Transcript}\n"); 
+                chatOutput.ScrollToCaret(); 
             });
         }
 
         private void RealtimeApiDesktopControl_SpeechTextAvailable(object? sender, Core.Events.TranscriptEventArgs e)
         {
-            // 使用 Invoke 来确保在 UI 线程上更新控件
             this.Invoke((MethodInvoker)delegate
             {
-                chatOutput.AppendText($"User: {e.Transcript}\n"); // Display the received speech text
-                chatOutput.ScrollToCaret(); // 自动滚动到最新位置
+                chatOutput.AppendText($"User: {e.Transcript}\n"); 
+                chatOutput.ScrollToCaret(); 
             });
         }
 

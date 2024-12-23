@@ -1,6 +1,6 @@
-﻿namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop
+﻿namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
 {
-    partial class RealtimeApiDesktopControl
+    partial class RealtimeApiWinFormControl
     {
         /// <summary>
         /// Required designer variable.
@@ -30,12 +30,12 @@
         {
             SuspendLayout();
             // 
-            // RealtimeApiDesktopControl
+            // RealtimeApiWinFormControl
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ControlText;
-            Name = "RealtimeApiDesktopControl";
+            Name = "RealtimeApiWinFormControl";
             Size = new Size(200, 200);
             Load += RealtimeApiDesktopControl_Load;
             ResumeLayout(false);

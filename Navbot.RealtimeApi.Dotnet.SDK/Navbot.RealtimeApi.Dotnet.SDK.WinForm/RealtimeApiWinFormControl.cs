@@ -5,12 +5,12 @@ using Navbot.RealtimeApi.Dotnet.SDK.Core;
 using Navbot.RealtimeApi.Dotnet.SDK.Core.Events;
 using Navbot.RealtimeApi.Dotnet.SDK.Core.Model.Function;
 using Navbot.RealtimeApi.Dotnet.SDK.Core.Model.Response;
-using Navbot.RealtimeApi.Dotnet.SDK.Desktop;
 using Timer = System.Windows.Forms.Timer;
+using Navbot.RealtimeApi.Dotnet.SDK.WinForm;
 
-namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop
+namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
 {
-    public partial class RealtimeApiDesktopControl : UserControl
+    public partial class RealtimeApiWinFormControl : UserControl
     {
         private const string apiKey = "";
         private VisualEffect voiceVisualEffect = VisualEffect.Cycle; // 默认绘制圆形
@@ -36,7 +36,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop
         public event EventHandler<TranscriptEventArgs> PlaybackTextAvailable;
         public event EventHandler<EventArgs> PlaybackEnded;
 
-        public RealtimeApiDesktopControl()
+        public RealtimeApiWinFormControl()
         {
             InitializeComponent();
 
@@ -80,13 +80,6 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop
 
         public void StartSpeechRecognition()
         {
-            //string errorMsg = RealtimeApiSdk.ValidateLicense();
-            //if (!string.IsNullOrWhiteSpace(errorMsg))
-            //{
-            //    MessageBox.Show(errorMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    return;
-            //}
-
             if (!RealtimeApiSdk.IsRunning)
             {
                 // Start ripple effect.

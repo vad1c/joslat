@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop
+namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
 {
     public enum VisualEffect
     {

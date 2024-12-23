@@ -8,20 +8,35 @@
 	
 	<!-- 必要信息 -->
   <PackageId>Navbot.RealtimeApi.Dotnet.SDK.WPF</PackageId>
-  <Version>1.0.0</Version> <!-- 版本号 -->
+  <Version>1.0.1</Version> <!-- 版本号 -->
   <Authors>Navbot</Authors> <!-- 作者信息 -->
   <Company>Navbot</Company> <!-- 公司信息 -->
   <Description>Your voice conversation assistant</Description> <!-- 描述 -->
   <Copyright>Copyright © Navbot 2024</Copyright>
-
   <!-- 是否生成 NuGet 包 -->
   <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-
   <!-- 包输出路径 -->
   <PackageOutputPath>..\..\NuGetPackages</PackageOutputPath>
+    <!-- README 和 LICENSE -->
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Navbot.RealtimeApi.Dotnet.SDK.Core" Version="1.0.1" />
+    <None Remove="docs\LICENSE" />
+    <None Remove="docs\RADEME.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="docs\LICENSE" Pack="true" PackagePath="\">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="docs\README.md" Pack="true" PackagePath="\">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Navbot.RealtimeApi.Dotnet.SDK.Core" Version="1.0.2" />
   </ItemGroup>
 </Project>

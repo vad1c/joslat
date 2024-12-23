@@ -134,12 +134,6 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
         }
         public async void StartSpeechRecognitionAsync()
         {
-            //string errorMsg = ValidateLicense();
-            //if (!string.IsNullOrWhiteSpace(errorMsg))
-            //{
-            //    throw new InvalidOperationException(errorMsg);
-            //}
-
             if (!IsRunning)
             {
                 IsRunning = true;
@@ -681,64 +675,6 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
             return url;
         }
 
-        public string ValidateLicense()
-        {
-            string error = string.Empty;
-            try
-            {
-                // Retrieve the current directory, assuming public_key.xml and license.json are in the same directory
-                string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                string licensePath = System.IO.Path.Combine(currentDirectory, "license");
-
-                if (!File.Exists(licensePath))
-                {
-                    return "License file does not exist!";
-                }
-
-                string base64LicenseContent = File.ReadAllText(licensePath);
-
-                // Decoding Base64 content
-                string licenseContent = Encoding.UTF8.GetString(Convert.FromBase64String(base64LicenseContent));
-                dynamic licenseFile = JsonConvert.DeserializeObject(licenseContent);
-
-                // Extract signatures, data, and public keys from the License file
-                string publicKey = (string)licenseFile.PublicKey;
-                string licenseJson = JsonConvert.SerializeObject(licenseFile.Data);
-                byte[] dataBytes = Encoding.UTF8.GetBytes(licenseJson);
-                byte[] signatureBytes = Convert.FromBase64String((string)licenseFile.Signature);
-
-                // Use public key to verify signatures
-                using (var rsa = new RSACryptoServiceProvider())
-                {
-                    rsa.FromXmlString(publicKey);
-                    bool isValid = rsa.VerifyData(dataBytes, CryptoConfig.MapNameToOID("SHA256"), signatureBytes);
-
-                    if (!isValid)
-                    {
-                        return "License verification failed! Data may have been tampered with.";
-                    }
-                    // Check expiration date
-                    string expirationDateStr = (string)licenseFile.Data.Expiration;
-                    DateTime expirationDate;
-                    if (!DateTime.TryParse(expirationDateStr, out expirationDate))
-                    {
-                        return "Invalid expiration date format in license file.";
-                    }
-
-                    if (expirationDate < DateTime.Now)
-                    {
-                        return "License has expired!";
-                    }
-
-                    // License is valid and not expired
-                    return string.Empty;
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error($"An error occurred during the verification process:{ex.Message}");
-                return $"An error occurred during the verification process:{ex.Message}";
-            }
-        }
+        
     }
 }
