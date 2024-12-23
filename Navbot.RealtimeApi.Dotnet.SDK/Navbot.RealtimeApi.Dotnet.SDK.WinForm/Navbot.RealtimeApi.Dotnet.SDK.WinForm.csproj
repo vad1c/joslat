@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
 
     <!-- 必要信息 -->
-    <PackageId>Navbot.RealtimeApi.Dotnet.SDK.Desktop</PackageId>
+    <PackageId>Navbot.RealtimeApi.Dotnet.SDK.WinForm</PackageId>
     <Version>1.0.0</Version> <!-- 版本号 -->
     <Authors>Navbot</Authors> <!-- 作者信息 -->
     <Company>Navbot</Company> <!-- 公司信息 -->

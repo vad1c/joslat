@@ -14,13 +14,13 @@ using System.Windows.Forms;
 
 namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop.Sample
 {
-    public partial class MainFrom : Form
+    public partial class MainForm : Form
     {
 
-        private static readonly ILog log = LogManager.GetLogger(typeof(MainFrom));
+        private static readonly ILog log = LogManager.GetLogger(typeof(MainForm));
         RealtimeApiDesktopControl realtimeApiDesktopControl = new RealtimeApiDesktopControl();
         private RichTextBox chatOutput;
-        public MainFrom()
+        public MainForm()
         {
             InitializeComponent();
             Init();

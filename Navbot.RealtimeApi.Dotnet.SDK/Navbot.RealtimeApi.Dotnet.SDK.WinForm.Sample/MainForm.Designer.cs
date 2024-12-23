@@ -1,6 +1,6 @@
 ﻿namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop.Sample
 {
-    partial class MainFrom
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
