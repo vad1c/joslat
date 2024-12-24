@@ -10,7 +10,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
     public partial class MainWindow : Window
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(MainWindow));
-        private bool isPlaying = false;
+        private bool isRecording = false;
 
         public MainWindow()
         {
@@ -23,31 +23,8 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
 
             realtimeApiWpfControl.OpenAiApiKey = openAiApiKey;
 
-            RegisterWeatherFunctionCall();
-            RegisterNotepadFunctionCall();
-
-            log.Info("App Start...");
-        }
-
-        private void realtimeApiWpfControl_SpeechTextAvailable(object sender, Core.Events.TranscriptEventArgs e)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                ChatOutput.AppendText($"User: {e.Transcript}"); // Display the received speech text
-            });
-        }
-
-        private void realtimeApiWpfControl_PlaybackTextAvailable(object sender, Core.Events.TranscriptEventArgs e)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                ChatOutput.AppendText($"AI: {e.Transcript}\n"); // Display the received playback text
-            });
-        }
-
-        private void RegisterWeatherFunctionCall()
-        {
-            var weatherFunctionCallSetting = new FunctionCallSetting
+            // Register FunctionCall for weather
+            realtimeApiWpfControl.RegisterFunctionCall(new FunctionCallSetting
             {
                 Name = "get_weather",
                 Description = "Get current weather for a specified city",
@@ -64,14 +41,10 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
                     },
                     Required = new List<string> { "city" }
                 }
-            };
+            }, FucationCallHelper.HandleWeatherFunctionCall);
 
-            realtimeApiWpfControl.RegisterFunctionCall(weatherFunctionCallSetting, FucationCallHelper.HandleWeatherFunctionCall);
-        }
-
-        private void RegisterNotepadFunctionCall()
-        {
-            var notepadFunctionCallSetting = new FunctionCallSetting
+            // Register FunctionCall for run application
+            realtimeApiWpfControl.RegisterFunctionCall(new FunctionCallSetting
             {
                 Name = "write_notepad",
                 Description = "Open a text editor and write the time, for example, 2024-10-29 16:19. Then, write the content, which should include my questions along with your answers.",
@@ -94,23 +67,22 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
                     },
                     Required = new List<string> { "content", "date" }
                 }
-            };
+            }, FucationCallHelper.HandleNotepadFunctionCall);
 
-            realtimeApiWpfControl.RegisterFunctionCall(notepadFunctionCallSetting, FucationCallHelper.HandleNotepadFunctionCall);
+            log.Info("App Start...");
         }
 
-
-        private void StartSpeechRecognition_Click(object sender, RoutedEventArgs e)
-        {
-            realtimeApiWpfControl.StartSpeechRecognition();
-        }
-
-        private void PlayPauseButton_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Start / Stop Speech Recognition
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnStartStopRecognition_Click(object sender, RoutedEventArgs e)
         {
             var playIcon = (System.Windows.Shapes.Path)PlayPauseButton.Template.FindName("PlayIcon", PlayPauseButton);
             var pauseIcon = (System.Windows.Shapes.Path)PlayPauseButton.Template.FindName("PauseIcon", PlayPauseButton);
 
-            if (isPlaying)
+            if (isRecording)
             {
                 playIcon.Visibility = Visibility.Visible;
                 pauseIcon.Visibility = Visibility.Collapsed;
@@ -125,10 +97,34 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
                 realtimeApiWpfControl.StartSpeechRecognition();
             }
 
-            isPlaying = !isPlaying;
+            isRecording = !isRecording;
         }
 
-      
-     
+        /// <summary>
+        /// Hook up SpeechTextAvailable event to display speech text
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void realtimeApiWpfControl_SpeechTextAvailable(object sender, Core.Events.TranscriptEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                ChatOutput.AppendText($"User: {e.Transcript}"); // Display the received speech text
+            });
+        }
+
+        /// <summary>
+        /// Hook up PlaybackTextAvailable evnet to display OpenAI response.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void realtimeApiWpfControl_PlaybackTextAvailable(object sender, Core.Events.TranscriptEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                ChatOutput.AppendText($"AI: {e.Transcript}\n"); // Display the received playback text
+            });
+        }
+
     }
 }

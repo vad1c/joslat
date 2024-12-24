@@ -65,7 +65,7 @@ Please ensure that all unit tests pass before submitting your code.
 
 ## **License**
 
-`Navbot.RealtimeApi.Dotnet.SDK.Core` is licensed under the [MIT License](LICENSE).
+`Navbot.RealtimeApi.Dotnet.SDK.Core` is licensed under the [MIT](LICENSE) License.
 
 ------
 
@@ -75,15 +75,3 @@ If you have any questions or suggestions, feel free to contact us:
 
 - **Email**: fuwei007@gmail.com
 - **GitHub Issues**: [GitHub Repository](https://github.com/fuwei007/OpenAI-realtimeapi-dotnetsdk/issues)
-
-------
-
-## **Changelog**
-
-### [1.0.1]
-
-- Fixed an issue where voice interruption was not working.
-
-### [1.0.0]
-
-- Initial release with support for standard waveform rendering and SoundCloud styles.

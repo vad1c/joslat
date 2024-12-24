@@ -8,26 +8,34 @@
 	
 	  <!-- 必要信息 -->
     <PackageId>Navbot.RealtimeApi.Dotnet.SDK.Core</PackageId>
-    <Version>1.0.3</Version> <!-- 版本号 -->
+    <Version>1.0.4</Version> <!-- 版本号 -->
     <Authors>Navbot</Authors> <!-- 作者信息 -->
     <Company>Navbot</Company> <!-- 公司信息 -->
     <Description>Your voice conversation assistant</Description> <!-- 描述信息 -->
     <Copyright>Copyright © Navbot 2024</Copyright>
+    
+    <!-- 项目地址和仓库地址 -->
+    <ProjectUrl>https://github.com/fuwei007/OpenAI-realtimeapi-dotnetsdk</ProjectUrl>
+    <!-- 项目主页 -->
+    <RepositoryUrl>https://github.com/fuwei007/OpenAI-realtimeapi-dotnetsdk</RepositoryUrl>
+    <!-- 仓库类型 -->
+    <RepositoryType>git</RepositoryType>
+
     <!-- 是否生成 NuGet 包 -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <!-- 包输出路径 -->
     <PackageOutputPath>..\..\NuGetPackages</PackageOutputPath>
+    
     <!-- README 和 LICENSE -->
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="log4net.config" />
-    <Content Include="docs\README.md" Pack="true" PackagePath="\">
+    <Content Include="docs\LICENSE.md" Pack="true" PackagePath="\">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="docs\LICENSE" Pack="true" PackagePath="\">
+    <Content Include="docs\README.md" Pack="true" PackagePath="\">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

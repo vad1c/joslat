@@ -63,61 +63,38 @@ In a `Windows Forms` application, you can initialize the control and start using
 ```c#
 using Realtime.API.Dotnet.SDK.Core.Model;
 
-public partial class MainForm : Form
-{
-    private RealtimeApiDesktopControl realtimeApiDesktopControl = new RealtimeApiDesktopControl();
+    public partial class MainForm : Form
+    {
+        public MainForm()
+        {
+            InitializeComponent();
+        }
 
-    public MainForm()
-    {
-        InitializeComponent();
-        Init();
-    }
-    
-    public void Init()
-    {
-        realtimeApiDesktopControl.SpeechTextAvailable += RealtimeApiDesktopControl_SpeechTextAvailable;
-        realtimeApiDesktopControl.PlaybackTextAvailable += RealtimeApiDesktopControl_PlaybackTextAvailable;
-    }
-    
-    private void MainFrom_Load(object sender, EventArgs e)
-	{
-    	string openAiApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? "";
-    	realtimeApiDesktopControl.OpenAiApiKey = openAiApiKey;
-	}
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            string openAiApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? "";
+            realtimeApiWinFormControl1.OpenAiApiKey = openAiApiKey;
+        }
 
-    private void RealtimeApiDesktopControl_SpeechTextAvailable(object sender, TranscriptEventArgs e)
-    {
-        // Handle speech recognition result
-        Console.WriteLine($"User: {e.Transcript}");
-    }
+        private void btnStart_Click(object sender, EventArgs e)
+        {
+            realtimeApiWinFormControl1.StartSpeechRecognition();
+        }
 
-    private void RealtimeApiDesktopControl_PlaybackTextAvailable(object sender, TranscriptEventArgs e)
-    {
-        // Handle speech playback result
-        Console.WriteLine($"AI: {e.Transcript}");
+        private void btnStop_Click(object sender, EventArgs e)
+        {
+            realtimeApiWinFormControl1.StopSpeechRecognition();
+        }
     }
-
-    private void btnStart_Click(object sender, EventArgs e)
-    {
-        // Start speech recognition
-        realtimeApiDesktopControl.StartSpeechRecognition();
-    }
-
-    private void btnStop_Click(object sender, EventArgs e)
-    {
-        // Stop speech recognition
-        realtimeApiDesktopControl.StopSpeechRecognition();
-    }
-}
 
 ```
 
 ### Feature Demonstration
 
 1. **Speech Recognition**: Click the "Start" button to begin listening to the user's speech and convert it into text in real time.
-2. **Speech Text**: By calling `RealtimeApiDesktopControl.PlaybackTextAvailable`, the output text information of the AI speech is displayed.
+2. **Speech Text**: By hooking up `RealtimeApiDesktopControl.PlaybackTextAvailable` event, the output text information of the AI speech will be displayed.
 3. ![img](images/sample.png)
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT](LICENSE) License.
