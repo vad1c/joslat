@@ -25,21 +25,22 @@
   <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   <!-- 包输出路径 -->
   <PackageOutputPath>..\..\NuGetPackages</PackageOutputPath>
+    
     <!-- README 和 LICENSE -->
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="docs\LICENSE.md">
+    <Content Include="docs\LICENSE.md" Pack="true" PackagePath="\">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="docs\README.md">
+    <Content Include="docs\README.md" Pack="true" PackagePath="\">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Navbot.RealtimeApi.Dotnet.SDK.Core" Version="1.0.2" />
+    <PackageReference Include="Navbot.RealtimeApi.Dotnet.SDK.Core" Version="1.0.3" />
   </ItemGroup>
 </Project>
