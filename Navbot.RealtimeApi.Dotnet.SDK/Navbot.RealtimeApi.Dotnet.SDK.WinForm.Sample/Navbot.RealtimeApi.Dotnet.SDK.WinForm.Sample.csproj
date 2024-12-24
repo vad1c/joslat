@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Navbot.RealtimeApi.Dotnet.SDK.WinForm\Navbot.RealtimeApi.Dotnet.SDK.WinForm.csproj" />
+    <PackageReference Include="Navbot.RealtimeApi.Dotnet.SDK.WinForm" Version="1.0.2" />
   </ItemGroup>
 
 </Project>
