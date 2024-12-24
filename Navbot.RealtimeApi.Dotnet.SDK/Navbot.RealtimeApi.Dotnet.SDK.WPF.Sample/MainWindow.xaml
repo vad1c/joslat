@@ -54,7 +54,7 @@
             >
 
             <!-- Play/Stop-->
-            <Button x:Name="PlayPauseButton" Grid.Column="0" Width="60" Height="60" Click="PlayPauseButton_Click">
+            <Button x:Name="PlayPauseButton" Grid.Column="0" Width="60" Height="60" Click="btnStartStopRecognition_Click">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <Grid>

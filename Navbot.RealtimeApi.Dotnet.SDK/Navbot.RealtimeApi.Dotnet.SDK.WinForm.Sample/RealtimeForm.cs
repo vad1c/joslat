@@ -27,14 +27,31 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm.Sample
             realtimeApiWinFormControl.PlaybackTextAvailable += RealtimeApiWinFormControl_PlaybackTextAvailable;
         }
 
-        private void RealtimeApiWinFormControl_PlaybackTextAvailable(object? sender, Core.Events.TranscriptEventArgs e)
+        /// <summary>
+        /// Start Speech Recognition
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnStart_Click(object sender, EventArgs e)
         {
-            this.Invoke((MethodInvoker)delegate
-            {
-                rtxOutputInfo.AppendText($"AI: {e.Transcript}\n");
-            });
+            realtimeApiWinFormControl.StartSpeechRecognition();
         }
 
+        /// <summary>
+        /// Stop Speech Recognition
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnEnd_Click(object sender, EventArgs e)
+        {
+            realtimeApiWinFormControl.StopSpeechRecognition();
+        }
+
+        /// <summary>
+        /// Hook up SpeechTextAvailable event to display speech text
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RealtimeApiWinFormControl_SpeechTextAvailable(object? sender, Core.Events.TranscriptEventArgs e)
         {
             this.Invoke((MethodInvoker)delegate
@@ -43,14 +60,17 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm.Sample
             });
         }
 
-        private void btnStart_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Hook up PlaybackTextAvailable evnet to display OpenAI response.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RealtimeApiWinFormControl_PlaybackTextAvailable(object? sender, Core.Events.TranscriptEventArgs e)
         {
-            realtimeApiWinFormControl.StartSpeechRecognition();
-        }
-
-        private void btnEnd_Click(object sender, EventArgs e)
-        {
-            realtimeApiWinFormControl.StopSpeechRecognition();
+            this.Invoke((MethodInvoker)delegate
+            {
+                rtxOutputInfo.AppendText($"AI: {e.Transcript}\n");
+            });
         }
     }
 }
