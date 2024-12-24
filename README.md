@@ -1,6 +1,9 @@
 # Project Name
 Navbot.RealtimeApi.Dotnet.SDK
 
+## Youtube playlist
+https://www.youtube.com/playlist?list=PLtan4ax5Sz-1ckWzZWx872rFFuAukihNE
+
 ## Project Introduction
 
 The Realtime control is a component for real-time speech recognition and speech synthesis. It can convert speech input into text and generate speech responses from text. This control can be used in desktop applications, integrating OpenAI and other related services, providing a seamless speech interaction experience.
