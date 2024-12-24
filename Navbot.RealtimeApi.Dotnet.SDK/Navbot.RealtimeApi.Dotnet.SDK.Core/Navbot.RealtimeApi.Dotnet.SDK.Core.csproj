@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- 支持多个目标框架 -->
+    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	
+	  <!-- 必要信息 -->
+    <PackageId>Navbot.RealtimeApi.Dotnet.SDK.Core</PackageId>
+    <Version>1.0.3</Version> <!-- 版本号 -->
+    <Authors>Navbot</Authors> <!-- 作者信息 -->
+    <Company>Navbot</Company> <!-- 公司信息 -->
+    <Description>Your voice conversation assistant</Description> <!-- 描述信息 -->
+    <Copyright>Copyright © Navbot 2024</Copyright>
+    <!-- 是否生成 NuGet 包 -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <!-- 包输出路径 -->
+    <PackageOutputPath>..\..\NuGetPackages</PackageOutputPath>
+    <!-- README 和 LICENSE -->
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="log4net.config" />
+    <Content Include="docs\README.md" Pack="true" PackagePath="\">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="docs\LICENSE" Pack="true" PackagePath="\">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="log4net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="log4net" Version="3.0.3" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+</Project>
