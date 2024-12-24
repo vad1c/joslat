@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Navbot.RealtimeApi.Dotnet.S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample.Debug", "Navbot.RealtimeApi.Dotnet.SDK\Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample\Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample.Debug.csproj", "{6C4AD3B4-625C-4FA2-BA9F-6E76C93819BC}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Navbot.RealtimeApi.Dotnet.SDK.WinForm.Debug", "Navbot.RealtimeApi.Dotnet.SDK\Navbot.RealtimeApi.Dotnet.SDK.WinForm\Navbot.RealtimeApi.Dotnet.SDK.WinForm.Debug.csproj", "{74E1CA6E-F300-47E4-A017-BDD1CCDF32E4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Navbot.RealtimeApi.Dotnet.SDK.WinForm.Sample.Debug", "Navbot.RealtimeApi.Dotnet.SDK\Navbot.RealtimeApi.Dotnet.SDK.WinForm.Sample\Navbot.RealtimeApi.Dotnet.SDK.WinForm.Sample.Debug.csproj", "{70D57FC6-8D9C-4985-A9CB-64E0FDDF7395}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{6C4AD3B4-625C-4FA2-BA9F-6E76C93819BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C4AD3B4-625C-4FA2-BA9F-6E76C93819BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C4AD3B4-625C-4FA2-BA9F-6E76C93819BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74E1CA6E-F300-47E4-A017-BDD1CCDF32E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74E1CA6E-F300-47E4-A017-BDD1CCDF32E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74E1CA6E-F300-47E4-A017-BDD1CCDF32E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74E1CA6E-F300-47E4-A017-BDD1CCDF32E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70D57FC6-8D9C-4985-A9CB-64E0FDDF7395}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70D57FC6-8D9C-4985-A9CB-64E0FDDF7395}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70D57FC6-8D9C-4985-A9CB-64E0FDDF7395}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70D57FC6-8D9C-4985-A9CB-64E0FDDF7395}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
