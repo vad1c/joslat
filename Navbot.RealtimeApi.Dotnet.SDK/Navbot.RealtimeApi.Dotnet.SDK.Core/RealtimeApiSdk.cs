@@ -22,7 +22,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
         private BufferedWaveProvider waveInBufferedWaveProvider;
         private WaveInEvent waveIn;
         private readonly object playbackLock = new object();
-        private WaveOutEvent waveOut = new WaveOutEvent { DesiredLatency = 200 };
+        private WaveOutEvent? waveOut;
 
         private ClientWebSocket webSocketClient;
         private Dictionary<FunctionCallSetting, Func<FuncationCallArgument, JObject>> functionRegistries = new Dictionary<FunctionCallSetting, Func<FuncationCallArgument, JObject>>();
@@ -266,14 +266,35 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
         }
         private void StopAudioPlayback()
         {
-            playbackCancellationTokenSource?.Cancel();
-            waveOut.Stop();
-            waveOut.Dispose();
-            ClearAudioQueue();
-            
-            log.Info("AI audio playback stopped due to user interruption.");
+            log.Debug("StopAudioPlayback() called...");
+            if (playbackCancellationTokenSource != null && !playbackCancellationTokenSource.IsCancellationRequested) 
+            {
+                playbackCancellationTokenSource.Cancel();
+                log.Info("AI audio playback stopped due to user interruption.");
+            }
+           
+            if (waveOut != null)
+            {
+                try
+                {
+                    waveOut.Stop();
+                    waveOut.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    log.Error($"Error stopping waveOut: {ex.Message}");
+                }
+                finally
+                {
+                    waveOut = null; // Clear reference so we can re-init next time
+                }
+            }
+            // 3) Clear out any leftover audio in the buffer
+            waveInBufferedWaveProvider?.ClearBuffer();
 
-            OnPlaybackEnded(new EventArgs());
+            // 4) Indicate playback ended in the logs/events
+            log.Info("AI audio playback force-stopped due to user interruption.");
+            OnPlaybackEnded(EventArgs.Empty);
         }
 
         private void StartAudioPlayback()
@@ -558,7 +579,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
                     turn_detection = new TurnDetection
                     {
                         type = "server_vad",
-                        threshold = 0.5,
+                        threshold = 0.7,
                         prefix_padding_ms = 300,
                         silence_duration_ms = 500
                     },
@@ -580,11 +601,14 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
         }
         private void HandleUserSpeechStarted()
         {
+            // 1) Stop playback *before* setting isModelResponding = false
             isUserSpeaking = true;
-            isModelResponding = false;
             log.Debug("User started speaking.");
             StopAudioPlayback();
-            ClearBufferedWaveProvider();
+            // 2) Now set isModelResponding = false after we already canceled playback
+            isModelResponding = false;
+
+            ClearAudioQueue();
 
             OnSpeechStarted(new EventArgs());
             OnSpeechActivity(true);
@@ -638,6 +662,9 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
                     {
                         OnPlaybackStarted(new EventArgs());
 
+                        using var waveOut = new WaveOutEvent { DesiredLatency = 200 };
+                        // 1) Create and store waveOut so we can stop it later
+
                         waveOut.PlaybackStopped += (s, e) => { OnPlaybackEnded(new EventArgs()); };
                         waveOut.Init(waveInBufferedWaveProvider);
                         waveOut.Play();
@@ -652,11 +679,16 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
                             }
                             else
                             {
+                                log.Debug("No audio in queue; waiting...");
                                 Task.Delay(100).Wait();
                             }
                         }
 
-                        waveOut.Stop();
+                        log.Debug("Playback loop exited; calling waveOut.Stop()");
+                        if (waveOut != null)
+                        {
+                            waveOut.Stop();
+                        }
                     }
                     catch (Exception ex)
                     {
