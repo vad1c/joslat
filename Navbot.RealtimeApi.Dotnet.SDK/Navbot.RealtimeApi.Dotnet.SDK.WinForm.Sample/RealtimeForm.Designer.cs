@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             tableLayoutPanel1 = new TableLayoutPanel();
-            realtimeApiWinFormControl = new RealtimeApiWinFormControl();
             btnStart = new Button();
             btnEnd = new Button();
             rtxOutputInfo = new RichTextBox();
+            realtimeApiWinFormControl = new RealtimeApiWinFormControl();
             tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -49,17 +49,6 @@
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             tableLayoutPanel1.Size = new Size(599, 313);
             tableLayoutPanel1.TabIndex = 0;
-            // 
-            // realtimeApiWinFormControl
-            // 
-            realtimeApiWinFormControl.BackColor = SystemColors.ControlText;
-            realtimeApiWinFormControl.Dock = DockStyle.Fill;
-            realtimeApiWinFormControl.Location = new Point(3, 3);
-            realtimeApiWinFormControl.Name = "realtimeApiWinFormControl";
-            realtimeApiWinFormControl.OpenAiApiKey = "";
-            realtimeApiWinFormControl.Size = new Size(593, 307);
-            realtimeApiWinFormControl.TabIndex = 0;
-            realtimeApiWinFormControl.VoiceVisualEffect = VisualEffect.Cycle;
             // 
             // btnStart
             // 
@@ -89,6 +78,17 @@
             rtxOutputInfo.TabIndex = 3;
             rtxOutputInfo.Text = "";
             // 
+            // realtimeApiWinFormControl
+            // 
+            realtimeApiWinFormControl.BackColor = SystemColors.ControlText;
+            realtimeApiWinFormControl.Dock = DockStyle.Fill;
+            realtimeApiWinFormControl.Location = new Point(3, 3);
+            realtimeApiWinFormControl.Name = "realtimeApiWinFormControl";
+            realtimeApiWinFormControl.OpenAiApiKey = "";
+            realtimeApiWinFormControl.Size = new Size(593, 307);
+            realtimeApiWinFormControl.TabIndex = 0;
+            realtimeApiWinFormControl.VoiceVisualEffect = VisualEffect.Cycle;
+            // 
             // RealtimeForm
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
@@ -109,9 +109,9 @@
 
         private TableLayoutPanel tableLayoutPanel1;
         private RealtimeApiWinFormControl realtimeApiWinFormControl1;
-        private RealtimeApiWinFormControl realtimeApiWinFormControl;
         private Button btnStart;
         private Button btnEnd;
         private RichTextBox rtxOutputInfo;
+        private RealtimeApiWinFormControl realtimeApiWinFormControl;
     }
 }

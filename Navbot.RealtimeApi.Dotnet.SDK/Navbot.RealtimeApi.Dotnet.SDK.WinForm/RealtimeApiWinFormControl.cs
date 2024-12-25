@@ -7,6 +7,7 @@ using Navbot.RealtimeApi.Dotnet.SDK.Core.Model.Function;
 using Navbot.RealtimeApi.Dotnet.SDK.Core.Model.Response;
 using Timer = System.Windows.Forms.Timer;
 using Navbot.RealtimeApi.Dotnet.SDK.WinForm;
+using System.Drawing.Printing;
 
 namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
 {
@@ -49,7 +50,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
             this.Resize += (s, e) => this.Invalidate();
         }
 
-        public void Init() 
+        public void Init()
         {
             this.DoubleBuffered = true; // 启用双缓冲，减少闪烁
             _waveformData = new float[100]; // 初始化波形数据
@@ -176,9 +177,27 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
             float step = (float)width / _waveformData.Length; // 每个数据点的间隔
             float centerY = height / 2 + margin; // 波形中心位置向下偏移 margin
 
+
+
+            switch (voiceVisualEffect)
+            {
+                case VisualEffect.Cycle:
+                    DrawCircularWaveform(g, width, height, _waveformData);
+                    break;
+                case VisualEffect.SoundWave:
+                    DrawWaveform(g, margin, width, height, step, centerY);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // 绘制标准波形
+        private void DrawWaveform(Graphics g, int margin, int width, int height, float step, float centerY)
+        {
             // 创建渐变画刷
             using (var gradientBrush = new System.Drawing.Drawing2D.LinearGradientBrush(
-                       new PointF(margin, 0),
+            new PointF(margin, 0),
                        new PointF(width + margin, 0),
                        Color.Purple,
                        Color.Yellow))
@@ -195,6 +214,62 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
                 }
             }
         }
+
+        // 圆形波纹效果
+        private void DrawCircularWaveform(Graphics g, int width, int height, float[] waveformData)
+        {
+            // 中心点和半径
+            int centerX = width / 2;
+            int centerY = (height + 20) / 2;
+            int radius = Math.Min(width, height) / 2; // 圆形的半径
+
+            // 绘制圆形基础轮廓
+            using (Pen circlePen = new Pen(Color.Green, 2))
+            {
+                g.DrawEllipse(circlePen, centerX - radius, centerY - radius, radius * 2, radius * 2);
+            }
+
+            // 定义渐变色起点和终点
+            Color startColor = Color.Purple; // 渐变起始颜色
+            Color endColor = Color.Yellow;  // 渐变结束颜色
+
+            // 渐变笔刷
+            using (var gradientBrush = new System.Drawing.Drawing2D.LinearGradientBrush(
+                       new Point(0, 0),
+                       new Point(width, height),
+                       startColor,
+                       endColor))
+            using (var pen = new Pen(gradientBrush, 2)) // 渐变色的笔
+            {
+                // 遍历波形数据，计算点的位置
+                int dataLength = waveformData.Length;
+                for (int i = 0; i < dataLength; i++)
+                {
+                    // 计算当前点的角度（以弧度表示）
+                    double angle = (i / (double)dataLength) * 2 * Math.PI;
+
+                    // 基础圆周上的点
+                    float baseX = centerX + (float)(Math.Cos(angle) * radius);
+                    float baseY = centerY + (float)(Math.Sin(angle) * radius);
+
+                    // 根据波形数据偏移点的坐标
+                    float offsetX = baseX + (float)(Math.Cos(angle) * waveformData[i] * radius / 2);
+                    float offsetY = baseY + (float)(Math.Sin(angle) * waveformData[i] * radius / 2);
+
+                    // 下一个点的计算
+                    int nextIndex = (i + 1) % dataLength;
+                    double nextAngle = (nextIndex / (double)dataLength) * 2 * Math.PI;
+                    float nextBaseX = centerX + (float)(Math.Cos(nextAngle) * radius);
+                    float nextBaseY = centerY + (float)(Math.Sin(nextAngle) * radius);
+                    float nextOffsetX = nextBaseX + (float)(Math.Cos(nextAngle) * waveformData[nextIndex] * radius / 2);
+                    float nextOffsetY = nextBaseY + (float)(Math.Sin(nextAngle) * waveformData[nextIndex] * radius / 2);
+
+                    // 绘制当前点到下一个点的线段（使用渐变色）
+                    g.DrawLine(pen, offsetX, offsetY, nextOffsetX, nextOffsetY);
+                }
+            }
+        }
+
 
         private void DrawCircle(Graphics g, int width, int height)
         {
