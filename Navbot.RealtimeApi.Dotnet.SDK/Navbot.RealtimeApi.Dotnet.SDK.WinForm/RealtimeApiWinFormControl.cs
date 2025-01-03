@@ -46,7 +46,43 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
             set { RealtimeApiSdk.ApiKey = value; }
         }
 
-        public VisualEffect VoiceVisualEffect { get; set; }
+        public VisualEffect VoiceVisualEffect
+        {
+            get
+            {
+                VisualEffect rtn = VisualEffect.Cycle;
+                switch (audioVisualizer.VisualEffict)
+                {
+                    case VisualEffict.Oscilloscope:
+                        rtn = VisualEffect.Cycle;
+                        break;
+                    case VisualEffict.SpectrumBar:
+
+                        break;
+                    case VisualEffict.SpectrumCycle:
+                        rtn = VisualEffect.Cycle;
+                        break;
+                    default:
+                        break;
+                }
+
+                return rtn;
+            }
+            set
+            {
+                switch (value)
+                {
+                    case VisualEffect.Cycle:
+                        audioVisualizer.VisualEffict = VisualEffict.SpectrumCycle;
+                        break;
+                    case VisualEffect.SoundWave:
+                        audioVisualizer.VisualEffict = VisualEffict.SpectrumBar;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
 
 
         public void StartSpeechRecognition()
@@ -55,7 +91,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
             {
                 // Start ripple effect.
                 capture.StartRecording();
-                audioVisualizer1.Start();
+                audioVisualizer.Start();
                 speechWaveIn.StartRecording();
 
                 // Start voice recognition;
@@ -69,7 +105,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
             {
                 // Stop the ripple effect.
                 capture.StopRecording();
-                audioVisualizer1.Stop();
+                audioVisualizer.Stop();
                 speechWaveIn.StopRecording();
 
                 // Stop voice recognition;
@@ -104,21 +140,9 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
             RealtimeApiSdk.PlaybackTextAvailable += RealtimeApiSdk_PlaybackTextAvailable;
             RealtimeApiSdk.PlaybackEnded += RealtimeApiSdk_PlaybackEnded;
 
-            audioVisualizer1.AudioSampleRate = capture.WaveFormat.SampleRate;
-            audioVisualizer1.Scale = 5;
-
-            switch (VoiceVisualEffect)
-            {
-                case VisualEffect.Cycle:
-                    audioVisualizer1.VisualEffict = VisualEffict.SpectrumCycle;
-                    break;
-                case VisualEffect.SoundWave:
-                    audioVisualizer1.VisualEffict = VisualEffict.SpectrumBar;
-                    break;
-                default:
-                    audioVisualizer1.VisualEffict = VisualEffict.SpectrumBar;
-                    break;
-            }
+            audioVisualizer.AudioSampleRate = capture.WaveFormat.SampleRate;
+            audioVisualizer.VisualEffict = VisualEffict.Oscilloscope;
+            audioVisualizer.Scale = 5;
         }
 
         #region Event
@@ -220,10 +244,10 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
                 result[i] = BitConverter.ToSingle(e.Buffer, i * 4);
 
             // Push into visualizer
-            audioVisualizer1.PushSampleData(result);
+            audioVisualizer.PushSampleData(result);
 
         }
 
-        
+
     }
 }

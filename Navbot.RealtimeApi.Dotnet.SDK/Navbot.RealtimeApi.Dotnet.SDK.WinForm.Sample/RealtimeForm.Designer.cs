@@ -47,7 +47,7 @@
             tableLayoutPanel1.RowCount = 1;
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel1.Size = new Size(599, 313);
+            tableLayoutPanel1.Size = new Size(599, 276);
             tableLayoutPanel1.TabIndex = 0;
             // 
             // realtimeApiWinFormControl
@@ -57,15 +57,15 @@
             realtimeApiWinFormControl.Location = new Point(3, 3);
             realtimeApiWinFormControl.Name = "realtimeApiWinFormControl";
             realtimeApiWinFormControl.OpenAiApiKey = "";
-            realtimeApiWinFormControl.Size = new Size(593, 307);
+            realtimeApiWinFormControl.Size = new Size(593, 270);
             realtimeApiWinFormControl.TabIndex = 0;
-            realtimeApiWinFormControl.VoiceVisualEffect = VisualEffect.SoundWave;
+            realtimeApiWinFormControl.VoiceVisualEffect = VisualEffect.Cycle;
             // 
             // btnStart
             // 
-            btnStart.Location = new Point(80, 362);
+            btnStart.Location = new Point(80, 319);
             btnStart.Name = "btnStart";
-            btnStart.Size = new Size(128, 48);
+            btnStart.Size = new Size(128, 42);
             btnStart.TabIndex = 1;
             btnStart.Text = "Start";
             btnStart.UseVisualStyleBackColor = true;
@@ -73,9 +73,9 @@
             // 
             // btnEnd
             // 
-            btnEnd.Location = new Point(364, 362);
+            btnEnd.Location = new Point(364, 319);
             btnEnd.Name = "btnEnd";
-            btnEnd.Size = new Size(128, 48);
+            btnEnd.Size = new Size(128, 42);
             btnEnd.TabIndex = 2;
             btnEnd.Text = "End";
             btnEnd.UseVisualStyleBackColor = true;
@@ -83,17 +83,17 @@
             // 
             // rtxOutputInfo
             // 
-            rtxOutputInfo.Location = new Point(614, 5);
+            rtxOutputInfo.Location = new Point(614, 4);
             rtxOutputInfo.Name = "rtxOutputInfo";
-            rtxOutputInfo.Size = new Size(184, 445);
+            rtxOutputInfo.Size = new Size(184, 393);
             rtxOutputInfo.TabIndex = 3;
             rtxOutputInfo.Text = "";
             // 
             // RealtimeForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 17F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(800, 397);
             Controls.Add(rtxOutputInfo);
             Controls.Add(btnEnd);
             Controls.Add(btnStart);

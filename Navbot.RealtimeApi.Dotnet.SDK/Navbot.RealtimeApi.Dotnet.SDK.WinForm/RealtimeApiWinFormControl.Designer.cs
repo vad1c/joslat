@@ -28,28 +28,28 @@
         /// </summary>
         private void InitializeComponent()
         {
-            audioVisualizer1 = new AudioVisualizer.WinForm.AudioVisualizer();
+            audioVisualizer = new AudioVisualizer.WinForm.AudioVisualizerView();
             SuspendLayout();
             // 
             // audioVisualizer1
             // 
-            audioVisualizer1.AudioSampleRate = 8192;
-            audioVisualizer1.BackColor = Color.Black;
-            audioVisualizer1.Dock = DockStyle.Fill;
-            audioVisualizer1.Location = new Point(0, 0);
-            audioVisualizer1.Name = "audioVisualizer1";
-            audioVisualizer1.RenderInterval = 50;
-            audioVisualizer1.Scale = 1F;
-            audioVisualizer1.Size = new Size(200, 200);
-            audioVisualizer1.TabIndex = 0;
-            audioVisualizer1.VisualEffict = AudioVisualizer.Core.VisualEffict.Oscilloscope;
+            audioVisualizer.AudioSampleRate = 8192;
+            audioVisualizer.BackColor = Color.Black;
+            audioVisualizer.Dock = DockStyle.Fill;
+            audioVisualizer.Location = new Point(0, 0);
+            audioVisualizer.Name = "audioVisualizer1";
+            audioVisualizer.RenderInterval = 50;
+            audioVisualizer.Scale = 1F;
+            audioVisualizer.Size = new Size(200, 200);
+            audioVisualizer.TabIndex = 0;
+            audioVisualizer.VisualEffict = AudioVisualizer.Core.VisualEffict.Oscilloscope;
             // 
             // RealtimeApiWinFormControl
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ControlText;
-            Controls.Add(audioVisualizer1);
+            Controls.Add(audioVisualizer);
             Name = "RealtimeApiWinFormControl";
             Size = new Size(200, 200);
             Load += RealtimeApiDesktopControl_Load;
@@ -58,6 +58,6 @@
 
         #endregion
 
-        private AudioVisualizer.WinForm.AudioVisualizer audioVisualizer1;
+        private AudioVisualizer.WinForm.AudioVisualizerView audioVisualizer;
     }
 }
