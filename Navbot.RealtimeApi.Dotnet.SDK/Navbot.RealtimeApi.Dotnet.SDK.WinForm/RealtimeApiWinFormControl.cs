@@ -56,6 +56,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
                 // Start ripple effect.
                 capture.StartRecording();
                 audioVisualizer1.Start();
+                speechWaveIn.StartRecording();
 
                 // Start voice recognition;
                 RealtimeApiSdk.StartSpeechRecognitionAsync();
@@ -69,6 +70,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
                 // Stop the ripple effect.
                 capture.StopRecording();
                 audioVisualizer1.Stop();
+                speechWaveIn.StopRecording();
 
                 // Stop voice recognition;
                 RealtimeApiSdk.StopSpeechRecognitionAsync();
@@ -117,9 +119,6 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
                     audioVisualizer1.VisualEffict = VisualEffict.SpectrumBar;
                     break;
             }
-
-            speechWaveIn.StartRecording();
-
         }
 
         #region Event
