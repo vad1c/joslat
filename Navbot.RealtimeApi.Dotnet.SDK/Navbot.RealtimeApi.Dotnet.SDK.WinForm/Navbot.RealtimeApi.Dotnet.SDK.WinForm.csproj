@@ -41,7 +41,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Navbot.RealtimeApi.Dotnet.SDK.Core" Version="1.0.3" />
+    <PackageReference Include="Navbot.RealtimeApi.Dotnet.SDK.Core" Version="1.0.4" />
+    <PackageReference Include="StarFlare.AudioVisualizer.WinForm" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
