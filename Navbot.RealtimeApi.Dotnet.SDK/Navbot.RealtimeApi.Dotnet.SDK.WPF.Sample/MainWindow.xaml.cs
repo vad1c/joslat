@@ -11,7 +11,8 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(MainWindow));
         private bool isRecording = false;
-
+        private bool isMuted = false;
+            
         public MainWindow()
         {
             InitializeComponent();
@@ -99,6 +100,16 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
 
             isRecording = !isRecording;
         }
+
+        private void btnMute_Click(object sender, RoutedEventArgs e)
+        {
+            var muteCrossIcon = (System.Windows.Shapes.Path)MuteButton.Template.FindName("MuteCrossIcon", MuteButton);
+            isMuted = !isMuted;
+            muteCrossIcon.Visibility = isMuted ? Visibility.Visible : Visibility.Collapsed;
+
+            realtimeApiWpfControl.RealtimeApiSdk.IsMuted = isMuted;
+        }
+
 
         /// <summary>
         /// Hook up SpeechTextAvailable event to display speech text

@@ -83,6 +83,8 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
 
         public string CustomInstructions { get; set; }
 
+        public bool IsMuted { get; set; } = false;
+
         public Dictionary<string, string> RequestHeaderOptions { get; }
 
         protected virtual void OnWaveInDataAvailable(WaveInEventArgs e)
@@ -236,6 +238,8 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
         }
         private async void WaveIn_DataAvailable(object? sender, WaveInEventArgs e)
         {
+            if (IsMuted) return;
+
             string base64Audio = Convert.ToBase64String(e.Buffer, 0, e.BytesRecorded);
             var audioMessage = new JObject
             {
