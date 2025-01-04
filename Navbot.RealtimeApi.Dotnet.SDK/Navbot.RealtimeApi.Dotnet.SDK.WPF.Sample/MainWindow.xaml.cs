@@ -41,7 +41,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
                     },
                     Required = new List<string> { "city" }
                 }
-            }, FucationCallHelper.HandleWeatherFunctionCall);
+            }, FunctionCallHelper.HandleWeatherFunctionCall);
 
             // Register FunctionCall for run application
             realtimeApiWpfControl.RegisterFunctionCall(new FunctionCallSetting
@@ -67,7 +67,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
                     },
                     Required = new List<string> { "content", "date" }
                 }
-            }, FucationCallHelper.HandleNotepadFunctionCall);
+            }, FunctionCallHelper.HandleNotepadFunctionCall);
 
             log.Info("App Start...");
         }
