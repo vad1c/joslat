@@ -71,6 +71,8 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             set { RealtimeApiSdk.CustomInstructions = value; }
         }
 
+        public bool ReactToMicInput { get; set; } = false;
+
         private void RealtimeApiWpfControl_Loaded(object sender, RoutedEventArgs e)
         {
             if (this.Parent is FrameworkElement parent)
@@ -240,6 +242,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             {
                 // Start voice recognition;
                 RealtimeApiSdk.StartSpeechRecognitionAsync();
+                ReactToMicInput = true;
 
                 // Start ripple effect.
                 PlayVisualVoiceEffect(true);
@@ -252,6 +255,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             {
                 // Stop the ripple effect.
                 PlayVisualVoiceEffect(false);
+                ReactToMicInput = false;
 
                 // Stop voice recognition;
                 RealtimeApiSdk.StopSpeechRecognitionAsync();
@@ -269,7 +273,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             //RippleEffect.Visibility = voiceVisualEffect == WPF.VisualEffect.Cycle ? Visibility.Visible : Visibility.Collapsed;
             RippleEffect.Visibility = Visibility.Collapsed;
             cycleWaveformCanvas.Visibility = voiceVisualEffect == WPF.VisualEffect.Cycle ? Visibility.Visible : Visibility.Collapsed;
-
+            ReactToMicInput = enable;
 
             switch (voiceVisualEffect)
             {
@@ -304,6 +308,12 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
 
         private void SpeechWaveIn_DataAvailable(object? sender, WaveInEventArgs e)
         {
+            if (!ReactToMicInput)
+            {
+                // Ignore microphone input
+                return;
+            }
+
             List<float> audioBuffer = new List<float>();
             for (int i = 0; i < e.BytesRecorded; i += 2)
             {
