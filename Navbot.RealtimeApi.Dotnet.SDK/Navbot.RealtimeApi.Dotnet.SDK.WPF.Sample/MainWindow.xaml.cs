@@ -188,6 +188,5 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
                 ChatOutput.AppendText($"AI: {e.Transcript}\n"); // Display the received playback text
             });
         }
-
     }
 }
