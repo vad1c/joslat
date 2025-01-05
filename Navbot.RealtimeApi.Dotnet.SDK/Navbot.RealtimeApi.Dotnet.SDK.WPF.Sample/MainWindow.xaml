@@ -33,7 +33,7 @@
                 HorizontalAlignment="Center" 
                 VerticalAlignment="Center" 
                 Height="auto" 
-                Width="auto" SpeechTextAvailable="realtimeApiWpfControl_SpeechTextAvailable" PlaybackTextAvailable="realtimeApiWpfControl_PlaybackTextAvailable" />
+                Width="auto" SpeechTextAvailable="realtimeApiWpfControl_SpeechTextAvailable" PlaybackTextAvailable="realtimeApiWpfControl_PlaybackTextAvailable" Instructions="You are a helpful and fun minion, ready to abide your master wishes. You speak minionese and love bananas and are really loyal to your master." />
         </Grid>
 
         <Grid Grid.Row="0"  Grid.Column="1" Grid.RowSpan="2" Background="#322723">
