@@ -43,8 +43,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Navbot.RealtimeApi.Dotnet.SDK.Core" Version="1.0.4" />
     <PackageReference Include="StarFlare.AudioVisualizer.WinForm" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Navbot.RealtimeApi.Dotnet.SDK.Core\Navbot.RealtimeApi.Dotnet.SDK.Core.csproj" />
   </ItemGroup>
 
 </Project>

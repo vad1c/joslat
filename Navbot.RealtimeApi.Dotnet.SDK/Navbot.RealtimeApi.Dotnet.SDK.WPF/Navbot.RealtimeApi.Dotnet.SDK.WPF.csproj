@@ -5,27 +5,21 @@
     <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
 	
-	<!-- 必要信息 -->
   <PackageId>Navbot.RealtimeApi.Dotnet.SDK.WPF</PackageId>
-  <Version>1.0.3</Version> <!-- 版本号 -->
-  <Authors>Navbot</Authors> <!-- 作者信息 -->
-  <Company>Navbot</Company> <!-- 公司信息 -->
-  <Description>Your voice conversation assistant</Description> <!-- 描述 -->
+  <Version>1.0.3</Version> 
+  <Authors>Navbot</Authors>
+  <Company>Navbot</Company>
+  <Description>Your voice conversation assistant</Description>
   <Copyright>Copyright © Navbot 2024</Copyright>
     
-    <!-- 项目地址和仓库地址 -->
     <ProjectUrl>https://github.com/fuwei007/OpenAI-realtimeapi-dotnetsdk</ProjectUrl>
-    <!-- 项目主页 -->
     <RepositoryUrl>https://github.com/fuwei007/OpenAI-realtimeapi-dotnetsdk</RepositoryUrl>
-    <!-- 仓库类型 -->
     <RepositoryType>git</RepositoryType>
     
-  <!-- 是否生成 NuGet 包 -->
   <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-  <!-- 包输出路径 -->
   <PackageOutputPath>..\..\NuGetPackages</PackageOutputPath>
     
-    <!-- README 和 LICENSE -->
+    <!-- README And LICENSE -->
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <TargetFrameworks>net6.0-windows;net8.0-windows</TargetFrameworks>
