@@ -97,6 +97,9 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
                 pauseIcon.Visibility = Visibility.Visible;
 
                 realtimeApiWpfControl.StartSpeechRecognition();
+
+                // Disable talking mode by default
+                DisableTalkingMode();
             }
 
             isRecording = !isRecording;
@@ -141,10 +144,12 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
             muteDelayCancellationTokenSource?.Cancel(); // Cancel any pending mute
             var muteCrossIcon = (System.Windows.Shapes.Path)PressToTalkButton.Template.FindName("MuteCrossIcon", PressToTalkButton);
             isMuted = false;
+            
             muteCrossIcon.Visibility = Visibility.Collapsed;
 
             // Unmute microphone
             realtimeApiWpfControl.RealtimeApiSdk.IsMuted = isMuted;
+            realtimeApiWpfControl.ReactToMicInput = true;
             log.Info("Microphone unmuted");
         }
 
@@ -156,6 +161,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
 
             // Mute microphone
             realtimeApiWpfControl.RealtimeApiSdk.IsMuted = isMuted;
+            realtimeApiWpfControl.ReactToMicInput = false;
             log.Info("Microphone muted");
         }
 
