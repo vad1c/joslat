@@ -83,7 +83,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
 
         public string CustomInstructions { get; set; }
 
-        public bool IsMuted { get; set; } = false;
+        public bool IsMuted { get; set; } = true;
 
         public Dictionary<string, string> RequestHeaderOptions { get; }
 
@@ -236,6 +236,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
                 log.Info("WebSocket closed successfully.");
             }
         }
+
         private async void WaveIn_DataAvailable(object? sender, WaveInEventArgs e)
         {
             if (IsMuted) return;
@@ -253,6 +254,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
             OnSpeechDataAvailable(new AudioEventArgs(e.Buffer));
             OnWaveInDataAvailable(new WaveInEventArgs(e.Buffer, e.BytesRecorded));
         }
+
         private async Task StartAudioRecordingAsync()
         {
             waveIn.StartRecording();

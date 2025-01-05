@@ -1,6 +1,7 @@
 ﻿using log4net;
 using Navbot.RealtimeApi.Dotnet.SDK.Core.Model.Function;
 using System.Windows;
+using System.Windows.Input;
 
 namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
 {
@@ -11,7 +12,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(MainWindow));
         private bool isRecording = false;
-        private bool isMuted = false;
+        private bool isMuted = true;
             
         public MainWindow()
         {
@@ -101,14 +102,65 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
             isRecording = !isRecording;
         }
 
-        private void btnMute_Click(object sender, RoutedEventArgs e)
+        #region Talking Mode
+        private void PressToTalkButton_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            var muteCrossIcon = (System.Windows.Shapes.Path)MuteButton.Template.FindName("MuteCrossIcon", MuteButton);
-            isMuted = !isMuted;
-            muteCrossIcon.Visibility = isMuted ? Visibility.Visible : Visibility.Collapsed;
-
-            realtimeApiWpfControl.RealtimeApiSdk.IsMuted = isMuted;
+            EnableTalkingMode();
         }
+
+        private void PressToTalkButton_PreviewMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            DisableTalkingModeWithDelay();
+        }
+
+        private CancellationTokenSource muteDelayCancellationTokenSource;
+        private int millisecondsDelay = 1000;
+
+        private async void DisableTalkingModeWithDelay()
+        {
+            // Cancel any previous mute delay if the button is pressed again quickly
+            muteDelayCancellationTokenSource?.Cancel();
+            muteDelayCancellationTokenSource = new CancellationTokenSource();
+
+            try
+            {
+                // Introduce a delay before muting
+                await Task.Delay(millisecondsDelay, muteDelayCancellationTokenSource.Token); // 500ms delay
+
+                // Perform mute logic only if the task wasn't canceled
+                DisableTalkingMode();
+            }
+            catch (TaskCanceledException)
+            {
+                // Ignore if the delay was canceled
+            }
+        }
+
+        private void EnableTalkingMode()
+        {
+            muteDelayCancellationTokenSource?.Cancel(); // Cancel any pending mute
+            var muteCrossIcon = (System.Windows.Shapes.Path)PressToTalkButton.Template.FindName("MuteCrossIcon", PressToTalkButton);
+            isMuted = false;
+            muteCrossIcon.Visibility = Visibility.Collapsed;
+
+            // Unmute microphone
+            realtimeApiWpfControl.RealtimeApiSdk.IsMuted = isMuted;
+            log.Info("Microphone unmuted");
+        }
+
+        private void DisableTalkingMode()
+        {
+            var muteCrossIcon = (System.Windows.Shapes.Path)PressToTalkButton.Template.FindName("MuteCrossIcon", PressToTalkButton);
+            isMuted = true;
+            muteCrossIcon.Visibility = Visibility.Visible;
+
+            // Mute microphone
+            realtimeApiWpfControl.RealtimeApiSdk.IsMuted = isMuted;
+            log.Info("Microphone muted");
+        }
+
+        #endregion Talking Mode
+
 
 
         /// <summary>
