@@ -217,7 +217,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
 
             try
             {
-                await webSocketClient.ConnectAsync(new Uri(this.GetNavbotRequestUrl()), CancellationToken.None);
+                await webSocketClient.ConnectAsync(new Uri(this.GetOpenAIRequestUrl()), CancellationToken.None);
                 log.Info("WebSocket connected!");
             }
             catch (Exception ex)
@@ -711,7 +711,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
                 });
             }
         }
-        private string GetNavbotRequestUrl()
+        private string GetOpenAIRequestUrl()
         {
             string url = $"{this.OpenApiUrl.TrimEnd('/').TrimEnd('?')}?model={this.Model}";
             return url;

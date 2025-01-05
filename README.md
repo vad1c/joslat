@@ -43,7 +43,7 @@ To use the Realtime control, you need to install the following NuGet packages:
 
 ```bash
 Navbot.RealtimeApi.Dotnet.SDK.Core
-Navbot.RealtimeApi.Dotnet.SDK.Desktop
+Navbot.RealtimeApi.Dotnet.SDK.WinForm
 Navbot.RealtimeApi.Dotnet.SDK.WPF
 ```
 
@@ -51,7 +51,7 @@ You can install these packages by running the following commands in the **NuGet 
 
 ```bash
 Install-Package Navbot.RealtimeApi.Dotnet.SDK.Core
-Install-Package Navbot.RealtimeApi.Dotnet.SDK.Desktop
+Install-Package Navbot.RealtimeApi.Dotnet.SDK.WinForm
 Install-Package Navbot.RealtimeApi.Dotnet.SDK.WPF
 ```
 

@@ -28,13 +28,28 @@
         /// </summary>
         private void InitializeComponent()
         {
+            audioVisualizer = new AudioVisualizer.WinForm.AudioVisualizerView();
             SuspendLayout();
+            // 
+            // audioVisualizer1
+            // 
+            audioVisualizer.AudioSampleRate = 8192;
+            audioVisualizer.BackColor = Color.Black;
+            audioVisualizer.Dock = DockStyle.Fill;
+            audioVisualizer.Location = new Point(0, 0);
+            audioVisualizer.Name = "audioVisualizer1";
+            audioVisualizer.RenderInterval = 50;
+            audioVisualizer.Scale = 1F;
+            audioVisualizer.Size = new Size(200, 200);
+            audioVisualizer.TabIndex = 0;
+            audioVisualizer.VisualEffict = AudioVisualizer.Core.VisualEffict.Oscilloscope;
             // 
             // RealtimeApiWinFormControl
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ControlText;
+            Controls.Add(audioVisualizer);
             Name = "RealtimeApiWinFormControl";
             Size = new Size(200, 200);
             Load += RealtimeApiDesktopControl_Load;
@@ -42,5 +57,7 @@
         }
 
         #endregion
+
+        private AudioVisualizer.WinForm.AudioVisualizerView audioVisualizer;
     }
 }
