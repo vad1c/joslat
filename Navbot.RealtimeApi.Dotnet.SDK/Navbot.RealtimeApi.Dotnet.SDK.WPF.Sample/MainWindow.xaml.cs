@@ -1,6 +1,7 @@
 ﻿using log4net;
 using Navbot.RealtimeApi.Dotnet.SDK.Core.Model.Function;
 using System.Windows;
+using System.Windows.Input;
 
 namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
 {
@@ -11,7 +12,8 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(MainWindow));
         private bool isRecording = false;
-
+        private bool isMuted = true;
+            
         public MainWindow()
         {
             InitializeComponent();
@@ -41,7 +43,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
                     },
                     Required = new List<string> { "city" }
                 }
-            }, FucationCallHelper.HandleWeatherFunctionCall);
+            }, FunctionCallHelper.HandleWeatherFunctionCall);
 
             // Register FunctionCall for run application
             realtimeApiWpfControl.RegisterFunctionCall(new FunctionCallSetting
@@ -67,7 +69,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
                     },
                     Required = new List<string> { "content", "date" }
                 }
-            }, FucationCallHelper.HandleNotepadFunctionCall);
+            }, FunctionCallHelper.HandleNotepadFunctionCall);
 
             log.Info("App Start...");
         }
@@ -99,6 +101,67 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
 
             isRecording = !isRecording;
         }
+
+        #region Talking Mode
+        private void PressToTalkButton_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            EnableTalkingMode();
+        }
+
+        private void PressToTalkButton_PreviewMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            DisableTalkingModeWithDelay();
+        }
+
+        private CancellationTokenSource muteDelayCancellationTokenSource;
+        private int millisecondsDelay = 1000;
+
+        private async void DisableTalkingModeWithDelay()
+        {
+            // Cancel any previous mute delay if the button is pressed again quickly
+            muteDelayCancellationTokenSource?.Cancel();
+            muteDelayCancellationTokenSource = new CancellationTokenSource();
+
+            try
+            {
+                // Introduce a delay before muting
+                await Task.Delay(millisecondsDelay, muteDelayCancellationTokenSource.Token); // 500ms delay
+
+                // Perform mute logic only if the task wasn't canceled
+                DisableTalkingMode();
+            }
+            catch (TaskCanceledException)
+            {
+                // Ignore if the delay was canceled
+            }
+        }
+
+        private void EnableTalkingMode()
+        {
+            muteDelayCancellationTokenSource?.Cancel(); // Cancel any pending mute
+            var muteCrossIcon = (System.Windows.Shapes.Path)PressToTalkButton.Template.FindName("MuteCrossIcon", PressToTalkButton);
+            isMuted = false;
+            muteCrossIcon.Visibility = Visibility.Collapsed;
+
+            // Unmute microphone
+            realtimeApiWpfControl.RealtimeApiSdk.IsMuted = isMuted;
+            log.Info("Microphone unmuted");
+        }
+
+        private void DisableTalkingMode()
+        {
+            var muteCrossIcon = (System.Windows.Shapes.Path)PressToTalkButton.Template.FindName("MuteCrossIcon", PressToTalkButton);
+            isMuted = true;
+            muteCrossIcon.Visibility = Visibility.Visible;
+
+            // Mute microphone
+            realtimeApiWpfControl.RealtimeApiSdk.IsMuted = isMuted;
+            log.Info("Microphone muted");
+        }
+
+        #endregion Talking Mode
+
+
 
         /// <summary>
         /// Hook up SpeechTextAvailable event to display speech text

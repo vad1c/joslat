@@ -65,6 +65,12 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             set { voiceVisualEffect = value; }
         }
 
+        public string Instructions
+        {
+            get { return RealtimeApiSdk.CustomInstructions; }
+            set { RealtimeApiSdk.CustomInstructions = value; }
+        }
+
         private void RealtimeApiWpfControl_Loaded(object sender, RoutedEventArgs e)
         {
             if (this.Parent is FrameworkElement parent)

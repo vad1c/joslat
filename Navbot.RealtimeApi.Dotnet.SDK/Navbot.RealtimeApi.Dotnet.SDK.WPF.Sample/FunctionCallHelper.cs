@@ -14,7 +14,7 @@ using System.IO;
 
 namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
 {
-    public static class FucationCallHelper
+    public static class FunctionCallHelper
     {
         public static JObject HandleWeatherFunctionCall(FuncationCallArgument argument)
         {

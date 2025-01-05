@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Navbot.RealtimeApi.Dotnet.SDK.Desktop.Sample
 {
-    public static class FucationCallHelper
+    public static class FunctionCallHelper
     {
         public static JObject HandleWeatherFunctionCall(FuncationCallArgument argument)
         {
