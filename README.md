@@ -6,9 +6,7 @@ https://www.youtube.com/playlist?list=PLtan4ax5Sz-1ckWzZWx872rFFuAukihNE
 
 ## Project Introduction
 
-The Realtime control is a component for real-time speech recognition and speech synthesis. It can convert speech input into text and generate speech responses from text. This control can be used in desktop applications, integrating OpenAI and other related services, providing a seamless speech interaction experience.
-
-This control is suitable for applications requiring voice interaction, such as virtual assistants, speech recognition systems, and intelligent customer service.
+The Dotnet.SDK of OpenAI Real-Time API. We implemented serveral components that can directly interact with OpenAI Real-Time API, so that the .net developers can simply focus on the real-time conversation logic.
 
 ## Table of Contents
 
