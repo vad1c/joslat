@@ -83,7 +83,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core
 
         public string CustomInstructions { get; set; }
 
-        public bool IsMuted { get; set; } = true;
+        public bool IsMuted { get; set; } = false;
 
         public Dictionary<string, string> RequestHeaderOptions { get; }
 
