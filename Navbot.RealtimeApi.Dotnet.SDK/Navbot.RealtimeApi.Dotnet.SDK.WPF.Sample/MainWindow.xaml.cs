@@ -166,33 +166,5 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF.Sample
         }
 
         #endregion Talking Mode
-
-
-
-        /// <summary>
-        /// Hook up SpeechTextAvailable event to display speech text
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void realtimeApiWpfControl_SpeechTextAvailable(object sender, Core.Events.TranscriptEventArgs e)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                ChatOutput.AppendText($"User: {e.Transcript}"); // Display the received speech text
-            });
-        }
-
-        /// <summary>
-        /// Hook up PlaybackTextAvailable evnet to display OpenAI response.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void realtimeApiWpfControl_PlaybackTextAvailable(object sender, Core.Events.TranscriptEventArgs e)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                ChatOutput.AppendText($"AI: {e.Transcript}\n"); // Display the received playback text
-            });
-        }
     }
 }
