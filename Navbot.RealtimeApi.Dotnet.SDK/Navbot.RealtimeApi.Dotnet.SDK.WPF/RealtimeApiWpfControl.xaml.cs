@@ -12,13 +12,15 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Windows.Media.Effects;
+using Navbot.RealtimeApi.Dotnet.SDK.Core.Model.Common;
+using System.ComponentModel;
 
 namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
 {
     /// <summary>
     /// Interaction logic for UserControl1.xaml
     /// </summary>
-    public partial class RealtimeApiWpfControl : UserControl
+    public partial class RealtimeApiWpfControl : UserControl, INotifyPropertyChanged
     {
         private const string apiKey = "";
         private VisualEffect voiceVisualEffect;
@@ -43,6 +45,12 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
         public event EventHandler<TranscriptEventArgs> PlaybackTextAvailable;
         public event EventHandler<EventArgs> PlaybackEnded;
 
+        public IReadOnlyList<ConversationEntry> ConversationEntries => RealtimeApiSdk.ConversationEntries;
+        public string ConversationAsText
+        {
+            get => RealtimeApiSdk.ConversationAsText;
+        }
+
         public RealtimeApiWpfControl()
         {
             InitializeComponent();
@@ -50,6 +58,8 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             RealtimeApiSdk = new RealtimeApiSdk();
             Loaded += RealtimeApiWpfControl_Loaded;
             WaveCanvas.SizeChanged += WaveCanvas_SizeChanged;
+            RealtimeApiSdk.SpeechTextAvailable += OnConversationUpdated;
+            RealtimeApiSdk.PlaybackTextAvailable += OnConversationUpdated;
         }
 
         public RealtimeApiSdk RealtimeApiSdk { get; private set; }
@@ -674,6 +684,31 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
         private void cycleWaveformCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             DrawDefaultVisualEffect(voiceVisualEffect);
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void OnConversationUpdated(object sender, TranscriptEventArgs e)
+        {
+            // Notify that the conversation data has changed
+            RefreshConversationData();
+        }
+
+        public void RefreshConversationData()
+        {
+            NotifyPropertyChanged(nameof(ConversationEntries));
+            NotifyPropertyChanged(nameof(ConversationAsText));
+        }
+
+        public void ClearConversationHistory()
+        {
+            RealtimeApiSdk.ClearConversationEntries();
+            RefreshConversationData();
         }
     }
 }

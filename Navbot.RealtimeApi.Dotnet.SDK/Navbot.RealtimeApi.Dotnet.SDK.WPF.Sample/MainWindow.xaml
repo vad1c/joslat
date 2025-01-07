@@ -35,20 +35,21 @@
                 HorizontalAlignment="Center" 
                 VerticalAlignment="Center" 
                 Height="auto" 
-                Width="auto" SpeechTextAvailable="realtimeApiWpfControl_SpeechTextAvailable" PlaybackTextAvailable="realtimeApiWpfControl_PlaybackTextAvailable" Instructions="You are a helpful and fun minion, ready to abide your master wishes. You speak minionese and love bananas and are really loyal to your master." />
+                Width="auto" 
+                Instructions="You are a helpful and fun minion, ready to abide your master wishes. You speak minionese and love bananas and are really loyal to your master." />
         </Grid>
 
-        <Grid Grid.Row="0"  Grid.Column="1" Grid.RowSpan="2" Background="#322723">
+        <Grid Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Background="#322723">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel >
-                    <!-- Here you can add the chat messages dynamically -->
-                    <RichTextBox  x:Name="ChatOutput" Background="#322723" 
-                                  Foreground="LightGreen" FontSize="15" Margin="10" 
-                                  BorderBrush="Transparent" BorderThickness="0" 
-                                  IsReadOnly="True" VerticalScrollBarVisibility="Auto"/>
-                </StackPanel>
+                <TextBlock Text="{Binding ElementName=realtimeApiWpfControl, Path=ConversationAsText}" 
+                    Background="#322723" 
+                    Foreground="LightGreen" 
+                    FontSize="15" 
+                    Margin="10" 
+                    TextWrapping="Wrap"/>
             </ScrollViewer>
         </Grid>
+
 
         <Grid x:Name="ButtonGrid"
       Grid.Row="1" Grid.Column="0" Background="#2a2a2a"
