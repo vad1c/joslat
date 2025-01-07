@@ -386,6 +386,8 @@ public partial class RealtimeApiSdk
 
     private async Task HandleBaseResponse(BaseResponse baseResponse, JObject json)
     {
+        // TODO
+        //log.Info($"Received json: {json}");
         switch (baseResponse)
         {
             case SessionCreated:
@@ -428,22 +430,11 @@ public partial class RealtimeApiSdk
                 HandleFunctionCall(argument);
                 break;
 
+            // TODO
             case ConversationItemCreated:
-                log.Info($"Received json: {json}");
-                break;
-
             case BufferCommitted:
-                log.Info($"Received json: {json}");
-                break;
-
             case ResponseCreated:
-                log.Info($"Received json: {json}");
-                break;
-
             case ConversationCreated:
-                log.Info($"Received json: {json}");
-                break;
-
             case TranscriptionFailed:
                 log.Info($"Received json: {json}");
                 break;
@@ -523,6 +514,9 @@ public partial class RealtimeApiSdk
         }
     }
 
+    // Websocket  - > RealtimeApiSdk.WebSocket.cs
+
+    //TODO MOve all function realted to RealtimeApiSdk.FunctionCall.cs
     private void HandleFunctionCall(FuncationCallArgument argument)
     {
         string functionName = argument.Name;
@@ -562,6 +556,24 @@ public partial class RealtimeApiSdk
         webSocketClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(rpJsonString)), WebSocketMessageType.Text, true, CancellationToken.None);
     }
 
+    // Add SessionConfiguration property
+    // Add SessionConfiguration class
+    //instructions = string.IsNullOrWhiteSpace(CustomInstructions) ? DefaultInstructions : CustomInstructions,
+    //            turn_detection = new Model.Request.TurnDetection
+    //            {
+    //                type = "server_vad",
+    //                threshold = 0.6,
+    //                prefix_padding_ms = 300,
+    //                silence_duration_ms = 500
+    //            },
+    //            voice = "alloy",
+    //            temperature = 1,
+    //            max_response_output_tokens = 4096,
+    //            modalities = new List<string> { "text", "audio" },
+    //            input_audio_format = "pcm16",
+    //            output_audio_format = "pcm16",
+    //            input_audio_transcription = new Model.Request.AudioTranscription { model = "whisper-1" },
+    //            tool_choice = "auto",
     private void SendSessionUpdate()
     {
         JArray functionSettings = new JArray();

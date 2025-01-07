@@ -20,6 +20,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.Core.Events
             AudioBuffer = audioBuffer;
         }
 
+        // TODO 2 bit vs 4 bit
         public float[] GetWaveBuffer()
         {
             List<float> rtn = new List<float>();
