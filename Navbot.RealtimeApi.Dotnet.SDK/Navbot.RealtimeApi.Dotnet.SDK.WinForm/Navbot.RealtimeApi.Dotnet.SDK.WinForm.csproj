@@ -28,10 +28,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="docs\LICENSE.md" Pack="true" PackagePath="\">
+    <Content Include="..\..\LICENSE.md" Pack="true" PackagePath="\">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="docs\README.md" Pack="true" PackagePath="\">
+    <Content Include="..\..\README.md" Pack="true" PackagePath="\">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
