@@ -40,7 +40,7 @@
         </Grid>
 
         <Grid Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Background="#322723">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ScrollViewer x:Name="scrollViewer" VerticalScrollBarVisibility="Auto">
                 <TextBlock Text="{Binding ElementName=realtimeApiWpfControl, Path=ConversationAsText}" 
                     Background="#322723" 
                     Foreground="LightGreen" 
