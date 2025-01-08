@@ -386,8 +386,6 @@ public partial class RealtimeApiSdk
 
     private async Task HandleBaseResponse(BaseResponse baseResponse, JObject json)
     {
-        // TODO
-        //log.Info($"Received json: {json}");
         switch (baseResponse)
         {
             case SessionCreated:
@@ -430,54 +428,21 @@ public partial class RealtimeApiSdk
                 HandleFunctionCall(argument);
                 break;
 
-            // TODO
             case ConversationItemCreated:
             case BufferCommitted:
             case ResponseCreated:
             case ConversationCreated:
             case TranscriptionFailed:
-                log.Info($"Received json: {json}");
-                break;
-
             case ConversationItemTruncate:
-                log.Info($"Received json: {json}");
-                break;
-
             case ConversationItemDeleted:
-                log.Info($"Received json: {json}");
-                break;
-
             case BufferClear:
-                log.Info($"Received json: {json}");
-                break;
-
             case ResponseDone:
-                log.Info($"Received json: {json}");
-                break;
             case ResponseOutputItemAdded:
-                log.Info($"Received json: {json}");
-                break;
-
             case ResponseOutputItemDone:
-                log.Info($"Received json: {json}");
-                break;
-
             case ResponseContentPartAdded:
-                log.Info($"Received json: {json}");
-                break;
-
             case ResponseContentPartDone:
-                log.Info($"Received json: {json}");
-                break;
-
             case ResponseTextDone:
-                log.Info($"Received json: {json}");
-                break;
-
             case ResponseFunctionCallArgumentsDelta:
-                log.Info($"Received json: {json}");
-                break;
-
             case RateLimitsUpdated:
                 log.Info($"Received json: {json}");
                 break;

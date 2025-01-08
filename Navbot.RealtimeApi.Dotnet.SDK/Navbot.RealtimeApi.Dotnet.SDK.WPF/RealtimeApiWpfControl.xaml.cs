@@ -438,18 +438,14 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             if (canvasWidth == 0 || canvasHeight == 0 || waveform == null)
                 return;
 
-            // 设置背景动态渐变
             WaveCanvas.Background = CreateDynamicGradient();
 
-            // 正负波形
             Polyline positiveWave = CreateWaveformPolyline(Colors.Cyan, canvasWidth, canvasHeight, waveform, 1);
             Polyline negativeWave = CreateWaveformPolyline(Colors.Magenta, canvasWidth, canvasHeight, waveform, -1);
 
-            // 添加波形到画布
             WaveCanvas.Children.Add(positiveWave);
             WaveCanvas.Children.Add(negativeWave);
 
-            // 添加粒子效果
             AddParticleEffects(waveform, canvasWidth, canvasHeight);
         }
 
@@ -464,7 +460,6 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             gradientBrush.GradientStops.Add(new GradientStop(Colors.Purple, 0.5));
             gradientBrush.GradientStops.Add(new GradientStop(Colors.OrangeRed, 1.0));
 
-            // 动态调整颜色
             DoubleAnimation gradientAnimation = new DoubleAnimation
             {
                 From = 0.0,
@@ -502,7 +497,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             for (int i = 0; i < waveform.Length; i++)
             {
                 double x = i * step;
-                double y = centerY - (waveform[i] * centerY * direction); // 根据 direction 决定正负波形
+                double y = centerY - (waveform[i] * centerY * direction); 
                 polyline.Points.Add(new Point(x, y));
             }
 
@@ -513,7 +508,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
         {
             Random random = new Random();
 
-            for (int i = 0; i < waveform.Length / 10; i++) // 粒子数量
+            for (int i = 0; i < waveform.Length / 10; i++) 
             {
                 double x = random.NextDouble() * canvasWidth;
                 double y = random.NextDouble() * canvasHeight;
@@ -533,11 +528,10 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
                 Canvas.SetTop(particle, y);
                 WaveCanvas.Children.Add(particle);
 
-                // 动画让粒子移动
                 DoubleAnimation moveAnimation = new DoubleAnimation
                 {
                     From = y,
-                    To = y - 100, // 粒子向上漂浮
+                    To = y - 100, 
                     Duration = TimeSpan.FromSeconds(2),
                     AutoReverse = true,
                     RepeatBehavior = RepeatBehavior.Forever

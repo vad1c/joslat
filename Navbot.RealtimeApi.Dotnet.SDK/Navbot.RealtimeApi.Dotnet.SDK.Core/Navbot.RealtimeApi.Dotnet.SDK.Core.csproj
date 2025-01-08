@@ -1,32 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- 支持多个目标框架 -->
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	
-	  <!-- 必要信息 -->
     <PackageId>Navbot.RealtimeApi.Dotnet.SDK.Core</PackageId>
-    <Version>1.0.4</Version> <!-- 版本号 -->
-    <Authors>Navbot</Authors> <!-- 作者信息 -->
-    <Company>Navbot</Company> <!-- 公司信息 -->
-    <Description>Your voice conversation assistant</Description> <!-- 描述信息 -->
+    <Version>1.0.4</Version> 
+    <Authors>Navbot</Authors>
+    <Company>Navbot</Company>
+    <Description>Your voice conversation assistant</Description>
     <Copyright>Copyright © Navbot 2024</Copyright>
     
-    <!-- 项目地址和仓库地址 -->
     <ProjectUrl>https://github.com/fuwei007/OpenAI-realtimeapi-dotnetsdk</ProjectUrl>
-    <!-- 项目主页 -->
     <RepositoryUrl>https://github.com/fuwei007/OpenAI-realtimeapi-dotnetsdk</RepositoryUrl>
-    <!-- 仓库类型 -->
     <RepositoryType>git</RepositoryType>
 
-    <!-- 是否生成 NuGet 包 -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <!-- 包输出路径 -->
     <PackageOutputPath>..\..\NuGetPackages</PackageOutputPath>
     
-    <!-- README 和 LICENSE -->
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <AssemblyVersion>1.0.4</AssemblyVersion>
