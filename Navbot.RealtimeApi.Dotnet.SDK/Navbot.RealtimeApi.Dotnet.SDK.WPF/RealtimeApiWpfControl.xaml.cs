@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Windows.Media.Effects;
-using Navbot.RealtimeApi.Dotnet.SDK.Core.Model.Common;
+using Navbot.RealtimeApi.Dotnet.SDK.Core.Model.Entity;
 using System.ComponentModel;
 
 namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
