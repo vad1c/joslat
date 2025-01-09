@@ -82,7 +82,7 @@ public partial class RealtimeApiSdk
 
     public string Model { get; set; }
 
-    public string CustomInstructions { get; set; }
+    //public string CustomInstructions { get; set; }
 
     public bool IsMuted { get; set; } = false;
 

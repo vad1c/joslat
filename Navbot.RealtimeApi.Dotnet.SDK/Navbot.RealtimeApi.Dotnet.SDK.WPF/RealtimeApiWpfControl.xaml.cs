@@ -75,10 +75,9 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             set { voiceVisualEffect = value; }
         }
 
-        public string Instructions
+        public SessionConfiguration SessionConfiguration
         {
-            get { return RealtimeApiSdk.CustomInstructions; }
-            set { RealtimeApiSdk.CustomInstructions = value; }
+            get { return RealtimeApiSdk.SessionConfiguration; }
         }
 
         public bool ReactToMicInput { get; set; } = false;
