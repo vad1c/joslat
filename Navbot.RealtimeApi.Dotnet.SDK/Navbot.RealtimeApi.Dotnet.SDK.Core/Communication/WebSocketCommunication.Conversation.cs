@@ -1,5 +1,6 @@
 ﻿using Navbot.RealtimeApi.Dotnet.SDK.Core.Events;
 using Navbot.RealtimeApi.Dotnet.SDK.Core.Model.Common;
+using Navbot.RealtimeApi.Dotnet.SDK.Core.Model.Entity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
