@@ -1,5 +1,4 @@
 using NAudio.Wave;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Navbot.RealtimeApi.Dotnet.SDK.Core;
 using Navbot.RealtimeApi.Dotnet.SDK.Core.Events;
@@ -7,13 +6,9 @@ using Navbot.RealtimeApi.Dotnet.SDK.Core.Model.Function;
 using Navbot.RealtimeApi.Dotnet.SDK.Core.Model.Response;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-using System.Windows.Media.Effects;
 using Navbot.RealtimeApi.Dotnet.SDK.Core.Model.Entity;
 using System.ComponentModel;
+using NAudio.CoreAudioApi;
 
 namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
 {
@@ -45,6 +40,8 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
         public event EventHandler<TranscriptEventArgs> PlaybackTextAvailable;
         public event EventHandler<EventArgs> PlaybackEnded;
 
+        private WasapiCapture capture;
+
         public IReadOnlyList<ConversationEntry> ConversationEntries => RealtimeApiSdk.ConversationEntries;
         public string ConversationAsText
         {
@@ -57,7 +54,6 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             
             RealtimeApiSdk = new RealtimeApiSdk();
             Loaded += RealtimeApiWpfControl_Loaded;
-            WaveCanvas.SizeChanged += WaveCanvas_SizeChanged;
             RealtimeApiSdk.SpeechTextAvailable += OnConversationUpdated;
             RealtimeApiSdk.PlaybackTextAvailable += OnConversationUpdated;
         }
@@ -215,9 +211,26 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             RealtimeApiSdk.PlaybackEnded += RealtimeApiSdk_PlaybackEnded;
 
             voiceVisualEffect = VoiceVisualEffect;
-            PlayVisualVoiceEffect(false);
 
-            DrawDefaultVisualEffect(voiceVisualEffect);
+            audioVisualizerView.AudioSampleRate = speakerCapture.WaveFormat.SampleRate;
+            audioVisualizerView.Scale = 5;
+            audioVisualizerView.VisualEffect = AudioVisualizer.Core.Enum.VisualEffect.SpectrumBar;
+
+            audioVisualizerView.StartRenderAsync();
+            speechWaveIn.StartRecording();
+        }
+
+        private void Audio_DataAvailable(object? sender, WaveInEventArgs e)
+        {
+            int length = e.BytesRecorded / 4;           // Float data
+            double[] result = new double[length];
+
+            for (int i = 0; i < length; i++)
+                result[i] = BitConverter.ToSingle(e.Buffer, i * 4);
+
+            // Push into visualizer
+            audioVisualizerView.PushSampleData(result);
+
         }
 
         private void RealtimeApiSdk_WaveInDataAvailable(object? sender, WaveInEventArgs e)
@@ -252,9 +265,6 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
                 // Start voice recognition;
                 RealtimeApiSdk.StartSpeechRecognitionAsync();
                 ReactToMicInput = true;
-
-                // Start ripple effect.
-                PlayVisualVoiceEffect(true);
             }
         }
 
@@ -262,12 +272,9 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
         {
             if (RealtimeApiSdk.IsRunning)
             {
-                // Stop the ripple effect.
-                PlayVisualVoiceEffect(false);
-                ReactToMicInput = false;
-
-                // Stop voice recognition;
+                //Stop voice recognition;
                 RealtimeApiSdk.StopSpeechRecognitionAsync();
+                ReactToMicInput = false;
             }
         }
 
@@ -276,28 +283,6 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             RealtimeApiSdk.RegisterFunctionCall(functionCallSetting, functionCallback);
         }
 
-        private void PlayVisualVoiceEffect(bool enable)
-        {
-            WaveCanvas.Visibility = voiceVisualEffect == WPF.VisualEffect.SoundWave ? Visibility.Visible : Visibility.Collapsed;
-            //RippleEffect.Visibility = voiceVisualEffect == WPF.VisualEffect.Cycle ? Visibility.Visible : Visibility.Collapsed;
-            RippleEffect.Visibility = Visibility.Collapsed;
-            cycleWaveformCanvas.Visibility = voiceVisualEffect == WPF.VisualEffect.Cycle ? Visibility.Visible : Visibility.Collapsed;
-            ReactToMicInput = enable;
-
-            switch (voiceVisualEffect)
-            {
-                case WPF.VisualEffect.Cycle:
-                    HandleVoiceEffect(enable);
-                    WaveCanvas.Children.Clear();
-                    break;
-                case WPF.VisualEffect.SoundWave:
-                    HandleVoiceEffect(enable);
-                    cycleWaveformCanvas.Children.Clear();
-                    break;
-                default:
-                    break;
-            }
-        }
 
         private void HandleVoiceEffect(bool enable)
         {
@@ -330,22 +315,8 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
                 float normalized = value / 32768f;
                 audioBuffer.Add(normalized);
             }
-
-            try
-            {
-                switch (this.voiceVisualEffect)
-                {
-                    case WPF.VisualEffect.Cycle:
-                        Dispatcher.Invoke(() => cycleWaveformCanvas.UpdateAudioData(audioBuffer.ToArray()));
-                        break;
-                    case WPF.VisualEffect.SoundWave:
-                        Dispatcher.Invoke(() => DrawWaveform(audioBuffer.ToArray()));
-                        break;
-                    default:
-                        break;
-                }
-            }
-            catch (Exception ex) { }
+            double[] result = audioBuffer.Select(f => (double)f).ToArray();
+            audioVisualizerView.PushSampleData(result);
         }
 
         private void SpeakerCapture_DataAvailable(object? sender, WaveInEventArgs e)
@@ -357,44 +328,9 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
             {
                 audioBuffer[i] = waveBuffer.FloatBuffer[i];
             }
-
-            try
-            {
-                switch (this.voiceVisualEffect)
-                {
-                    case WPF.VisualEffect.Cycle:
-                        Dispatcher.Invoke((Delegate)(() => cycleWaveformCanvas.UpdateAudioData(audioBuffer)));
-                        break;
-                    case WPF.VisualEffect.SoundWave:
-                        Dispatcher.Invoke((Delegate)(() => DrawWaveform(audioBuffer)));
-                        break;
-                    default:
-                        break;
-                }
-
-            }
-            catch (Exception ex) { }
         }
 
-        private void RealtimeApiSdk_PlaybackAudioReceived(object? sender, AudioEventArgs e)
-        {
-            try
-            {
-                switch (this.voiceVisualEffect)
-                {
-                    case WPF.VisualEffect.Cycle:
-                        Dispatcher.Invoke(() => cycleWaveformCanvas.UpdateAudioData(e.GetWaveBuffer()));
-                        break;
-                    case WPF.VisualEffect.SoundWave:
-                        Dispatcher.Invoke(() => DrawWaveform(e.GetWaveBuffer()));
-                        break;
-                    default:
-                        break;
-                }
-
-            }
-            catch (Exception ex) { }
-        }
+      
 
         //private void DrawWaveform(float[] waveform)
         //{
@@ -426,258 +362,6 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WPF
         //}
 
 
-        #region DrawCoolWaveform
-        private void DrawCoolWaveform(float[] waveform)
-        {
-            WaveCanvas.Children.Clear();
-
-            double canvasWidth = WaveCanvas.ActualWidth;
-            double canvasHeight = WaveCanvas.ActualHeight;
-
-            if (canvasWidth == 0 || canvasHeight == 0 || waveform == null)
-                return;
-
-            WaveCanvas.Background = CreateDynamicGradient();
-
-            Polyline positiveWave = CreateWaveformPolyline(Colors.Cyan, canvasWidth, canvasHeight, waveform, 1);
-            Polyline negativeWave = CreateWaveformPolyline(Colors.Magenta, canvasWidth, canvasHeight, waveform, -1);
-
-            WaveCanvas.Children.Add(positiveWave);
-            WaveCanvas.Children.Add(negativeWave);
-
-            AddParticleEffects(waveform, canvasWidth, canvasHeight);
-        }
-
-        private LinearGradientBrush CreateDynamicGradient()
-        {
-            LinearGradientBrush gradientBrush = new LinearGradientBrush
-            {
-                StartPoint = new Point(0, 0),
-                EndPoint = new Point(1, 1)
-            };
-            gradientBrush.GradientStops.Add(new GradientStop(Colors.DarkBlue, 0.0));
-            gradientBrush.GradientStops.Add(new GradientStop(Colors.Purple, 0.5));
-            gradientBrush.GradientStops.Add(new GradientStop(Colors.OrangeRed, 1.0));
-
-            DoubleAnimation gradientAnimation = new DoubleAnimation
-            {
-                From = 0.0,
-                To = 1.0,
-                Duration = TimeSpan.FromSeconds(3),
-                AutoReverse = true,
-                RepeatBehavior = RepeatBehavior.Forever
-            };
-            gradientBrush.GradientStops[0].BeginAnimation(GradientStop.OffsetProperty, gradientAnimation);
-
-            return gradientBrush;
-        }
-
-        private Polyline CreateWaveformPolyline(Color color, double canvasWidth, double canvasHeight, float[] waveform, int direction)
-        {
-            Polyline polyline = new Polyline
-            {
-                Stroke = new SolidColorBrush(color),
-                StrokeThickness = 3,
-                Opacity = 0.8
-            };
-
-            DropShadowEffect glowEffect = new DropShadowEffect
-            {
-                Color = color,
-                BlurRadius = 10,
-                ShadowDepth = 0,
-                Opacity = 0.8
-            };
-            polyline.Effect = glowEffect;
-
-            double step = canvasWidth / waveform.Length;
-            double centerY = canvasHeight / 2;
-
-            for (int i = 0; i < waveform.Length; i++)
-            {
-                double x = i * step;
-                double y = centerY - (waveform[i] * centerY * direction); 
-                polyline.Points.Add(new Point(x, y));
-            }
-
-            return polyline;
-        }
-
-        private void AddParticleEffects(float[] waveform, double canvasWidth, double canvasHeight)
-        {
-            Random random = new Random();
-
-            for (int i = 0; i < waveform.Length / 10; i++) 
-            {
-                double x = random.NextDouble() * canvasWidth;
-                double y = random.NextDouble() * canvasHeight;
-
-                Ellipse particle = new Ellipse
-                {
-                    Width = 5,
-                    Height = 5,
-                    Fill = new SolidColorBrush(Color.FromRgb(
-                        (byte)random.Next(50, 255),
-                        (byte)random.Next(50, 255),
-                        (byte)random.Next(50, 255))),
-                    Opacity = 0.7
-                };
-
-                Canvas.SetLeft(particle, x);
-                Canvas.SetTop(particle, y);
-                WaveCanvas.Children.Add(particle);
-
-                DoubleAnimation moveAnimation = new DoubleAnimation
-                {
-                    From = y,
-                    To = y - 100, 
-                    Duration = TimeSpan.FromSeconds(2),
-                    AutoReverse = true,
-                    RepeatBehavior = RepeatBehavior.Forever
-                };
-                particle.BeginAnimation(Canvas.TopProperty, moveAnimation);
-            }
-        }
-        #endregion
-
-        #region DrawGradientLine
-        private void DrawWaveform(float[] waveform)
-        {
-            WaveCanvas.Children.Clear();
-
-            double canvasWidth = WaveCanvas.ActualWidth;
-            double canvasHeight = WaveCanvas.ActualHeight;
-
-            if (canvasWidth == 0 || canvasHeight == 0 || waveform == null)
-                return;
-
-            LinearGradientBrush gradientBrush = new LinearGradientBrush
-            {
-                StartPoint = new Point(0, 0),
-                EndPoint = new Point(1, 0)
-            };
-            gradientBrush.GradientStops.Add(new GradientStop(Colors.Purple, 0.0));
-            gradientBrush.GradientStops.Add(new GradientStop(Colors.Orange, 0.5));
-            gradientBrush.GradientStops.Add(new GradientStop(Colors.Yellow, 1.0));
-
-            Polyline polyline = new Polyline
-            {
-                Stroke = gradientBrush,
-                StrokeThickness = 2,
-                Opacity = 0.8
-            };
-
-            DropShadowEffect shadowEffect = new DropShadowEffect
-            {
-                Color = Colors.Black,
-                BlurRadius = 5,
-                ShadowDepth = 2,
-                Opacity = 0.6
-            };
-            polyline.Effect = shadowEffect;
-
-            double step = canvasWidth / waveform.Length;
-            double centerY = canvasHeight / 2;
-
-            for (int i = 0; i < waveform.Length; i++)
-            {
-                double x = i * step;
-                double y = centerY - (waveform[i] * centerY);
-                polyline.Points.Add(new Point(x, y));
-            }
-
-            WaveCanvas.Children.Add(polyline);
-        }
-       
-        #endregion
-
-
-        private void DrawDefaultVisualEffect(VisualEffect effect)
-        {
-            WaveCanvas.Children.Clear();
-
-            switch (effect)
-            {
-                case WPF.VisualEffect.Cycle:
-                    DrawCircle();
-                    break;
-
-                case WPF.VisualEffect.SoundWave:
-                    DrawLine();
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        private void DrawCircle(double sizeFactor = 0.95)
-        {
-            double canvasWidth = cycleWaveformCanvas.ActualWidth;
-            double canvasHeight = cycleWaveformCanvas.ActualHeight;
-            if (canvasWidth == 0 || canvasHeight == 0)
-                return;
-
-            double radius = Math.Min(canvasWidth, canvasHeight) * sizeFactor / 2;
-            double centerX = canvasWidth / 2;
-            double centerY = canvasHeight / 2;
-
-            Ellipse circle = new Ellipse
-            {
-                Width = radius * 2,
-                Height = radius * 2,
-                Stroke = Brushes.LimeGreen,
-                StrokeThickness = 2
-            };
-
-            Canvas.SetLeft(circle, centerX - radius);
-            Canvas.SetTop(circle, centerY - radius);
-
-            cycleWaveformCanvas.Children.Clear();
-
-            cycleWaveformCanvas.Children.Add(circle);
-        }
-
-        private void DrawLine()
-        {
-            double canvasWidth = WaveCanvas.ActualWidth;
-            double canvasHeight = WaveCanvas.ActualHeight;
-
-            if (canvasWidth == 0 || canvasHeight == 0)
-                return;
-
-
-            LinearGradientBrush gradientBrush = new LinearGradientBrush
-            {
-                StartPoint = new Point(0, 0),
-                EndPoint = new Point(1, 0)
-            };
-            gradientBrush.GradientStops.Add(new GradientStop(Colors.Purple, 0.0));
-            gradientBrush.GradientStops.Add(new GradientStop(Colors.Orange, 0.5));
-            gradientBrush.GradientStops.Add(new GradientStop(Colors.Yellow, 1.0));
-
-            Line line = new Line
-            {
-                X1 = 10,
-                Y1 = canvasHeight / 2,
-                X2 = canvasWidth - 10,
-                Y2 = canvasHeight / 2,
-                Stroke = gradientBrush,
-                StrokeThickness = 2
-            };
-
-
-            WaveCanvas.Children.Add(line);
-        }
-
-        private void WaveCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            DrawDefaultVisualEffect(voiceVisualEffect);
-        }
-
-        private void cycleWaveformCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            DrawDefaultVisualEffect(voiceVisualEffect);
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

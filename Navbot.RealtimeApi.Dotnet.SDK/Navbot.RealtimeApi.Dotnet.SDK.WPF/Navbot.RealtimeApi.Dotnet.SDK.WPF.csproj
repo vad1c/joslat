@@ -35,6 +35,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="StarFlare.AudioVisualizer.WPF" Version="1.0.83" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Navbot.RealtimeApi.Dotnet.SDK.Core\Navbot.RealtimeApi.Dotnet.SDK.Core.csproj" />
   </ItemGroup>
 </Project>
