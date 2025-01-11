@@ -57,15 +57,15 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
             get
             {
                 VisualEffect rtn = VisualEffect.Cycle;
-                switch (audioVisualizer.VisualEffict)
+                switch (audioVisualizer.VisualEffect)
                 {
-                    case VisualEffict.Oscilloscope:
+                    case AudioVisualizer.Core.Enum.VisualEffect.Oscilloscope:
                         rtn = VisualEffect.Cycle;
                         break;
-                    case VisualEffict.SpectrumBar:
+                    case AudioVisualizer.Core.Enum.VisualEffect.SpectrumBar:
 
                         break;
-                    case VisualEffict.SpectrumCycle:
+                    case AudioVisualizer.Core.Enum.VisualEffect.SpectrumCycle:
                         rtn = VisualEffect.Cycle;
                         break;
                     default:
@@ -79,10 +79,10 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
                 switch (value)
                 {
                     case VisualEffect.Cycle:
-                        audioVisualizer.VisualEffict = VisualEffict.SpectrumCycle;
+                        audioVisualizer.VisualEffect = AudioVisualizer.Core.Enum.VisualEffect.SpectrumCycle;
                         break;
                     case VisualEffect.SoundWave:
-                        audioVisualizer.VisualEffict = VisualEffict.SpectrumBar;
+                        audioVisualizer.VisualEffect = AudioVisualizer.Core.Enum.VisualEffect.SpectrumBar;
                         break;
                     default:
                         break;
@@ -147,7 +147,7 @@ namespace Navbot.RealtimeApi.Dotnet.SDK.WinForm
             RealtimeApiSdk.PlaybackEnded += RealtimeApiSdk_PlaybackEnded;
 
             audioVisualizer.AudioSampleRate = capture.WaveFormat.SampleRate;
-            audioVisualizer.VisualEffict = VisualEffict.Oscilloscope;
+            audioVisualizer.VisualEffect = AudioVisualizer.Core.Enum.VisualEffect.SpectrumBar;
             audioVisualizer.Scale = 5;
         }
 

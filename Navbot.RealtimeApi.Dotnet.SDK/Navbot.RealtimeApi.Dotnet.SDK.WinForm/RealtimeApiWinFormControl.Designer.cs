@@ -42,7 +42,6 @@
             audioVisualizer.Scale = 1F;
             audioVisualizer.Size = new Size(200, 200);
             audioVisualizer.TabIndex = 0;
-            audioVisualizer.VisualEffict = AudioVisualizer.Core.VisualEffict.Oscilloscope;
             // 
             // RealtimeApiWinFormControl
             // 
