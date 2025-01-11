@@ -29,7 +29,6 @@ public partial class RealtimeApiSdk
     private readonly object playbackLock = new object();
     private WaveOutEvent? waveOut;
 
-    private ClientWebSocket webSocketClient;
     private Dictionary<FunctionCallSetting, Func<FuncationCallArgument, JObject>> functionRegistries = new Dictionary<FunctionCallSetting, Func<FuncationCallArgument, JObject>>();
 
     private bool isPlayingAudio = false;
@@ -147,8 +146,10 @@ public partial class RealtimeApiSdk
             await InitializeWebSocketAsync();
             InitalizeWaveProvider();
 
+            await commuteDriver.SetDataReceivedCallback(OnDataReceivedAsync);
+
             var sendAudioTask = StartAudioRecordingAsync();
-            var receiveTask = ReceiveMessages();
+            var receiveTask = commuteDriver.ReceiveMessages();
 
             await Task.WhenAll(sendAudioTask, receiveTask);
         }
@@ -208,38 +209,11 @@ public partial class RealtimeApiSdk
     }
     private async Task InitializeWebSocketAsync()
     {
-        await commuteDriver.ConnectAsync();
-
-
-        webSocketClient = new ClientWebSocket();
-        webSocketClient.Options.SetRequestHeader("Authorization", GetAuthorization());
-        foreach (var item in this.RequestHeaderOptions)
-        {
-            webSocketClient.Options.SetRequestHeader(item.Key, item.Value);
-        }
-
-        try
-        {
-            await webSocketClient.ConnectAsync(new Uri(this.GetOpenAIRequestUrl()), CancellationToken.None);
-            log.Info("WebSocket connected!");
-        }
-        catch (Exception ex)
-        {
-            log.Error($"Failed to connect WebSocket: {ex.Message}");
-            throw new Exception($"Failed to connect WebSocket: {ex.Message}");
-        }
+        await commuteDriver.ConnectAsync(RequestHeaderOptions, GetAuthorization(), GetOpenAIRequestUrl());
     }
     private async Task CloseWebSocketAsync()
     {
         await commuteDriver.DisconnectAsync();
-
-        if (webSocketClient != null && webSocketClient.State == WebSocketState.Open)
-        {
-            await webSocketClient.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing connection", CancellationToken.None);
-            webSocketClient.Dispose();
-            webSocketClient = null;
-            log.Info("WebSocket closed successfully.");
-        }
     }
 
     private async void WaveIn_DataAvailable(object? sender, WaveInEventArgs e)
@@ -254,8 +228,7 @@ public partial class RealtimeApiSdk
         };
 
         var messageBytes = Encoding.UTF8.GetBytes(audioMessage.ToString());
-        await webSocketClient.SendAsync(new ArraySegment<byte>(messageBytes), WebSocketMessageType.Text, true, CancellationToken.None);
-        await commuteDriver.SendDataAsync();
+        await commuteDriver.SendDataAsync(messageBytes);
 
 
         OnSpeechDataAvailable(new AudioEventArgs(e.Buffer));
@@ -333,24 +306,7 @@ public partial class RealtimeApiSdk
 
     private async Task CommitAudioBufferAsync()
     {
-        if (webSocketClient != null && webSocketClient.State == WebSocketState.Open)
-        {
-            await commuteDriver.SendDataAsync();
-            await webSocketClient.SendAsync(
-                new ArraySegment<byte>(Encoding.UTF8.GetBytes("{\"type\": \"input_audio_buffer.commit\"}")),
-                WebSocketMessageType.Text,
-                true,
-                CancellationToken.None
-            );
-
-            await commuteDriver.SendDataAsync();
-            await webSocketClient.SendAsync(
-                new ArraySegment<byte>(Encoding.UTF8.GetBytes("{\"type\": \"response.create\"}")),
-                WebSocketMessageType.Text,
-                true,
-                CancellationToken.None
-            );
-        }
+        await commuteDriver.CommitAudioBufferAsync();
     }
     private void ClearAudioQueue()
     {
@@ -360,39 +316,44 @@ public partial class RealtimeApiSdk
             log.Info("Audio queue cleared.");
         }
     }
-    private async Task ReceiveMessages()
+    //private async Task ReceiveMessages()
+    //{
+    //    commuteDriver.ReceivedDataAvailable += (sender, args) =>
+    //    {
+
+    //    };
+
+    //    var buffer = new byte[1024 * 16];
+    //    var messageBuffer = new StringBuilder();
+
+    //    while (webSocketClient?.State == WebSocketState.Open)
+    //    {
+    //        var result = await webSocketClient.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+    //        var chunk = Encoding.UTF8.GetString(buffer, 0, result.Count);
+    //        messageBuffer.Append(chunk);
+
+    //        if (result.EndOfMessage)
+    //        {
+    //            var jsonResponse = messageBuffer.ToString();
+    //            messageBuffer.Clear();
+
+    //            if (jsonResponse.Trim().StartsWith("{"))
+    //            {
+    //                var json = JObject.Parse(jsonResponse);
+    //                HandleWebSocketMessage(json);
+    //            }
+    //        }
+    //    }
+    //}
+
+
+    private async Task OnDataReceivedAsync(string data)
     {
-        commuteDriver.ReceivedDataAvailable += (sender, args) =>
-        {
-           
-        };
-
-        var buffer = new byte[1024 * 16];
-        var messageBuffer = new StringBuilder();
-
-        while (webSocketClient?.State == WebSocketState.Open)
-        {
-            var result = await webSocketClient.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-            var chunk = Encoding.UTF8.GetString(buffer, 0, result.Count);
-            messageBuffer.Append(chunk);
-
-            if (result.EndOfMessage)
-            {
-                var jsonResponse = messageBuffer.ToString();
-                messageBuffer.Clear();
-
-                if (jsonResponse.Trim().StartsWith("{"))
-                {
-                    var json = JObject.Parse(jsonResponse);
-                    HandleWebSocketMessage(json);
-                }
-            }
-        }
+        JObject json= JObject.Parse(data);
+        await HandleWebSocketMessage(json);
     }
 
-   
-
-    private async void HandleWebSocketMessage(JObject json)
+    private async Task HandleWebSocketMessage(JObject json)
     {
         try
         {
@@ -402,7 +363,7 @@ public partial class RealtimeApiSdk
             BaseResponse baseResponse = BaseResponse.Parse(json);
             await HandleBaseResponse(baseResponse, json);
 
-            OnWebSocketResponse(new WebSocketResponseEventArgs(baseResponse, webSocketClient));
+            //OnWebSocketResponse(new WebSocketResponseEventArgs(baseResponse, webSocketClient));
         }
         catch (Exception e)
         {
@@ -538,15 +499,13 @@ public partial class RealtimeApiSdk
 
         string resultJsonString = JsonConvert.SerializeObject(functionCallResult);
 
-        webSocketClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(resultJsonString)), WebSocketMessageType.Text, true, CancellationToken.None);
-        commuteDriver.SendDataAsync().Wait();
+        commuteDriver.SendDataAsync(Encoding.UTF8.GetBytes(resultJsonString)).Wait();
         Console.WriteLine("Sent function call result: " + resultJsonString);
 
         ResponseCreate responseJson = new ResponseCreate();
         string rpJsonString = JsonConvert.SerializeObject(responseJson);
 
-        webSocketClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(rpJsonString)), WebSocketMessageType.Text, true, CancellationToken.None);
-        commuteDriver.SendDataAsync().Wait();
+        commuteDriver.SendDataAsync(Encoding.UTF8.GetBytes(rpJsonString)).Wait();
     }
 
     // Add SessionConfiguration property
@@ -605,8 +564,7 @@ public partial class RealtimeApiSdk
         sessionUpdateRequest.session.tools = functionSettings;
 
         string message = JsonConvert.SerializeObject(sessionUpdateRequest);
-        webSocketClient.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(message)), WebSocketMessageType.Text, true, CancellationToken.None);
-        await commuteDriver.SendDataAsync();
+        await commuteDriver.SendDataAsync(Encoding.UTF8.GetBytes(message));
         log.Debug("Sent session update: " + message);
     }
     private void HandleUserSpeechStarted()
@@ -717,15 +675,18 @@ public partial class RealtimeApiSdk
         return url;
     }
 
-    private ICommuteDriver GetCommuteDriver() {
+    private ICommuteDriver GetCommuteDriver()
+    {
         ICommuteDriver rtn = null;
+
+        //NetworkDriverType = NetworkDriverType.WebRTC;
         switch (NetworkDriverType)
         {
             case NetworkDriverType.WebSocket:
-                rtn = new WebSocketCommuteDriver();
+                rtn = new WebSocketCommuteDriver(log);
                 break;
             case NetworkDriverType.WebRTC:
-                rtn = new WebRTCCommuteDriver();
+                rtn = new WebRTCCommuteDriver(log);
                 break;
             default:
                 break;
