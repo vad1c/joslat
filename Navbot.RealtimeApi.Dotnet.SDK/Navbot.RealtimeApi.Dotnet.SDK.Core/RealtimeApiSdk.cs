@@ -316,36 +316,6 @@ public partial class RealtimeApiSdk
             log.Info("Audio queue cleared.");
         }
     }
-    //private async Task ReceiveMessages()
-    //{
-    //    commuteDriver.ReceivedDataAvailable += (sender, args) =>
-    //    {
-
-    //    };
-
-    //    var buffer = new byte[1024 * 16];
-    //    var messageBuffer = new StringBuilder();
-
-    //    while (webSocketClient?.State == WebSocketState.Open)
-    //    {
-    //        var result = await webSocketClient.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-    //        var chunk = Encoding.UTF8.GetString(buffer, 0, result.Count);
-    //        messageBuffer.Append(chunk);
-
-    //        if (result.EndOfMessage)
-    //        {
-    //            var jsonResponse = messageBuffer.ToString();
-    //            messageBuffer.Clear();
-
-    //            if (jsonResponse.Trim().StartsWith("{"))
-    //            {
-    //                var json = JObject.Parse(jsonResponse);
-    //                HandleWebSocketMessage(json);
-    //            }
-    //        }
-    //    }
-    //}
-
 
     private async Task OnDataReceivedAsync(string data)
     {
